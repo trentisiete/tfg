@@ -1,9 +1,10 @@
 # @author: José Arbelaez
 from __future__ import annotations
+from sklearn.base import BaseEstimator, RegressorMixin
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import numpy as np
-class SurrogateRegressor(ABC):
+class SurrogateRegressor(ABC, BaseEstimator, RegressorMixin):
     name: str
 
     @abstractmethod

@@ -5,7 +5,7 @@ from .base import SurrogateRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.gaussian_process.kernels import RBF, Matern, WhiteKernel
-
+from sklearn.metrics import mean_absolute_error
 
 class GPSurrogateRegressor(SurrogateRegressor):
     name = "GPSurrogateRegressor"
@@ -21,21 +21,26 @@ class GPSurrogateRegressor(SurrogateRegressor):
         if kernel is None:
             kernel = Matern(nu = 3/2) + WhiteKernel()
 
-        self.model = Pipeline([
-            ("scaler",StandardScaler()),
-            ("model", SKLearnGPR(kernel=kernel, alpha=alpha, normalize_y=normalize_y, n_restarts_optimizer=n_restarts_optimizer))
-            ])
+        self.kernel = kernel
+        self.alpha = alpha
+        self.normalize_y = normalize_y
+        self.n_restarts_optimizer = n_restarts_optimizer
 
     def fit(self, X:np.ndarray, y:np.ndarray) -> "SurrogateRegressor":
 
+        self.model_ = Pipeline([
+            ("scaler",StandardScaler()),
+            ("model", SKLearnGPR(kernel=self.kernel, alpha=self.alpha, normalize_y=self.normalize_y, n_restarts_optimizer=self.n_restarts_optimizer))
+            ])
+
         y = np.asarray(y).ravel()
-        self.model.fit(X,y)
+        self.model_.fit(X,y)
         return self
 
     def _predict_steps(self, X):
-        Xs = self.model.named_steps["scaler"].transform(X)
+        Xs = self.model_.named_steps["scaler"].transform(X)
 
-        gpr = self.model.named_steps["model"]
+        gpr = self.model_.named_steps["model"]
         mean, std = gpr.predict(Xs, return_std=True)
 
         return mean, std
@@ -48,3 +53,6 @@ class GPSurrogateRegressor(SurrogateRegressor):
         mean, std = self._predict_steps(X)
         return mean, std
 
+    def score(self, X:np.ndarray, y:np.ndarray) -> float:
+        mean_absolute_error_value = mean_absolute_error(y, self.predict(X))
+        return -mean_absolute_error_value  # Negate to make it a score (higher is better
