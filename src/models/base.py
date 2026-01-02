@@ -1,3 +1,4 @@
+# @author: José Arbelaez
 from __future__ import annotations
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
@@ -15,14 +16,14 @@ class SurrogateRegressor(ABC):
         """
         pass
     @abstractmethod
-    def predict(self, X: np.ndarray):
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """
         Predict target values of X matrix
 
         Args:
             X (np.ndarray): Features for prediction.
         Returns:
-            _type_: Predicted target values.
+            np.ndarray: Predicted target values.
         """
         pass
     
@@ -35,15 +36,14 @@ class SurrogateRegressor(ABC):
 
         Returns:
             mean: Predicted target values.
-            std: (optional) Uncertainty estimates.
+            std: (optional) Uncertainty estimates if available.
         """
         mean = self.predict(X)
 
-        # TODO: Handle the case where models return both mean and std
         std = None
         return mean, std
 
-    # TODO: Checck the output types
+
     def rank_candidates(self, Xcand: np.ndarray, k: int = 5, mode: str = "mean", beta: float = 1.0):
         """
         Rank candidate inputs based on predicted target values.
@@ -54,8 +54,13 @@ class SurrogateRegressor(ABC):
         Returns:
             np.ndarray: Indices that would sort the candidates by predicted target values.
         """
-        mean, std = self.predict(Xcand)
-        
+        mean, std = self.predict_dist(Xcand)
+
+        # To verify mean and std shapes are 1D:
+
+        mean = np.asarray(mean).ravel()
+        std = None if std is None else np.asarray(std).ravel()
+
         if mode == "mean":
             score = mean
         elif mode == "ucb":
@@ -68,6 +73,7 @@ class SurrogateRegressor(ABC):
             score = mean - beta*std
         else:
             raise ValueError(f"Unknown ranking mode: {mode}")
-        
+
+        # TODO: If FCR is the objective, then we want to minimize it, so we take the lowest scores
         idx = np.argsort(score)[::-1][:k] # Descending order
         return idx, score[idx], mean[idx], std[idx] if std is not None else None
