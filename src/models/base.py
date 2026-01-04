@@ -4,6 +4,7 @@ from sklearn.base import BaseEstimator, RegressorMixin
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 import numpy as np
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 class SurrogateRegressor(ABC, BaseEstimator, RegressorMixin):
     name: str
 
@@ -27,7 +28,7 @@ class SurrogateRegressor(ABC, BaseEstimator, RegressorMixin):
             np.ndarray: Predicted target values.
         """
         pass
-    
+
     # Do we really need this method?
     def predict_dist(self, X:np.ndarray):
         """
@@ -43,6 +44,39 @@ class SurrogateRegressor(ABC, BaseEstimator, RegressorMixin):
 
         std = None
         return mean, std
+
+
+    def compute_metrics(self, y_test:np.ndarray, X_pred:np.ndarray, std_pred: np.ndarray | None = None, z95: float = 1.96) -> dict:
+
+        # checkers
+        y_test = np.asarray(y_test).ravel()
+        n = int(y_test.shape[0])
+
+
+        mae_value = float(mean_absolute_error(y_test, X_pred))
+        rmse_value = float(root_mean_squared_error(y_test, X_pred))
+
+        out = {
+            "n_samples": n,
+            "mae": mae_value,
+            "rmse": rmse_value,
+            "coverage95": None,
+            "_inside95": None,  # Number of samples inside 95% CI
+        }
+        # coverage95
+        if std_pred is not None:
+
+            lower_bound = X_pred - z95 * std_pred
+            upper_bound = X_pred + z95 * std_pred
+
+            inside = (y_test >= lower_bound) & (y_test <= upper_bound)
+
+            inside_count = int(np.sum(inside))
+
+            out["coverage95"] = float(np.mean(inside))
+            out["_inside95"] = inside_count
+
+        return out
 
 
     def rank_candidates(self, Xcand: np.ndarray, k: int = 5, mode: str = "mean", beta: float = 1.0):
