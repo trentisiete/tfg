@@ -9,6 +9,7 @@ PROJECT_ROOT = _CURRENT_DIR.parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
+ENTOMOTIVE_DATA_DIR = DATA_DIR / "entomotive_datasets"
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 CHECKPOINTS_DIR = OUTPUTS_DIR / "checkpoints"
 LOGS_DIR = OUTPUTS_DIR / "logs"

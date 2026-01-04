@@ -4,7 +4,7 @@ from sklearn.dummy import DummyRegressor
 from .base import SurrogateRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 
 class DummySurrogateRegressor(SurrogateRegressor):
     name = "DummySurrogateRegressor"
@@ -30,15 +30,9 @@ class DummySurrogateRegressor(SurrogateRegressor):
         return self
 
     def predict(self, X:np.ndarray) -> np.ndarray:
-        return self.model_.predict(X)
-
-    def score(self, X:np.ndarray, y:np.ndarray) -> float:
-        mean_absolute_error_value = mean_absolute_error(y, self.predict(X))
-        return -mean_absolute_error_value  # Negate to make it a score (higher is better
+        return self.model_.predict(X).ravel()
 
 
-# TODO: Add predict_dist and rank_candidates methods
-# TODO: Tests
 if __name__ == "__main__":
     X = np.random.rand(100, 10)
     y = np.random.rand(100)
