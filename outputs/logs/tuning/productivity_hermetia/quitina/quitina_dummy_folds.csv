@@ -1,0 +1,12 @@
+fold,diet,inner_best_score,params,metrics
+0,Control,2.026365199114509,{'strategy': 'median'},"{'mae': 5.215563119570521, 'rmse': 5.245071533704855, 'coverage95': None}"
+1,Hoja15,2.3380085559640604,{'strategy': 'median'},"{'mae': 1.4080736543125407, 'rmse': 1.4800816416867222, 'coverage95': None}"
+2,Hoja30,2.3576759414022623,{'strategy': 'median'},"{'mae': 1.2113997999305208, 'rmse': 1.30591910551671, 'coverage95': None}"
+3,Hoja50,2.2312820629869576,{'strategy': 'median'},"{'mae': 2.6486633091973992, 'rmse': 2.969513849348751, 'coverage95': None}"
+4,Orujo30,2.507811426117116,{'strategy': 'median'},"{'mae': 0.5538063834078338, 'rmse': 0.5835955327075041, 'coverage95': None}"
+5,Orujo50,2.447076443615124,{'strategy': 'median'},"{'mae': 0.4907195029157349, 'rmse': 0.5363080952618726, 'coverage95': None}"
+6,Orujo70,1.8415569209384735,{'strategy': 'median'},"{'mae': 6.5459147296822415, 'rmse': 6.647206336348743, 'coverage95': None}"
+7,Orujo90,2.280578659945495,{'strategy': 'median'},"{'mae': 2.2503127756626573, 'rmse': 3.5108171242063126, 'coverage95': None}"
+8,Quinoa15,2.321047084627873,{'strategy': 'median'},"{'mae': 2.268744264436885, 'rmse': 2.3084217169690255, 'coverage95': None}"
+9,Quinoa30,2.3520784916776996,{'strategy': 'median'},"{'mae': 1.958430193938616, 'rmse': 2.1108877434809585, 'coverage95': None}"
+10,Quinoa50,2.4810730119359166,{'strategy': 'median'},"{'mae': 0.6684849913564461, 'rmse': 0.8001929710999076, 'coverage95': None}"

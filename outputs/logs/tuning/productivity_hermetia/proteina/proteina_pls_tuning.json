@@ -1,0 +1,215 @@
+{
+  "folds": [
+    {
+      "fold": 0,
+      "diet": "Control",
+      "inner_best_score": 2.0323105871821623,
+      "params": {
+        "n_components": 2,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 0.6045557128452165,
+        "rmse": 0.6835657760105658,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 1,
+      "diet": "Hoja15",
+      "inner_best_score": 1.1949714460638408,
+      "params": {
+        "n_components": 7,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 7.323300626419647,
+        "rmse": 7.400170565929433,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 2,
+      "diet": "Hoja30",
+      "inner_best_score": 1.849973028269352,
+      "params": {
+        "n_components": 1,
+        "scale": false
+      },
+      "metrics": {
+        "mae": 5.588880263543455,
+        "rmse": 5.636798584960622,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 3,
+      "diet": "Hoja50",
+      "inner_best_score": 1.8723633048770278,
+      "params": {
+        "n_components": 1,
+        "scale": false
+      },
+      "metrics": {
+        "mae": 5.566094322389546,
+        "rmse": 5.59424944316569,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 4,
+      "diet": "Orujo30",
+      "inner_best_score": 1.925248580862732,
+      "params": {
+        "n_components": 2,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 1.441851493506088,
+        "rmse": 1.8683917219395842,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 5,
+      "diet": "Orujo50",
+      "inner_best_score": 1.480498622063235,
+      "params": {
+        "n_components": 2,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 3.580806765654683,
+        "rmse": 3.665076662755759,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 6,
+      "diet": "Orujo70",
+      "inner_best_score": 1.9198348824552611,
+      "params": {
+        "n_components": 2,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 1.9435739490673736,
+        "rmse": 2.0181277304286653,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 7,
+      "diet": "Orujo90",
+      "inner_best_score": 1.9686302996379255,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 2.2458568949815465,
+        "rmse": 2.260825400173257,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 8,
+      "diet": "Quinoa15",
+      "inner_best_score": 1.8736468691413386,
+      "params": {
+        "n_components": 2,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 1.109495886366511,
+        "rmse": 1.1315652557674047,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 9,
+      "diet": "Quinoa30",
+      "inner_best_score": 1.89188147086548,
+      "params": {
+        "n_components": 2,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 0.6825024393366531,
+        "rmse": 0.7984684244151683,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 10,
+      "diet": "Quinoa50",
+      "inner_best_score": 1.785121119334076,
+      "params": {
+        "n_components": 2,
+        "scale": true
+      },
+      "metrics": {
+        "mae": 1.3581513207148603,
+        "rmse": 1.4419509097503278,
+        "coverage95": null
+      }
+    }
+  ],
+  "summary": {
+    "macro": {
+      "mae_mean": 2.8586426977114163,
+      "mae_std": 2.2071540889876893,
+      "rmse_mean": 2.954471861390589,
+      "rmse_std": 2.182284617996372,
+      "coverage95_mean": null,
+      "coverage95_std": null
+    },
+    "n_folds": 11
+  },
+  "chosen_params": [
+    {
+      "n_components": 2,
+      "scale": true
+    },
+    {
+      "n_components": 7,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": false
+    },
+    {
+      "n_components": 1,
+      "scale": false
+    },
+    {
+      "n_components": 2,
+      "scale": true
+    },
+    {
+      "n_components": 2,
+      "scale": true
+    },
+    {
+      "n_components": 2,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 2,
+      "scale": true
+    },
+    {
+      "n_components": 2,
+      "scale": true
+    },
+    {
+      "n_components": 2,
+      "scale": true
+    }
+  ]
+}

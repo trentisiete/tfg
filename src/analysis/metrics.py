@@ -7,11 +7,11 @@ from copy import deepcopy
 from multiprocessing import Pool
 import logging
 import warnings
-from .pls import PLSSurrogateRegressor
-from .ridge import RidgeSurrogateRegressor
-from .gp import GPSurrogateRegressor
+from ..models.pls import PLSSurrogateRegressor
+from ..models.ridge import RidgeSurrogateRegressor
+from ..models.gp import GPSurrogateRegressor
 import sys
-from .tools import _to_jsonable
+from ..utils.tools import _to_jsonable
 import json
 
 
@@ -204,9 +204,9 @@ if __name__ == "__main__":
                   [1, 2, 3, 4, 5, 6]]).T
     y = np.array([1, 2, 3, 4, 5, 6])
 
-    from .pls import PLSSurrogateRegressor
-    from .ridge import RidgeSurrogateRegressor
-    from .gp import GPSurrogateRegressor
+    from ..models.pls import PLSSurrogateRegressor
+    from ..models.ridge import RidgeSurrogateRegressor
+    from ..models.gp import GPSurrogateRegressor
 
     models = {
         "PLS": PLSSurrogateRegressor(n_components=2, scale=True),

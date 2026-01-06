@@ -1,0 +1,17 @@
+2026-01-05 14:26:01,158 | INFO | Logging initialized -> C:\Users\maria\Downloads\Jose_lenovo\TFG\surrogate_models\outputs\logs\tuning\productivity_hermetia\fcr\fcr.log
+2026-01-05 14:26:01,159 | INFO | Target=FCR (FCR)
+2026-01-05 14:26:01,170 | INFO | Samples=31 | Features=15 | Groups=11
+2026-01-05 14:26:01,170 | INFO | Inner jobs=21 | Outer jobs=4
+2026-01-05 14:26:01,170 | INFO | [Dummy] Grid size=2
+2026-01-05 14:26:01,171 | INFO | [Dummy] Starting nested LODO
+2026-01-05 14:26:03,386 | INFO | [Dummy] Done. Macro MAE=0.2908 | Macro RMSE=0.3170
+2026-01-05 14:26:03,387 | INFO | [Ridge] Grid size=34
+2026-01-05 14:26:03,387 | INFO | [Ridge] Starting nested LODO
+2026-01-05 14:26:04,992 | INFO | [Ridge] Done. Macro MAE=0.2413 | Macro RMSE=0.2740
+2026-01-05 14:26:04,993 | INFO | [PLS] Grid size=20
+2026-01-05 14:26:04,993 | INFO | [PLS] Starting nested LODO
+2026-01-05 14:26:06,420 | INFO | [PLS] Done. Macro MAE=0.3258 | Macro RMSE=0.3527
+2026-01-05 14:26:06,421 | INFO | [GP] Grid size=240
+2026-01-05 14:26:06,421 | INFO | [GP] Starting nested LODO
+2026-01-05 14:47:07,508 | INFO | [GP] Done. Macro MAE=0.2759 | Macro RMSE=0.3113
+2026-01-05 14:47:07,511 | INFO | Summary saved to C:\Users\maria\Downloads\Jose_lenovo\TFG\surrogate_models\outputs\logs\tuning\productivity_hermetia\fcr\fcr_summary.json

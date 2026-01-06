@@ -66,8 +66,9 @@ class SurrogateRegressor(ABC, BaseEstimator, RegressorMixin):
         # coverage95
         if std_pred is not None:
 
-            lower_bound = X_pred - z95 * std_pred
-            upper_bound = X_pred + z95 * std_pred
+            aux = z95 * std_pred
+            lower_bound = X_pred - aux
+            upper_bound = X_pred + aux
 
             inside = (y_test >= lower_bound) & (y_test <= upper_bound)
 

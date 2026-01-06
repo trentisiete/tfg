@@ -1,4 +1,5 @@
 import numpy as np
+import re
 
 def _to_jsonable(obj):
     """
@@ -39,3 +40,7 @@ def _to_jsonable(obj):
 
     # fallback for kernels / objects
     return repr(obj)
+
+def slugify(text: str) -> str:
+    safe = re.sub(r"[^a-zA-Z0-9]+", "_", text).strip("_").lower()
+    return safe or "target"

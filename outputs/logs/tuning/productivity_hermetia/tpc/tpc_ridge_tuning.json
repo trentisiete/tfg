@@ -1,0 +1,215 @@
+{
+  "folds": [
+    {
+      "fold": 0,
+      "diet": "Control",
+      "inner_best_score": 0.06557348078285967,
+      "params": {
+        "alpha": 1000.0,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.0683941654461015,
+        "rmse": 0.0683941654461015,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 1,
+      "diet": "Hoja15",
+      "inner_best_score": 0.07118123059340146,
+      "params": {
+        "alpha": 10000.0,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.0266094607154726,
+        "rmse": 0.0266094607154726,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 2,
+      "diet": "Hoja30",
+      "inner_best_score": 0.0656163573527336,
+      "params": {
+        "alpha": 10000.0,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.06602988173577545,
+        "rmse": 0.06602988173577545,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 3,
+      "diet": "Hoja50",
+      "inner_best_score": 0.0667130987895885,
+      "params": {
+        "alpha": 3162.2776601683795,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.08198936525436584,
+        "rmse": 0.08198936525436584,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 4,
+      "diet": "Orujo30",
+      "inner_best_score": 0.07041281078939973,
+      "params": {
+        "alpha": 3162.2776601683795,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.035983148103618134,
+        "rmse": 0.035983148103618134,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 5,
+      "diet": "Orujo50",
+      "inner_best_score": 0.04803667196340692,
+      "params": {
+        "alpha": 0.0001,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.26704322040828316,
+        "rmse": 0.2670432204082832,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 6,
+      "diet": "Orujo70",
+      "inner_best_score": 0.07258901130420134,
+      "params": {
+        "alpha": 10000.0,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.009625312629100657,
+        "rmse": 0.009625312629100657,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 7,
+      "diet": "Orujo90",
+      "inner_best_score": 0.04567237123355229,
+      "params": {
+        "alpha": 10000.0,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.2317942536173222,
+        "rmse": 0.2317942536173222,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 8,
+      "diet": "Quinoa15",
+      "inner_best_score": 0.06526632319057495,
+      "params": {
+        "alpha": 10000.0,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.10079934400838464,
+        "rmse": 0.10079934400838464,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 9,
+      "diet": "Quinoa30",
+      "inner_best_score": 0.06954580576463228,
+      "params": {
+        "alpha": 10000.0,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.046869139227465384,
+        "rmse": 0.046869139227465384,
+        "coverage95": null
+      }
+    },
+    {
+      "fold": 10,
+      "diet": "Quinoa50",
+      "inner_best_score": 0.07343337381476314,
+      "params": {
+        "alpha": 10000.0,
+        "fit_intercept": true
+      },
+      "metrics": {
+        "mae": 0.001723355600487364,
+        "rmse": 0.001723355600487364,
+        "coverage95": null
+      }
+    }
+  ],
+  "summary": {
+    "macro": {
+      "mae_mean": 0.08516914970421609,
+      "mae_std": 0.08282768914188034,
+      "rmse_mean": 0.08516914970421609,
+      "rmse_std": 0.08282768914188035,
+      "coverage95_mean": null,
+      "coverage95_std": null
+    },
+    "n_folds": 11
+  },
+  "chosen_params": [
+    {
+      "alpha": 1000.0,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 10000.0,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 10000.0,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 3162.2776601683795,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 3162.2776601683795,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 0.0001,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 10000.0,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 10000.0,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 10000.0,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 10000.0,
+      "fit_intercept": true
+    },
+    {
+      "alpha": 10000.0,
+      "fit_intercept": true
+    }
+  ]
+}

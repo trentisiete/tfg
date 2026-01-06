@@ -1,0 +1,17 @@
+2026-01-05 15:14:47,786 | INFO | Logging initialized -> C:\Users\maria\Downloads\Jose_lenovo\TFG\surrogate_models\outputs\logs\tuning\productivity_hermetia\proteina\proteina.log
+2026-01-05 15:14:47,787 | INFO | Target=Proteina (PROTEINA (%))
+2026-01-05 15:14:47,792 | INFO | Samples=33 | Features=15 | Groups=11
+2026-01-05 15:14:47,792 | INFO | Inner jobs=21 | Outer jobs=4
+2026-01-05 15:14:47,792 | INFO | [Dummy] Grid size=2
+2026-01-05 15:14:47,792 | INFO | [Dummy] Starting nested LODO
+2026-01-05 15:14:47,922 | INFO | [Dummy] Done. Macro MAE=3.0836 | Macro RMSE=3.2174
+2026-01-05 15:14:47,922 | INFO | [Ridge] Grid size=34
+2026-01-05 15:14:47,922 | INFO | [Ridge] Starting nested LODO
+2026-01-05 15:14:49,036 | INFO | [Ridge] Done. Macro MAE=2.3961 | Macro RMSE=2.5270
+2026-01-05 15:14:49,036 | INFO | [PLS] Grid size=20
+2026-01-05 15:14:49,037 | INFO | [PLS] Starting nested LODO
+2026-01-05 15:14:50,078 | INFO | [PLS] Done. Macro MAE=2.8586 | Macro RMSE=2.9545
+2026-01-05 15:14:50,078 | INFO | [GP] Grid size=240
+2026-01-05 15:14:50,078 | INFO | [GP] Starting nested LODO
+2026-01-05 15:24:53,523 | INFO | [GP] Done. Macro MAE=2.5811 | Macro RMSE=2.7932
+2026-01-05 15:24:53,529 | INFO | Summary saved to C:\Users\maria\Downloads\Jose_lenovo\TFG\surrogate_models\outputs\logs\tuning\productivity_hermetia\proteina\proteina_summary.json
