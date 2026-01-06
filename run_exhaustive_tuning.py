@@ -6,74 +6,19 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.gaussian_process.kernels import RBF, Matern, RationalQuadratic, WhiteKernel
 
+# Tune Method
 from src.analysis.tuning import nested_lodo_tuning
-from src.models.dummy import DummySurrogateRegressor
-from src.models.ridge import RidgeSurrogateRegressor
-from src.models.pls import PLSSurrogateRegressor
-from src.models.gp import GPSurrogateRegressor
+
+# Paths and Utils
 from src.utils.paths import ENTOMOTIVE_DATA_DIR, LOGS_DIR
 from src.utils.tools import _to_jsonable, slugify
 
+# Models and Parameters
+from src.configs.tuning_specs import TARGET_MAP, FEATURE_COLS, MODELS, PARAM_GRIDS
 
-def build_gp_kernels(noise_levels):
-    kernels = []
-    for nl in noise_levels:
-        wn = WhiteKernel(noise_level=nl, noise_level_bounds=(1e-8, 1e3))
-        kernels.extend([
-            Matern(length_scale=1.0, nu=1.5, length_scale_bounds=(1e-2, 1e3)) + wn,
-            Matern(length_scale=1.0, nu=0.5, length_scale_bounds=(1e-2, 1e3)) + wn,
-            RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e3)) + wn,
-            RationalQuadratic(length_scale=1.0, alpha=0.5, length_scale_bounds=(1e-2, 1e3), alpha_bounds=(1e-6, 1e6)) + wn,
-        ])
-    return kernels
 
-TARGET_MAP = {
-    "FCR": "FCR",
-    "TPC": "TPC_larva_media",
-    "Quitina": "QUITINA (%)",
-    "Proteina": "PROTEINA (%)",
-}
-
-PARAM_GRIDS = {
-    "Dummy": {"strategy": ["mean", "median"]},
-    "Ridge": {
-        "alpha": list(np.logspace(-4, 4, 17)),
-        "fit_intercept": [True, False],
-    },
-    "PLS": {
-        "n_components": list(range(1, 11)),
-        "scale": [True, False],
-    },
-    "GP": {
-        "alpha": [1e-10, 1e-8, 1e-6, 1e-4],
-        "n_restarts_optimizer": [0, 3, 8],
-        "normalize_y": [True],
-        "kernel": build_gp_kernels([1e-6, 1e-5, 1e-4, 1e-3, 1e-2]),
-    },
-}
-
-MODELS = {
-    "Dummy": DummySurrogateRegressor(),
-    "Ridge": RidgeSurrogateRegressor(),
-    "PLS": PLSSurrogateRegressor(),
-    "GP": GPSurrogateRegressor(),
-}
-
-FEATURE_COLS = [
-    "inclusion_pct",
-    "Tratamiento",
-    "Proteína (%)_media",
-    "Grasa (%)_media",
-    "Fibra (%)_media",
-    "Cenizas (%)_media",
-    "Carbohidratos (%)_media",
-    "ratio_P_C",
-    "ratio_P_F",
-    "ratio_Fibra_Grasa",
-    "TPC_dieta_media",
-]
+# Specific helper Functions
 
 def build_X_y_groups(df: pd.DataFrame, target_col: str):
     data = df.copy()
@@ -133,14 +78,19 @@ def save_model_outputs(target_dir: Path, target_slug: str, model_name: str, resu
 
 
 def main():
+    # Path Setup
+    # Logging path
     base_dir = LOGS_DIR / "tuning" / "productivity_hermetia"
+    # Data path
     df_path = ENTOMOTIVE_DATA_DIR / "productivity_hermetia_lote.csv"
     df = pd.read_csv(df_path)
 
+    # Parallel settings
     inner_n_jobs = max(1, (os.cpu_count() or 2) - 1)
     outer_n_jobs = min(4, os.cpu_count() or 1)
 
     for target_label, target_col in TARGET_MAP.items():
+        # Create target-specific directory and logging
         target_slug = slugify(target_label)
         target_dir = base_dir / target_slug
         log_file = setup_logging(target_dir, target_slug)
@@ -151,6 +101,7 @@ def main():
             logging.error("Target column not found: %s", target_col)
             continue
 
+        # Build data matrices
         X, y, groups, feature_names = build_X_y_groups(df, target_col)
         logging.info("Samples=%d | Features=%d | Groups=%d", len(y), X.shape[1], len(np.unique(groups)))
         logging.info("Inner jobs=%d | Outer jobs=%d", inner_n_jobs, outer_n_jobs)
@@ -168,6 +119,7 @@ def main():
             "log_file": str(log_file),
         }
 
+        # Por cada modelo, ejecutar el tuning anidado LODO
         for model_name, model in MODELS.items():
             grid_size = int(np.prod([len(v) for v in PARAM_GRIDS[model_name].values()]))
             logging.info("[%s] Grid size=%d", model_name, grid_size)
@@ -184,8 +136,10 @@ def main():
                 outer_n_jobs=outer_n_jobs,
             )
 
+            # Save results in the specific target/model directory
             json_path, folds_path = save_model_outputs(target_dir, target_slug, model_name, result)
 
+            # Add the model specific results to the summary
             summary["models"][model_name] = {
                 "summary": result.get("summary", {}),
                 "chosen_params": result.get("chosen_params", []),
@@ -198,6 +152,7 @@ def main():
             macro = result["summary"]["macro"]
             logging.info("[%s] Done. Macro MAE=%.4f | Macro RMSE=%.4f", model_name, macro["mae_mean"], macro["rmse_mean"])
 
+        # Save overall summary
         summary_path = target_dir / f"{target_slug}_summary.json"
         with open(summary_path, "w", encoding="utf-8") as f:
             json.dump(_to_jsonable(summary), f, indent=2)
