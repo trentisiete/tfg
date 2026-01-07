@@ -1,0 +1,281 @@
+{
+  "folds": [
+    {
+      "fold": 0,
+      "diet": "Control",
+      "inner_best_score": 1.8603363392141845,
+      "params": {
+        "alpha": 1,
+        "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 4.82673004016386,
+        "rmse": 4.858600582480211,
+        "coverage95": 0.0,
+        "_inside95": 0
+      }
+    },
+    {
+      "fold": 1,
+      "diet": "Hoja15",
+      "inner_best_score": 2.07826820856465,
+      "params": {
+        "alpha": 1,
+        "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 1.5854807390925536,
+        "rmse": 1.7069486135381435,
+        "coverage95": 1.0,
+        "_inside95": 3
+      }
+    },
+    {
+      "fold": 2,
+      "diet": "Hoja30",
+      "inner_best_score": 2.1103765216713457,
+      "params": {
+        "alpha": 1e-05,
+        "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=1.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 4.143056076221828,
+        "rmse": 4.258082022339883,
+        "coverage95": 0.6666666666666666,
+        "_inside95": 2
+      }
+    },
+    {
+      "fold": 3,
+      "diet": "Hoja50",
+      "inner_best_score": 2.064321630053289,
+      "params": {
+        "alpha": 1,
+        "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 1.820567435615576,
+        "rmse": 2.1613480640359923,
+        "coverage95": 1.0,
+        "_inside95": 3
+      }
+    },
+    {
+      "fold": 4,
+      "diet": "Orujo30",
+      "inner_best_score": 2.2366845593294027,
+      "params": {
+        "alpha": 1e-10,
+        "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=1.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.5531435901901679,
+        "rmse": 0.5834725538323963,
+        "coverage95": 1.0,
+        "_inside95": 3
+      }
+    },
+    {
+      "fold": 5,
+      "diet": "Orujo50",
+      "inner_best_score": 1.9889227439576007,
+      "params": {
+        "alpha": 1,
+        "kernel": "RBF(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 3.4573461332286186,
+        "rmse": 3.4641107123549664,
+        "coverage95": 0.0,
+        "_inside95": 0
+      }
+    },
+    {
+      "fold": 6,
+      "diet": "Orujo70",
+      "inner_best_score": 1.3361037797150075,
+      "params": {
+        "alpha": 1,
+        "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 5.519087919654605,
+        "rmse": 5.638854838936834,
+        "coverage95": 0.0,
+        "_inside95": 0
+      }
+    },
+    {
+      "fold": 7,
+      "diet": "Orujo90",
+      "inner_best_score": 1.8132230779048584,
+      "params": {
+        "alpha": 1,
+        "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 6.497525845349453,
+        "rmse": 7.034185908994286,
+        "coverage95": 0.3333333333333333,
+        "_inside95": 1
+      }
+    },
+    {
+      "fold": 8,
+      "diet": "Quinoa15",
+      "inner_best_score": 2.2830954462818465,
+      "params": {
+        "alpha": 1,
+        "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.8929244680299243,
+        "rmse": 0.9894060802145319,
+        "coverage95": 1.0,
+        "_inside95": 3
+      }
+    },
+    {
+      "fold": 9,
+      "diet": "Quinoa30",
+      "inner_best_score": 2.2539826985176434,
+      "params": {
+        "alpha": 1,
+        "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.8940677261295388,
+        "rmse": 1.1365430269316388,
+        "coverage95": 1.0,
+        "_inside95": 3
+      }
+    },
+    {
+      "fold": 10,
+      "diet": "Quinoa50",
+      "inner_best_score": 2.221424320373718,
+      "params": {
+        "alpha": 1,
+        "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.44930210286372557,
+        "rmse": 0.45402452949292477,
+        "coverage95": 1.0,
+        "_inside95": 3
+      }
+    }
+  ],
+  "summary": {
+    "macro": {
+      "mae_mean": 2.7853847342308957,
+      "mae_std": 2.08205164277005,
+      "rmse_mean": 2.9350524484683462,
+      "rmse_std": 2.1459528671177464,
+      "coverage95_mean": 0.6363636363636364,
+      "coverage95_std": 0.43703651823805933
+    },
+    "n_folds": 11
+  },
+  "chosen_params": [
+    {
+      "alpha": 1,
+      "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1,
+      "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1e-05,
+      "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=1.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1,
+      "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1e-10,
+      "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=1.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1,
+      "kernel": "RBF(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1,
+      "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1,
+      "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1,
+      "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1,
+      "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1,
+      "kernel": "Matern(length_scale=1, nu=0.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    }
+  ]
+}

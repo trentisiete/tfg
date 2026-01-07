@@ -1,0 +1,12 @@
+fold,diet,inner_best_score,params,metrics
+0,Control,0.08025785550758928,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.1307662452593833, 'rmse': 0.1307662452593833, 'coverage95': None, '_inside95': None}"
+1,Hoja15,0.09880274696652788,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.00853261036738917, 'rmse': 0.00853261036738917, 'coverage95': None, '_inside95': None}"
+2,Hoja30,0.08872105251938799,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.09247541424309959, 'rmse': 0.09247541424309959, 'coverage95': None, '_inside95': None}"
+3,Hoja50,0.07157783960618107,"{'n_components': 2, 'scale': True}","{'n_samples': 3, 'mae': 0.2615127342184026, 'rmse': 0.2615127342184026, 'coverage95': None, '_inside95': None}"
+4,Orujo30,0.09233749754416382,"{'n_components': 6, 'scale': True}","{'n_samples': 3, 'mae': 0.2173374357123553, 'rmse': 0.2173374357123553, 'coverage95': None, '_inside95': None}"
+5,Orujo50,0.08633060033041302,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.12128839281271053, 'rmse': 0.12128839281271053, 'coverage95': None, '_inside95': None}"
+6,Orujo70,0.10119240683415245,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.07014753052938266, 'rmse': 0.07014753052938266, 'coverage95': None, '_inside95': None}"
+7,Orujo90,0.06892636368329366,"{'n_components': 3, 'scale': True}","{'n_samples': 3, 'mae': 0.22874620715600655, 'rmse': 0.22874620715600655, 'coverage95': None, '_inside95': None}"
+8,Quinoa15,0.09197863575212042,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.05828830954336228, 'rmse': 0.058288309543362275, 'coverage95': None, '_inside95': None}"
+9,Quinoa30,0.09883731596988718,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.005536447468084016, 'rmse': 0.005536447468084016, 'coverage95': None, '_inside95': None}"
+10,Quinoa50,0.09475714190167743,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.037813532154043705, 'rmse': 0.037813532154043705, 'coverage95': None, '_inside95': None}"

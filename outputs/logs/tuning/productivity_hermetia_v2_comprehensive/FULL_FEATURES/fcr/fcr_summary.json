@@ -1,0 +1,290 @@
+{
+  "session": "FULL_FEATURES",
+  "target_label": "FCR",
+  "target_column": "FCR",
+  "n_samples": 31,
+  "n_features_input": 10,
+  "n_features_model": 14,
+  "feature_names": [
+    "inclusion_pct",
+    "Prote\u00edna (%)_media",
+    "Grasa (%)_media",
+    "Fibra (%)_media",
+    "Cenizas (%)_media",
+    "Carbohidratos (%)_media",
+    "ratio_P_C",
+    "ratio_P_F",
+    "ratio_Fibra_Grasa",
+    "TPC_dieta_media",
+    "byproduct_control",
+    "byproduct_hoja",
+    "byproduct_orujo",
+    "byproduct_quinoa"
+  ],
+  "models": {
+    "Dummy": {
+      "summary": {
+        "macro": {
+          "mae_mean": 0.29077656801983903,
+          "mae_std": 0.14200189480756495,
+          "rmse_mean": 0.3169790551342296,
+          "rmse_std": 0.15894047571226855,
+          "coverage95_mean": null,
+          "coverage95_std": null
+        },
+        "n_folds": 11
+      },
+      "chosen_params": [
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "median"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "median"
+        },
+        {
+          "strategy": "median"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "median"
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr_dummy_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr_dummy_folds.csv"
+      }
+    },
+    "Ridge": {
+      "summary": {
+        "macro": {
+          "mae_mean": 0.2393879138470602,
+          "mae_std": 0.1212446714741213,
+          "rmse_mean": 0.2721609915423305,
+          "rmse_std": 0.1417729120894256,
+          "coverage95_mean": null,
+          "coverage95_std": null
+        },
+        "n_folds": 11
+      },
+      "chosen_params": [
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        },
+        {
+          "alpha": 100.0,
+          "fit_intercept": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr_ridge_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr_ridge_folds.csv"
+      }
+    },
+    "PLS": {
+      "summary": {
+        "macro": {
+          "mae_mean": 0.24264966211132294,
+          "mae_std": 0.0968932059383713,
+          "rmse_mean": 0.27867490290021185,
+          "rmse_std": 0.11866483762227681,
+          "coverage95_mean": null,
+          "coverage95_std": null
+        },
+        "n_folds": 11
+      },
+      "chosen_params": [
+        {
+          "n_components": 3,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        },
+        {
+          "n_components": 1,
+          "scale": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr_pls_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr_pls_folds.csv"
+      }
+    },
+    "GP": {
+      "summary": {
+        "macro": {
+          "mae_mean": 0.28092234124356047,
+          "mae_std": 0.14558976237447796,
+          "rmse_mean": 0.3115382565770339,
+          "rmse_std": 0.15852424726533298,
+          "coverage95_mean": 0.712121212121212,
+          "coverage95_std": 0.40258576532080065
+        },
+        "n_folds": 11
+      },
+      "chosen_params": [
+        {
+          "alpha": 1,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1e-05,
+          "kernel": "RBF(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 0.01,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 0.01,
+          "kernel": "DotProduct(sigma_0=1) + RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr_gp_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr_gp_folds.csv"
+      }
+    }
+  },
+  "log_file": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_v2_comprehensive\\FULL_FEATURES\\fcr\\fcr.log"
+}

@@ -1,0 +1,12 @@
+fold,diet,inner_best_score,params,metrics
+0,Control,0.227949419801235,"{'alpha': 0.01, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.33985427832089915, 'rmse': 0.36090519031575385, 'coverage95': None, '_inside95': None}"
+1,Hoja15,0.2494755245309162,"{'alpha': 100.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.2860708738321824, 'rmse': 0.3157360373519069, 'coverage95': None, '_inside95': None}"
+2,Hoja30,0.25985315012699156,"{'alpha': 100.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.11715433907301853, 'rmse': 0.1389735267438635, 'coverage95': None, '_inside95': None}"
+3,Hoja50,0.21999305523732954,"{'alpha': 100.0, 'fit_intercept': True}","{'n_samples': 2, 'mae': 0.48617015556359733, 'rmse': 0.5899065500474856, 'coverage95': None, '_inside95': None}"
+4,Orujo30,0.23511559546154198,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.3358943403588597, 'rmse': 0.42798859572516795, 'coverage95': None, '_inside95': None}"
+5,Orujo50,0.23560675906005982,"{'alpha': 100.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.35119929930859345, 'rmse': 0.35988530669360325, 'coverage95': None, '_inside95': None}"
+6,Orujo70,0.2579090740412705,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.11922211288213529, 'rmse': 0.12258366533141006, 'coverage95': None, '_inside95': None}"
+7,Orujo90,0.23816780606094645,"{'alpha': 100.0, 'fit_intercept': True}","{'n_samples': 2, 'mae': 0.311706954380059, 'rmse': 0.33263097752416937, 'coverage95': None, '_inside95': None}"
+8,Quinoa15,0.26520746106206794,"{'alpha': 100.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.07006828941278147, 'rmse': 0.09147803712771661, 'coverage95': None, '_inside95': None}"
+9,Quinoa30,0.22485901811767234,"{'alpha': 1.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.3536717056938523, 'rmse': 0.35382886216314735, 'coverage95': None, '_inside95': None}"
+10,Quinoa50,0.19677159198461938,"{'alpha': 0.1, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.6480075171576843, 'rmse': 0.6638681537480882, 'coverage95': None, '_inside95': None}"

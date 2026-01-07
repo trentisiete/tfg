@@ -1,0 +1,12 @@
+fold,diet,inner_best_score,params,metrics
+0,Control,2.8489202087044445,{'strategy': 'mean'},"{'n_samples': 3, 'mae': 3.315773781515196, 'rmse': 3.331085458282739, 'coverage95': None, '_inside95': None}"
+1,Hoja15,2.8989032793093243,{'strategy': 'mean'},"{'n_samples': 3, 'mae': 2.744813321144053, 'rmse': 2.94377181654078, 'coverage95': None, '_inside95': None}"
+2,Hoja30,2.34663601209401,{'strategy': 'median'},"{'n_samples': 3, 'mae': 5.713510111559035, 'rmse': 5.760391781995028, 'coverage95': None, '_inside95': None}"
+3,Hoja50,2.241953138903518,{'strategy': 'median'},"{'n_samples': 3, 'mae': 6.760338843463952, 'rmse': 6.783539054584268, 'coverage95': None, '_inside95': None}"
+4,Orujo30,2.9162864709808365,{'strategy': 'median'},"{'n_samples': 3, 'mae': 1.2707063075284744, 'rmse': 1.2781270199490617, 'coverage95': None, '_inside95': None}"
+5,Orujo50,2.8285804763812665,{'strategy': 'mean'},"{'n_samples': 3, 'mae': 3.5481161084376516, 'rmse': 3.6331443365043024, 'coverage95': None, '_inside95': None}"
+6,Orujo70,2.645076444716805,{'strategy': 'median'},"{'n_samples': 3, 'mae': 2.7291057853310847, 'rmse': 2.7826926219687667, 'coverage95': None, '_inside95': None}"
+7,Orujo90,2.5595912392795124,{'strategy': 'median'},"{'n_samples': 3, 'mae': 3.5839578397040106, 'rmse': 4.1193789769952875, 'coverage95': None, '_inside95': None}"
+8,Quinoa15,2.9615056161516256,{'strategy': 'mean'},"{'n_samples': 3, 'mae': 2.029702011830087, 'rmse': 2.2963891510294228, 'coverage95': None, '_inside95': None}"
+9,Quinoa30,3.036896526240043,{'strategy': 'mean'},"{'n_samples': 3, 'mae': 1.1685058465893132, 'rmse': 1.3258953628063634, 'coverage95': None, '_inside95': None}"
+10,Quinoa50,2.937801360142468,{'strategy': 'median'},"{'n_samples': 3, 'mae': 1.0555574159121595, 'rmse': 1.1373342694288902, 'coverage95': None, '_inside95': None}"

@@ -1,0 +1,237 @@
+{
+  "folds": [
+    {
+      "fold": 0,
+      "diet": "Control",
+      "inner_best_score": 0.0782312877113984,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.13228460147063484,
+        "rmse": 0.13228460147063487,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 1,
+      "diet": "Hoja15",
+      "inner_best_score": 0.0975865734262585,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.009934579814016076,
+        "rmse": 0.009934579814016076,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 2,
+      "diet": "Hoja30",
+      "inner_best_score": 0.08790486737155286,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.09070585643560697,
+        "rmse": 0.09070585643560697,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 3,
+      "diet": "Hoja50",
+      "inner_best_score": 0.06900963150594241,
+      "params": {
+        "n_components": 3,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.24564316622689264,
+        "rmse": 0.24564316622689264,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 4,
+      "diet": "Orujo30",
+      "inner_best_score": 0.09270150242159796,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.04305014115625544,
+        "rmse": 0.04305014115625544,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 5,
+      "diet": "Orujo50",
+      "inner_best_score": 0.08437806099433162,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.11881430897324402,
+        "rmse": 0.11881430897324403,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 6,
+      "diet": "Orujo70",
+      "inner_best_score": 0.10005846206892204,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.06999504777791266,
+        "rmse": 0.06999504777791266,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 7,
+      "diet": "Orujo90",
+      "inner_best_score": 0.06764941949784639,
+      "params": {
+        "n_components": 3,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.21040961110874867,
+        "rmse": 0.21040961110874867,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 8,
+      "diet": "Quinoa15",
+      "inner_best_score": 0.09110127306328375,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.055158341503958985,
+        "rmse": 0.055158341503958985,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 9,
+      "diet": "Quinoa30",
+      "inner_best_score": 0.09775297253059226,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.003904534438200824,
+        "rmse": 0.003904534438200824,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 10,
+      "diet": "Quinoa50",
+      "inner_best_score": 0.0932200706385062,
+      "params": {
+        "n_components": 1,
+        "scale": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.038373156572554246,
+        "rmse": 0.038373156572554246,
+        "coverage95": null,
+        "_inside95": null
+      }
+    }
+  ],
+  "summary": {
+    "macro": {
+      "mae_mean": 0.09257030413436595,
+      "mae_std": 0.07481857382903281,
+      "rmse_mean": 0.09257030413436595,
+      "rmse_std": 0.07481857382903281,
+      "coverage95_mean": null,
+      "coverage95_std": null
+    },
+    "n_folds": 11
+  },
+  "chosen_params": [
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 3,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 3,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    },
+    {
+      "n_components": 1,
+      "scale": true
+    }
+  ]
+}

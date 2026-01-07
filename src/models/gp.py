@@ -1,11 +1,18 @@
 # @author: José Arbelaez
-from sklearn.gaussian_process import GaussianProcessRegressor as SKLearnGPR
+import warnings
+
 import numpy as np
-from .base import SurrogateRegressor
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
+from sklearn.exceptions import ConvergenceWarning
+from sklearn.gaussian_process import GaussianProcessRegressor as SKLearnGPR
 from sklearn.gaussian_process.kernels import RBF, Matern, WhiteKernel
 from sklearn.metrics import mean_absolute_error, root_mean_squared_error
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from .base import SurrogateRegressor
+
+# Silence bound-hitting GP hyperparameter warnings from sklearn
+warnings.filterwarnings("ignore", category=ConvergenceWarning, module="sklearn.gaussian_process.kernels")
 
 class GPSurrogateRegressor(SurrogateRegressor):
     name = "GPSurrogateRegressor"

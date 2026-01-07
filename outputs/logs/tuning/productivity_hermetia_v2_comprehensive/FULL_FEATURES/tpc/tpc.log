@@ -1,0 +1,12 @@
+2026-01-07 22:23:14,545 | INFO | >>> STARTING TARGET: TPC (TPC_larva_media)
+2026-01-07 22:23:14,549 | INFO | Data Shape: Samples=33 | Total Features (with dummies)=14
+2026-01-07 22:23:14,550 | INFO | --- Tuning Dummy (Grid Size: 2) ---
+2026-01-07 22:23:14,721 | INFO |     [DONE] Dummy -> MAE: 0.0760 | Coverage: None
+2026-01-07 22:23:14,721 | INFO | --- Tuning Ridge (Grid Size: 5) ---
+2026-01-07 22:23:15,003 | INFO |     [DONE] Ridge -> MAE: 0.1143 | Coverage: None
+2026-01-07 22:23:15,003 | INFO | --- Tuning PLS (Grid Size: 7) ---
+2026-01-07 22:23:15,414 | INFO |     [DONE] PLS -> MAE: 0.1120 | Coverage: None
+2026-01-07 22:23:15,414 | INFO | --- Tuning GP (Grid Size: 48) ---
+2026-01-07 22:30:14,387 | INFO |     [DONE] GP -> MAE: 0.1003 | Coverage: 0.6363636363636364
+2026-01-07 22:30:14,402 | INFO | <<< FINISHED TARGET: TPC
+

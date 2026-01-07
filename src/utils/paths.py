@@ -15,6 +15,8 @@ ENTOMOTIVE_DATA_DIR = DATA_DIR / "entomotive_datasets"
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 CHECKPOINTS_DIR = OUTPUTS_DIR / "checkpoints"
 LOGS_DIR = OUTPUTS_DIR / "logs"
+TESTS_DIR = OUTPUTS_DIR / "tests"
+
 PLOTS_DIR = OUTPUTS_DIR / "plots"
 CONFIGS_DIR = PROJECT_ROOT / "src" / "configs"
 

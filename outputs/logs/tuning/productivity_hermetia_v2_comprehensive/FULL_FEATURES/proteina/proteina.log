@@ -1,0 +1,12 @@
+2026-01-07 22:42:59,726 | INFO | >>> STARTING TARGET: Proteina (PROTEINA (%))
+2026-01-07 22:42:59,736 | INFO | Data Shape: Samples=33 | Total Features (with dummies)=14
+2026-01-07 22:42:59,737 | INFO | --- Tuning Dummy (Grid Size: 2) ---
+2026-01-07 22:42:59,971 | INFO |     [DONE] Dummy -> MAE: 3.0836 | Coverage: None
+2026-01-07 22:42:59,973 | INFO | --- Tuning Ridge (Grid Size: 5) ---
+2026-01-07 22:43:00,420 | INFO |     [DONE] Ridge -> MAE: 2.4988 | Coverage: None
+2026-01-07 22:43:00,420 | INFO | --- Tuning PLS (Grid Size: 7) ---
+2026-01-07 22:43:01,001 | INFO |     [DONE] PLS -> MAE: 2.5501 | Coverage: None
+2026-01-07 22:43:01,002 | INFO | --- Tuning GP (Grid Size: 48) ---
+2026-01-07 22:58:30,684 | INFO |     [DONE] GP -> MAE: 2.7359 | Coverage: 0.6363636363636364
+2026-01-07 22:58:30,687 | INFO | <<< FINISHED TARGET: Proteina
+

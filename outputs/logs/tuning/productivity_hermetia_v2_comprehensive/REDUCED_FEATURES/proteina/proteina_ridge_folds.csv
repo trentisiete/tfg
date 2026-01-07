@@ -1,0 +1,12 @@
+fold,diet,inner_best_score,params,metrics
+0,Control,2.0132992886242116,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.35408084913738236, 'rmse': 0.46487404134196403, 'coverage95': None, '_inside95': None}"
+1,Hoja15,1.3436922822345425,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 4.391818352710394, 'rmse': 4.518834007034756, 'coverage95': None, '_inside95': None}"
+2,Hoja30,1.1808268080188755,"{'alpha': 0.01, 'fit_intercept': True}","{'n_samples': 3, 'mae': 3.4504245646698144, 'rmse': 3.527512631255257, 'coverage95': None, '_inside95': None}"
+3,Hoja50,2.0816347709992105,"{'alpha': 100.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 4.494955147192236, 'rmse': 4.52977290842405, 'coverage95': None, '_inside95': None}"
+4,Orujo30,1.995711178627469,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 1.2497196690115533, 'rmse': 1.7244567690727926, 'coverage95': None, '_inside95': None}"
+5,Orujo50,1.716874669746709,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 3.1914787336495265, 'rmse': 3.2857489797998456, 'coverage95': None, '_inside95': None}"
+6,Orujo70,1.8898098649601127,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 1.558486308441643, 'rmse': 1.6505270111185306, 'coverage95': None, '_inside95': None}"
+7,Orujo90,1.974212890313273,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 2.0663988162684235, 'rmse': 2.0812397336006723, 'coverage95': None, '_inside95': None}"
+8,Quinoa15,1.9273822402705618,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 1.0503672532364245, 'rmse': 1.0888578344665196, 'coverage95': None, '_inside95': None}"
+9,Quinoa30,1.956817823802206,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 0.6004837957848265, 'rmse': 0.6741903827285778, 'coverage95': None, '_inside95': None}"
+10,Quinoa50,1.8879603027183287,"{'alpha': 10.0, 'fit_intercept': True}","{'n_samples': 3, 'mae': 1.2011090737038483, 'rmse': 1.2106767476244533, 'coverage95': None, '_inside95': None}"

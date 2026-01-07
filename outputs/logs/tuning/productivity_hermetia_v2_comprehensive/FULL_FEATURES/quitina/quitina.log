@@ -1,0 +1,12 @@
+2026-01-07 22:30:14,403 | INFO | >>> STARTING TARGET: Quitina (QUITINA (%))
+2026-01-07 22:30:14,413 | INFO | Data Shape: Samples=33 | Total Features (with dummies)=14
+2026-01-07 22:30:14,414 | INFO | --- Tuning Dummy (Grid Size: 2) ---
+2026-01-07 22:30:14,653 | INFO |     [DONE] Dummy -> MAE: 2.2927 | Coverage: None
+2026-01-07 22:30:14,655 | INFO | --- Tuning Ridge (Grid Size: 5) ---
+2026-01-07 22:30:15,058 | INFO |     [DONE] Ridge -> MAE: 1.9821 | Coverage: None
+2026-01-07 22:30:15,059 | INFO | --- Tuning PLS (Grid Size: 7) ---
+2026-01-07 22:30:15,691 | INFO |     [DONE] PLS -> MAE: 1.9273 | Coverage: None
+2026-01-07 22:30:15,691 | INFO | --- Tuning GP (Grid Size: 48) ---
+2026-01-07 22:42:59,713 | INFO |     [DONE] GP -> MAE: 2.7854 | Coverage: 0.6363636363636364
+2026-01-07 22:42:59,722 | INFO | <<< FINISHED TARGET: Quitina
+

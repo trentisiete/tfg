@@ -1,0 +1,12 @@
+fold,diet,inner_best_score,params,metrics
+0,Control,0.17162579943444262,"{'n_components': 7, 'scale': True}","{'n_samples': 3, 'mae': 0.4764454967448944, 'rmse': 0.49168276080448514, 'coverage95': None, '_inside95': None}"
+1,Hoja15,0.2468476240844646,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.27430100512089856, 'rmse': 0.2937060092065836, 'coverage95': None, '_inside95': None}"
+2,Hoja30,0.25435989976840384,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.11579140492017537, 'rmse': 0.13581758908234132, 'coverage95': None, '_inside95': None}"
+3,Hoja50,0.22011658366999892,"{'n_components': 1, 'scale': True}","{'n_samples': 2, 'mae': 0.45706234155363945, 'rmse': 0.5661574884205719, 'coverage95': None, '_inside95': None}"
+4,Orujo30,0.23362931364767947,"{'n_components': 3, 'scale': True}","{'n_samples': 3, 'mae': 0.39101739236862226, 'rmse': 0.5296729633190791, 'coverage95': None, '_inside95': None}"
+5,Orujo50,0.23269524886712972,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.3745107120870315, 'rmse': 0.3977689975382123, 'coverage95': None, '_inside95': None}"
+6,Orujo70,0.24589893078300581,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.18098008234724175, 'rmse': 0.18321198927039942, 'coverage95': None, '_inside95': None}"
+7,Orujo90,0.25163018869447684,"{'n_components': 1, 'scale': True}","{'n_samples': 2, 'mae': 0.14160141017098926, 'rmse': 0.18312045533529295, 'coverage95': None, '_inside95': None}"
+8,Quinoa15,0.25863663288272243,"{'n_components': 1, 'scale': True}","{'n_samples': 3, 'mae': 0.11821532654992357, 'rmse': 0.14422407154990785, 'coverage95': None, '_inside95': None}"
+9,Quinoa30,0.2160645861245845,"{'n_components': 3, 'scale': True}","{'n_samples': 3, 'mae': 0.3935312237368487, 'rmse': 0.3936724683630928, 'coverage95': None, '_inside95': None}"
+10,Quinoa50,0.20919462265619027,"{'n_components': 6, 'scale': True}","{'n_samples': 3, 'mae': 0.6853100111389189, 'rmse': 0.700326348665573, 'coverage95': None, '_inside95': None}"

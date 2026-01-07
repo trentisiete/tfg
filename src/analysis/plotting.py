@@ -435,3 +435,5 @@ def _make_models() -> dict:
         "PLS": PLSSurrogateRegressor(n_components=2, scale=True),
         "GP": GPSurrogateRegressor(),
     }
+
+

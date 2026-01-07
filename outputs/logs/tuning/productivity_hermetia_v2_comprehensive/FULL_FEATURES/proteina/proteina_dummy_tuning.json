@@ -1,0 +1,215 @@
+{
+  "folds": [
+    {
+      "fold": 0,
+      "diet": "Control",
+      "inner_best_score": 2.8489202087044445,
+      "params": {
+        "strategy": "mean"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 3.315773781515196,
+        "rmse": 3.331085458282739,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 1,
+      "diet": "Hoja15",
+      "inner_best_score": 2.8989032793093243,
+      "params": {
+        "strategy": "mean"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 2.744813321144053,
+        "rmse": 2.94377181654078,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 2,
+      "diet": "Hoja30",
+      "inner_best_score": 2.34663601209401,
+      "params": {
+        "strategy": "median"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 5.713510111559035,
+        "rmse": 5.760391781995028,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 3,
+      "diet": "Hoja50",
+      "inner_best_score": 2.241953138903518,
+      "params": {
+        "strategy": "median"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 6.760338843463952,
+        "rmse": 6.783539054584268,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 4,
+      "diet": "Orujo30",
+      "inner_best_score": 2.9162864709808365,
+      "params": {
+        "strategy": "median"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 1.2707063075284744,
+        "rmse": 1.2781270199490617,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 5,
+      "diet": "Orujo50",
+      "inner_best_score": 2.8285804763812665,
+      "params": {
+        "strategy": "mean"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 3.5481161084376516,
+        "rmse": 3.6331443365043024,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 6,
+      "diet": "Orujo70",
+      "inner_best_score": 2.645076444716805,
+      "params": {
+        "strategy": "median"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 2.7291057853310847,
+        "rmse": 2.7826926219687667,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 7,
+      "diet": "Orujo90",
+      "inner_best_score": 2.5595912392795124,
+      "params": {
+        "strategy": "median"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 3.5839578397040106,
+        "rmse": 4.1193789769952875,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 8,
+      "diet": "Quinoa15",
+      "inner_best_score": 2.9615056161516256,
+      "params": {
+        "strategy": "mean"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 2.029702011830087,
+        "rmse": 2.2963891510294228,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 9,
+      "diet": "Quinoa30",
+      "inner_best_score": 3.036896526240043,
+      "params": {
+        "strategy": "mean"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 1.1685058465893132,
+        "rmse": 1.3258953628063634,
+        "coverage95": null,
+        "_inside95": null
+      }
+    },
+    {
+      "fold": 10,
+      "diet": "Quinoa50",
+      "inner_best_score": 2.937801360142468,
+      "params": {
+        "strategy": "median"
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 1.0555574159121595,
+        "rmse": 1.1373342694288902,
+        "coverage95": null,
+        "_inside95": null
+      }
+    }
+  ],
+  "summary": {
+    "macro": {
+      "mae_mean": 3.0836443066377295,
+      "mae_std": 1.7418157442183122,
+      "rmse_mean": 3.217431804553174,
+      "rmse_std": 1.7310227024113103,
+      "coverage95_mean": null,
+      "coverage95_std": null
+    },
+    "n_folds": 11
+  },
+  "chosen_params": [
+    {
+      "strategy": "mean"
+    },
+    {
+      "strategy": "mean"
+    },
+    {
+      "strategy": "median"
+    },
+    {
+      "strategy": "median"
+    },
+    {
+      "strategy": "median"
+    },
+    {
+      "strategy": "mean"
+    },
+    {
+      "strategy": "median"
+    },
+    {
+      "strategy": "median"
+    },
+    {
+      "strategy": "mean"
+    },
+    {
+      "strategy": "mean"
+    },
+    {
+      "strategy": "median"
+    }
+  ]
+}
