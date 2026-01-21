@@ -30,7 +30,8 @@ def _evaluate_params_logo(model, Xtr, ytr, gtr, logo, params, primary) -> tuple:
         m.fit(Xtr[tr2], ytr[tr2])
 
         mean, std = m.predict_dist(Xtr[te2])
-        metrics = m.compute_metrics(ytr[te2], mean, std)
+        # Use extended=False for inner CV (faster, only basic metrics needed)
+        metrics = m.compute_metrics(ytr[te2], mean, std, extended=False)
 
         fold_scores.append(metrics[primary]) # Mean of the metric chosen to optimize
 
@@ -115,7 +116,8 @@ def _run_outer_fold(model, X, y, groups, fold_id, tr, te,
     m.fit(Xtr, ytr)
 
     mean, std = m.predict_dist(Xte)
-    metrics = m.compute_metrics(yte, mean, std)
+    # Use extended=True for outer fold (full metrics for final evaluation)
+    metrics = m.compute_metrics(yte, mean, std, extended=True)
 
     fold = {
         "fold": fold_id,
@@ -176,21 +178,129 @@ def nested_lodo_tuning(model, X, y, groups,
     folds = [r[1] for r in results]
     chosen_params = [r[2] for r in results]
 
-    # summary
-    mae_vals = [f["metrics"]["mae"] for f in folds]
-    rmse_vals = [f["metrics"]["rmse"] for f in folds]
-    cov_vals = [f["metrics"]["coverage95"] for f in folds if f["metrics"]["coverage95"] is not None]
-
-    summary = {
-        "macro": {
-            "mae_mean": float(np.mean(mae_vals)),
-            "mae_std": float(np.std(mae_vals)),
-            "rmse_mean": float(np.mean(rmse_vals)),
-            "rmse_std": float(np.std(rmse_vals)),
-            "coverage95_mean": None if len(cov_vals)==0 else float(np.mean(cov_vals)),
-            "coverage95_std": None if len(cov_vals)==0 else float(np.std(cov_vals)),
-        },
-        "n_folds": int(len(folds))
-    }
+    # Build comprehensive summary with all metrics
+    summary = _build_tuning_summary(folds)
 
     return {"folds": folds, "summary": summary, "chosen_params": chosen_params}
+
+
+def _build_tuning_summary(folds: list) -> dict:
+    """
+    Build comprehensive summary statistics from fold results.
+    
+    Aggregates all available metrics (basic and extended) across folds.
+    
+    Args:
+        folds: List of fold result dictionaries with 'metrics' key
+        
+    Returns:
+        dict with 'macro' (mean/std per metric) and metadata
+    """
+    # Define all metrics to aggregate
+    # Basic metrics (always present)
+    basic_metrics = ['mae', 'rmse']
+    
+    # Extended metrics (may be None for some models)
+    extended_metrics = [
+        'r2', 'max_error', 'nlpd',
+        'coverage_50', 'coverage_90', 'coverage_95',
+        'mean_interval_width_95', 'median_interval_width_95',
+        'calibration_error_95', 'sharpness'
+    ]
+    
+    all_metrics = basic_metrics + extended_metrics
+    
+    # Build macro summary
+    macro = {}
+    for metric_name in all_metrics:
+        values = []
+        for f in folds:
+            val = f["metrics"].get(metric_name)
+            if val is not None:
+                values.append(val)
+        
+        if len(values) > 0:
+            macro[metric_name] = {
+                "mean": float(np.mean(values)),
+                "std": float(np.std(values)),
+                "min": float(np.min(values)),
+                "max": float(np.max(values)),
+            }
+        else:
+            macro[metric_name] = {"mean": None, "std": None, "min": None, "max": None}
+    
+    # Legacy format compatibility (coverage95 alias)
+    if 'coverage_95' in macro:
+        macro['coverage95'] = macro['coverage_95']
+    
+    # Build micro summary (sample-weighted)
+    micro = _build_micro_summary(folds)
+    
+    return {
+        "macro": macro,
+        "micro": micro,
+        "n_folds": int(len(folds)),
+        "total_samples": sum(f["metrics"].get("n_samples", 0) for f in folds),
+    }
+
+
+def _build_micro_summary(folds: list) -> dict:
+    """
+    Build micro (sample-weighted) summary statistics.
+    
+    Args:
+        folds: List of fold result dictionaries
+        
+    Returns:
+        dict with sample-weighted metrics
+    """
+    total_samples = 0
+    sum_abs = 0.0
+    sum_sq = 0.0
+    
+    # For coverage micro-averaging
+    inside_50_total = 0
+    inside_90_total = 0
+    inside_95_total = 0
+    cov_n_total = 0
+    
+    # For R² micro (weighted)
+    r2_weighted_sum = 0.0
+    r2_weight_total = 0
+    
+    for f in folds:
+        m = f["metrics"]
+        n = m.get("n_samples", 0)
+        
+        if n > 0:
+            total_samples += n
+            sum_abs += m.get("mae", 0) * n
+            sum_sq += (m.get("rmse", 0) ** 2) * n
+            
+            # R² weighted
+            if m.get("r2") is not None:
+                r2_weighted_sum += m["r2"] * n
+                r2_weight_total += n
+            
+            # Coverage counts
+            if m.get("_inside_50") is not None:
+                inside_50_total += m["_inside_50"]
+            if m.get("_inside_90") is not None:
+                inside_90_total += m["_inside_90"]
+            if m.get("_inside_95") is not None:
+                inside_95_total += m["_inside_95"]
+                cov_n_total += n
+    
+    micro = {
+        "mae": float(sum_abs / max(1, total_samples)),
+        "rmse": float(np.sqrt(sum_sq / max(1, total_samples))),
+        "r2": float(r2_weighted_sum / max(1, r2_weight_total)) if r2_weight_total > 0 else None,
+        "coverage_50": float(inside_50_total / max(1, cov_n_total)) if cov_n_total > 0 else None,
+        "coverage_90": float(inside_90_total / max(1, cov_n_total)) if cov_n_total > 0 else None,
+        "coverage_95": float(inside_95_total / max(1, cov_n_total)) if cov_n_total > 0 else None,
+    }
+    
+    # Legacy alias
+    micro["coverage95"] = micro.get("coverage_95")
+    
+    return micro

@@ -41,6 +41,13 @@ class ResultsLoader:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
 
+    def load_fold_tuning_results(self, target_slug: str, model: str) -> Dict:
+        path = self.base_dir / target_slug / f"{target_slug}_{model}_tuning.json"
+        if not path.exists():
+            raise FileNotFoundError(f"Summary not found at {path}")
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
     def load_fold_results(self, csv_path: str) -> pd.DataFrame:
         df = pd.read_csv(csv_path)
         def _safe_parse(value):
@@ -333,33 +340,55 @@ class SurrogatePlotter:
     def plot_experiment_comparison(self, summary_full: Dict, summary_reduced: Dict, target_name: str):
         """
         Side-by-side bar chart comparing Reduced vs Full features for all models.
+        
+        Compatible with new unified metrics structure:
+            macro['mae'] = {'mean': ..., 'std': ..., 'min': ..., 'max': ...}
         """
-        metrics = ["mae_mean", "rmse_mean", "coverage95_mean"]
+        # New metrics structure: metric['mean'] instead of metric_mean
+        metrics_map = {
+            "MAE": "mae",
+            "RMSE": "rmse",
+            "COV95": "coverage_95"
+        }
         data = []
 
+        def _extract_metric_value(macro: dict, metric_key: str):
+            """Extract value from new nested structure or fallback to old flat structure."""
+            # Try new structure first: macro['mae']['mean']
+            if isinstance(macro.get(metric_key), dict):
+                return macro[metric_key].get('mean')
+            # Fallback to old structure: macro['mae_mean']
+            return macro.get(f"{metric_key}_mean")
+
         # Extract Full
-        for model, info in summary_full["models"].items():
-            m = info["summary"]["macro"]
-            for met in metrics:
-                if m.get(met) is not None:
+        for model, info in summary_full.get("models", {}).items():
+            m = info.get("summary", {}).get("macro", {})
+            for label, key in metrics_map.items():
+                val = _extract_metric_value(m, key)
+                if val is not None:
                     data.append({
                         "Model": model,
                         "Experiment": "FULL FEATURES",
-                        "Metric": met.replace("_mean", "").upper(),
-                        "Value": m[met]
+                        "Metric": label,
+                        "Value": val
                     })
 
         # Extract Reduced
-        for model, info in summary_reduced["models"].items():
-            m = info["summary"]["macro"]
-            for met in metrics:
-                if m.get(met) is not None:
+        for model, info in summary_reduced.get("models", {}).items():
+            m = info.get("summary", {}).get("macro", {})
+            for label, key in metrics_map.items():
+                val = _extract_metric_value(m, key)
+                if val is not None:
                     data.append({
                         "Model": model,
                         "Experiment": "REDUCED FEATURES",
-                        "Metric": met.replace("_mean", "").upper(),
-                        "Value": m[met]
+                        "Metric": label,
+                        "Value": val
                     })
+
+        if not data:
+            logging.warning(f"No data found for experiment comparison on {target_name}")
+            return
 
         df = pd.DataFrame(data)
 
