@@ -49,22 +49,20 @@ def _evaluate_single_model(args):
         "summary": {} # Macro and Micro
     }
 
-    mae_list = []
-    rmse_list = []
-    cov95_list = []
+    # Lists for aggregating metrics across folds
+    fold_metrics_list = []
     warnings_list = []
 
-    # Micro (sample-weighted) in case groups have different sizes
+    # Micro (sample-weighted) accumulators
+    total_samples = 0
     sum_abs = 0.0
     sum_sq = 0.0
-    total_samples = 0
-
-    # Micro coverage95
-    inside_total = 0
+    
+    # Coverage counts for micro-averaging
+    inside_50_total = 0
+    inside_90_total = 0
+    inside_95_total = 0
     cov_n_total = 0
-
-    coverage95_available = True
-
 
     try:
         with warnings.catch_warnings(record=True) as w:
@@ -75,35 +73,43 @@ def _evaluate_single_model(args):
                 m.fit(X_train, y_train)
 
                 mean, std = m.predict_dist(X_test)
-                metrics = m.compute_metrics(y_test, mean, std)
+                # Use extended=True to get all metrics
+                metrics = m.compute_metrics(y_test, mean, std, extended=True)
 
-                # Store per-fold scores
+                # Store per-fold scores (all metrics)
                 scores["folds"][str(fold_id)] = {
-                    "num_samples": metrics["n_samples"],
+                    "n_samples": metrics["n_samples"],
                     "mae": metrics["mae"],
                     "rmse": metrics["rmse"],
-                    "coverage95": metrics["coverage95"],
-                    "score": -metrics["mae"], # Negate to make it a score (higher is better)
+                    "r2": metrics.get("r2"),
+                    "max_error": metrics.get("max_error"),
+                    "nlpd": metrics.get("nlpd"),
+                    "coverage_50": metrics.get("coverage_50"),
+                    "coverage_90": metrics.get("coverage_90"),
+                    "coverage_95": metrics.get("coverage_95"),
+                    "coverage95": metrics.get("coverage95"),  # Legacy alias
+                    "mean_interval_width_95": metrics.get("mean_interval_width_95"),
+                    "calibration_error_95": metrics.get("calibration_error_95"),
+                    "sharpness": metrics.get("sharpness"),
+                    "score": -metrics["mae"],  # Negate to make it a score (higher is better)
                 }
-
-                # For macro
-                mae_list.append(metrics["mae"])
-                rmse_list.append(metrics["rmse"])
-                if metrics["coverage95"] is not None:
-                    cov95_list.append(metrics["coverage95"])
-                else:
-                    coverage95_available = False
+                
+                fold_metrics_list.append(metrics)
 
                 # For micro, accumulators
                 n = metrics["n_samples"]
+                total_samples += n
                 sum_abs += metrics["mae"] * n
                 sum_sq += (metrics["rmse"] ** 2) * n
-                total_samples += n
 
-                if metrics["_inside95"] is not None:
-                    inside_total += metrics["_inside95"]
+                # Coverage counts
+                if metrics.get("_inside_50") is not None:
+                    inside_50_total += metrics["_inside_50"]
+                if metrics.get("_inside_90") is not None:
+                    inside_90_total += metrics["_inside_90"]
+                if metrics.get("_inside_95") is not None:
+                    inside_95_total += metrics["_inside_95"]
                     cov_n_total += n
-
 
             for warning in w:
                 logging.warning(f"[{name}] {warning.category.__name__}: {warning.message}")
@@ -112,50 +118,76 @@ def _evaluate_single_model(args):
         logging.error(f"[{name}] {e}")
         return (name, {"error": str(e)})
 
-    # Compute summary metrics
-    macro_mae_mean = float(np.mean(mae_list))
-    macro_mae_std = float(np.std(mae_list))
-
-    macro_rmse_mean = float(np.mean(rmse_list))
-    macro_rmse_std = float(np.std(rmse_list))
-
-    macro = {
-        "mae": {
-            "mean": macro_mae_mean,
-            "std": macro_mae_std
-        },
-        "rmse": {
-            "mean": macro_rmse_mean,
-            "std": macro_rmse_std
-        },
-        "coverage95": {
-            "mean": None,
-            "std": None
-        }
-    }
-
-    micro = {
-        "mae": sum_abs / max(1,total_samples),
-        "rmse": np.sqrt(sum_sq / total_samples),
-        "coverage95": None
-    }
-
-    if coverage95_available and len(cov95_list) > 0:
-        macro["coverage95"]["mean"] = float(np.mean(cov95_list))
-        macro["coverage95"]["std"] = float(np.std(cov95_list))
-        if cov_n_total > 0:
-            micro["coverage95"] = float(inside_total / cov_n_total)
-
-
-    scores["summary"] = {
-        "macro": macro,
-        "micro": micro,
-        "n_folds": unique_groups,
-    }
+    # Build comprehensive summary
+    scores["summary"] = _build_evaluation_summary(
+        fold_metrics_list, 
+        unique_groups, 
+        total_samples,
+        sum_abs, sum_sq,
+        inside_50_total, inside_90_total, inside_95_total, cov_n_total
+    )
 
     print(f"[{name}] Finished evaluating model.")
 
     return (name, {"timestamp": float(time() - t0), "results": scores})
+
+
+def _build_evaluation_summary(fold_metrics_list, n_folds, total_samples,
+                               sum_abs, sum_sq, 
+                               inside_50, inside_90, inside_95, cov_n):
+    """
+    Build comprehensive summary from fold metrics.
+    
+    Args:
+        fold_metrics_list: List of metrics dicts from each fold
+        n_folds: Number of folds
+        total_samples: Total samples across all folds
+        sum_abs, sum_sq: Accumulators for MAE/RMSE micro
+        inside_50, inside_90, inside_95, cov_n: Coverage accumulators
+        
+    Returns:
+        Summary dict with macro and micro statistics
+    """
+    # Define metrics to aggregate
+    metric_names = [
+        'mae', 'rmse', 'r2', 'max_error', 'nlpd',
+        'coverage_50', 'coverage_90', 'coverage_95',
+        'mean_interval_width_95', 'calibration_error_95', 'sharpness'
+    ]
+    
+    # Macro: mean and std per metric
+    macro = {}
+    for name in metric_names:
+        values = [m.get(name) for m in fold_metrics_list if m.get(name) is not None]
+        if values:
+            macro[name] = {
+                "mean": float(np.mean(values)),
+                "std": float(np.std(values)),
+                "min": float(np.min(values)),
+                "max": float(np.max(values)),
+            }
+        else:
+            macro[name] = {"mean": None, "std": None, "min": None, "max": None}
+    
+    # Legacy format aliases
+    macro["coverage95"] = macro.get("coverage_95", {"mean": None, "std": None})
+    
+    # Micro: sample-weighted
+    micro = {
+        "mae": float(sum_abs / max(1, total_samples)),
+        "rmse": float(np.sqrt(sum_sq / max(1, total_samples))),
+        "coverage_50": float(inside_50 / max(1, cov_n)) if cov_n > 0 else None,
+        "coverage_90": float(inside_90 / max(1, cov_n)) if cov_n > 0 else None,
+        "coverage_95": float(inside_95 / max(1, cov_n)) if cov_n > 0 else None,
+    }
+    micro["coverage95"] = micro.get("coverage_95")  # Legacy alias
+    
+    return {
+        "macro": macro,
+        "micro": micro,
+        "n_folds": n_folds,
+        "total_samples": total_samples,
+    }
 
 
 def evaluate_model(models, X: np.ndarray, y: np.ndarray, groups: np.ndarray, save_path: str | None = None) -> dict:

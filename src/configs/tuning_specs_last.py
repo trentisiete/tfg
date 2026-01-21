@@ -1,22 +1,17 @@
 """
 Tuning specifications and hyperparameter grids for Hermetia illucens analysis.
 SUPER EXHAUSTIVE GRID FOR GP (Final Robust Version).
-
-Update:
-- Keep Ridge baseline
-- Add multiple linear-kernel configurations inside GP (DotProduct variants)
+Designed to capture any signal, whether linear, smooth, rugged, or additive.
 """
 
 import numpy as np
 from sklearn.gaussian_process.kernels import (
-    RBF, Matern, RationalQuadratic, WhiteKernel, DotProduct, ConstantKernel
+    RBF, Matern, RationalQuadratic, WhiteKernel, DotProduct
 )
-
 from src.models.dummy import DummySurrogateRegressor
 from src.models.ridge import RidgeSurrogateRegressor
 from src.models.pls import PLSSurrogateRegressor
 from src.models.gp import GPSurrogateRegressor
-
 
 # --- Target Mappings ---
 TARGET_MAP = {
@@ -28,6 +23,7 @@ TARGET_MAP = {
 
 # --- Feature Sets ---
 
+# 1. Reduced / Critical Features
 FEATURE_COLS_REDUCED = [
     "inclusion_pct",
     "Proteína (%)_media",
@@ -36,6 +32,7 @@ FEATURE_COLS_REDUCED = [
     "TPC_dieta_media"
 ]
 
+# 2. Full Features (Testing ARD capabilities)
 FEATURE_COLS_FULL = [
     "inclusion_pct",
     "Proteína (%)_media",
@@ -57,105 +54,108 @@ MODELS = {
     "GP": GPSurrogateRegressor(),
 }
 
+# --- Dynamic Grid Generation ---
 
 def build_exhaustive_gp_kernels(n_features: int):
     """
     Generates a SUPER EXHAUSTIVE list of kernels.
-    Includes Baselines, Isotropic, ARD, Linear families, and Composite Kernels.
-    IMPORTANT: WhiteKernel must be instantiated fresh each time.
+    Includes Baselines, Isotropic, ARD, and Composite Kernels.
+    IMPORTANT: We instantiate WhiteKernel fresh every time to avoid reference issues.
     """
     kernels = []
 
-    # Length-scale bounds: allow sharp to very flat behavior
+    # 1. BOUNDS STRATEGY:
+    # We open the bounds significantly.
+    # Lower bound 1e-2 allows for sharp changes.
+    # Upper bound 1e5 allows for effectively linear/flat behavior (ignoring dimensions).
     ls_bounds = (1e-2, 1e5)
 
-    # Noise strategy: from very clean to quite noisy
+    # 2. NOISE STRATEGY:
+    # We allow the model to assume the data is very clean (1e-7) or very noisy (0.8).
+    # High upper bound helps avoid overfitting outliers.
     wn_bounds = (1e-7, 0.8)
     wn_init = 1e-4
 
     # =================================================================
-    # A. PURE LINEAR FAMILY (GP as “Bayesian linear regression”)
+    # A. BASELINE / SIMPLE KERNELS (Sanity Checks)
     # =================================================================
-    # DotProduct ~ linear kernel. sigma_0 controls bias/intercept scale.
-    for sigma0 in [0.01, 0.1, 1.0, 10.0]:
-        kernels.append(
-            DotProduct(sigma_0=sigma0, sigma_0_bounds=(1e-3, 1e3)) +
-            WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
-        )
-
-    # ConstantKernel * DotProduct gives a learnable global scale of the linear term.
-    for sigma0 in [0.1, 1.0]:
-        kernels.append(
-            ConstantKernel(1.0, constant_value_bounds=(1e-3, 1e3)) *
-            DotProduct(sigma_0=sigma0, sigma_0_bounds=(1e-3, 1e3)) +
-            WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
-        )
-
-    # Optional sanity: noise-only (detect “no signal”)
-    kernels.append(
-        WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
-    )
+    kernels.extend([
+        # Pure Linear (Bayesian Ridge equivalent)
+        # Checks: "Is the relationship simply linear?"
+        DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-2, 1e3)) +
+        WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds),
+    ])
 
     # =================================================================
-    # B. ISOTROPIC KERNELS (smooth/rough nonlinear)
+    # B. ISOTROPIC KERNELS (Standard assumptions)
     # =================================================================
+    # We test different 'smoothness' levels
     for nu in [0.5, 1.5, 2.5]:
         kernels.append(
             Matern(length_scale=1.0, nu=nu, length_scale_bounds=ls_bounds) +
             WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
         )
 
+    # RBF (Infinite smoothness)
     kernels.append(
         RBF(length_scale=1.0, length_scale_bounds=ls_bounds) +
         WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
     )
 
+    # Rational Quadratic (Multi-scale / Heavy tails)
+    # Great for when some effects are short-range and others long-range.
     kernels.append(
-        RationalQuadratic(
-            length_scale=1.0, alpha=1.0,
-            length_scale_bounds=ls_bounds,
-            alpha_bounds=(1e-2, 1e2)
-        ) +
+        RationalQuadratic(length_scale=1.0, alpha=1.0, length_scale_bounds=ls_bounds, alpha_bounds=(1e-2, 1e2)) +
         WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
     )
 
     # =================================================================
-    # C. ARD KERNELS (feature selection)
+    # C. ANISOTROPIC / ARD KERNELS (Feature Selection)
     # =================================================================
     ls_vec = np.ones(n_features)
 
+    # ARD Matern 1.5 (Standard physical process + Selection)
     kernels.append(
         Matern(length_scale=ls_vec, nu=1.5, length_scale_bounds=ls_bounds) +
         WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
     )
 
+    # ARD Matern 2.5 (Smoother Selection)
     kernels.append(
         Matern(length_scale=ls_vec, nu=2.5, length_scale_bounds=ls_bounds) +
         WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
     )
 
+    # ARD RBF (Maximum smoothness Selection)
     kernels.append(
         RBF(length_scale=ls_vec, length_scale_bounds=ls_bounds) +
         WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
     )
 
     # =================================================================
-    # D. COMPOSITE KERNELS (linear trend + nonlinear correction)
+    # D. COMPOSITE KERNELS (The "Hail Mary" plays)
     # =================================================================
+
+    # 1. Linear Trend + RBF Correction
+    # "Generally linear, but with some smooth bumps"
     kernels.append(
-        DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-3, 1e2)) +
+        DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-2, 1e2)) +
         RBF(length_scale=1.0, length_scale_bounds=ls_bounds) +
         WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
     )
 
+    # 2. Linear Trend + Matern 1.5 Correction
+    # "Generally linear, but with some rougher bumps"
     kernels.append(
-        DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-3, 1e2)) +
+        DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-2, 1e2)) +
         Matern(length_scale=1.0, nu=1.5, length_scale_bounds=ls_bounds) +
         WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
     )
 
+    # 3. RationalQuadratic + Linear
+    # "Complex multi-scale relations over a linear trend"
     kernels.append(
-        DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-3, 1e2)) +
+        DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-2, 1e2)) +
         RationalQuadratic(length_scale=1.0, alpha=0.5) +
         WhiteKernel(noise_level=wn_init, noise_level_bounds=wn_bounds)
     )
@@ -165,24 +165,36 @@ def build_exhaustive_gp_kernels(n_features: int):
 
 def get_param_grids(n_features: int):
     """
-    Parameter grids for all models. Ridge kept + GP gets expanded linear kernels.
+    Returns the parameter grids.
+    GP grid is generated dynamically based on n_features.
     """
     return {
         "Dummy": {
             "strategy": ["mean", "median"]
         },
         "Ridge": {
+            # Log-space search for Alpha
             "alpha": [0.01, 0.1, 1.0, 10.0, 100.0],
             "fit_intercept": [True],
         },
         "PLS": {
+            # Components: from 1 up to min(n_features, 8)
             "n_components": list(range(1, min(n_features + 1, 8))),
             "scale": [True],
         },
         "GP": {
-            "alpha": [1e-10, 1e-5, 1e-2, 1.0],
+            # EXHAUSTIVE ALPHA:
+            # 1e-10: Trust WhiteKernel completely.
+            # 1e-5: Standard jitter (numerical stability).
+            # 1e-2: High jitter (regularization/smoothing).
+            "alpha": [1e-10, 1e-5, 1e-2, 1],
+
+            # EXHAUSTIVE RESTARTS:
+            # 15 restarts is a good compromise between speed and finding global optima
             "n_restarts_optimizer": [15],
+
             "normalize_y": [True],
+
             "kernel": build_exhaustive_gp_kernels(n_features),
         },
     }
