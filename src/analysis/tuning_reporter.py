@@ -16,6 +16,8 @@ from src.models.gp import GPSurrogateRegressor
 from src.models.pls import PLSSurrogateRegressor
 from src.models.ridge import RidgeSurrogateRegressor
 from src.models.dummy import DummySurrogateRegressor
+from src.models.bagging import RandomForestSurrogateRegressor
+from src.models.boosting import GradientBoostingSurrogateRegressor
 
 # Publication-ready style
 sns.set_theme(style="whitegrid", context="paper", font_scale=1.2)
@@ -68,7 +70,9 @@ class ModelReconstructor:
         "GP": GPSurrogateRegressor,
         "PLS": PLSSurrogateRegressor,
         "Ridge": RidgeSurrogateRegressor,
-        "Dummy": DummySurrogateRegressor
+        "Dummy": DummySurrogateRegressor,
+        "RandomForest": RandomForestSurrogateRegressor,
+        "GradientBoosting": GradientBoostingSurrogateRegressor
     }
 
     def __init__(self, X: np.ndarray, y: np.ndarray, feature_names: List[str]):
@@ -132,11 +136,17 @@ class SurrogatePlotter:
             logging.warning(f"No data found for metric {metric}. Skipping plot.")
             return
 
-        combined = pd.concat(data_list)
+        # Filter out empty DataFrames before concat to avoid FutureWarning
+        data_list = [df for df in data_list if not df.empty and not df[metric].isna().all()]
+        if not data_list:
+            logging.warning(f"No valid data found for metric {metric} after filtering. Skipping plot.")
+            return
+            
+        combined = pd.concat(data_list, ignore_index=True)
 
         plt.figure(figsize=(10, 6))
-        # Base Boxplot
-        sns.boxplot(data=combined, x="Model", y=metric, palette="Pastel1", showfliers=False)
+        # Base Boxplot (with hue to avoid seaborn v0.14 deprecation warning)
+        sns.boxplot(data=combined, x="Model", y=metric, hue="Model", palette="Pastel1", showfliers=False, legend=False)
         # Stripplot colored by diet
         sns.stripplot(data=combined, x="Model", y=metric, hue="diet",
                       palette="tab20", size=7, alpha=0.9, jitter=True, dodge=False)

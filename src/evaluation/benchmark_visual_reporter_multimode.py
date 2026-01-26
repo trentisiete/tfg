@@ -151,20 +151,19 @@ class MultiModeRequirements:
     
     @property
     def is_valid(self) -> bool:
-        return self.has_sobol and self.has_lhs and self.has_simple and self.has_tuning
+        # Valid if we have at least one sampler and one cv_mode
+        has_any_sampler = self.has_sobol or self.has_lhs or len(self.samplers_found) > 0
+        has_any_cv_mode = self.has_simple or self.has_tuning or len(self.cv_modes_found) > 0
+        return has_any_sampler and has_any_cv_mode
     
     def get_error_message(self) -> str:
         if self.is_valid:
             return ""
         missing = []
-        if not self.has_sobol:
-            missing.append("sampler=sobol")
-        if not self.has_lhs:
-            missing.append("sampler=lhs")
-        if not self.has_simple:
-            missing.append("cv_mode=simple")
-        if not self.has_tuning:
-            missing.append("cv_mode=tuning/nested")
+        if not self.samplers_found:
+            missing.append("at least one sampler (sobol, lhs, random, etc.)")
+        if not self.cv_modes_found:
+            missing.append("at least one cv_mode (simple, tuning, nested)")
         return f"No se puede ejecutar benchmark_visual_reporter_multimode: faltan {{{', '.join(missing)}}}"
 
 
@@ -273,15 +272,11 @@ class MultiModeReportVerifier:
         self.requirements.benchmarks = metadata.get("benchmarks", [])
         self.requirements.models = metadata.get("models", [])
         
-        # Build missing list
-        if not self.requirements.has_sobol:
-            self.requirements.missing.append("sampler=sobol")
-        if not self.requirements.has_lhs:
-            self.requirements.missing.append("sampler=lhs")
-        if not self.requirements.has_simple:
-            self.requirements.missing.append("cv_mode=simple")
-        if not self.requirements.has_tuning:
-            self.requirements.missing.append("cv_mode=tuning")
+        # Build missing list only if no data at all
+        if not self.requirements.samplers_found:
+            self.requirements.missing.append("at least one sampler")
+        if not self.requirements.cv_modes_found:
+            self.requirements.missing.append("at least one cv_mode")
         
         # Strict mode: raise error if invalid
         if self.strict and not self.requirements.is_valid:
@@ -2290,21 +2285,18 @@ def generate_benchmark_report_multimode(
     results_json_path = Path(results_json_path)
     logging.info(f"Loading results from: {results_json_path}")
     
-    # Load and verify data
-    loader = MultiModeResultsLoader(results_json_path, strict=strict)
+    # Load and verify data (strict=False to allow partial data)
+    loader = MultiModeResultsLoader(results_json_path, strict=False)
+    requirements = loader.verify_requirements()
     
-    try:
-        requirements = loader.verify_requirements()
-        logging.info(f"Requirements verified: samplers={requirements.samplers_found}, cv_modes={requirements.cv_modes_found}")
-    except ValueError as e:
-        print(f"\n❌ {e}")
-        print("\nPara usar benchmark_visual_reporter_multimode, el JSON debe contener:")
-        print("  - samplers: sobol Y lhs")
-        print("  - cv_modes: simple Y tuning/nested")
+    if not requirements.is_valid:
+        print(f"\n❌ {requirements.get_error_message()}")
         print("\nEncontrado en este JSON:")
         print(f"  - samplers: {requirements.samplers_found}")
         print(f"  - cv_modes: {requirements.cv_modes_found}")
-        raise
+        raise ValueError(requirements.get_error_message())
+    
+    logging.info(f"Data found: samplers={requirements.samplers_found}, cv_modes={requirements.cv_modes_found}")
     
     df = loader.build_master_table()
     inventory = loader.get_inventory()

@@ -16,9 +16,9 @@ TARGETS = {
 }
 
 # Paths
-BASE_LOG_DIR = LOGS_DIR / "tuning" / "productivity_hermetia_v3"
+BASE_LOG_DIR = LOGS_DIR / "tuning" / "productivity_hermetia_v1"
 DATA_FILE = ENTOMOTIVE_DATA_DIR / "productivity_hermetia_lote.csv"
-GLOBAL_OUTPUT_DIR = PLOTS_DIR / "comprehensive_report_v3"
+GLOBAL_OUTPUT_DIR = PLOTS_DIR / "comprehensive_report_v1"
 
 # ================= Helper Functions =================
 

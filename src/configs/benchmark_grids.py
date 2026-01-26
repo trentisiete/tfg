@@ -39,12 +39,18 @@ DEFAULT_GRIDS = {
         "alpha": [1e-10, 1e-8],
     },
 
-    "Ridge": {
-        "alpha": [0.01, 0.1, 1.0, 10.0, 100.0],
+    "RandomForest": {
+        "n_estimators": [50, 100, 200],
+        "max_depth": [None, 5, 10, 20],
+        "min_samples_leaf": [1, 2, 5],
+        "max_features": ["sqrt", "log2", None],
     },
 
-    "PLS": {
-        "n_components": [2, 3, 5],
+    "GradientBoosting": {
+        "n_estimators": [50, 100, 200],
+        "learning_rate": [0.01, 0.05, 0.1, 0.2],
+        "max_depth": [2, 3, 5],
+        "subsample": [0.8, 1.0],
     },
 
     "Dummy": {
@@ -70,11 +76,15 @@ FORRESTER_GRIDS = {
         "n_restarts_optimizer": [5, 10],
         "alpha": [1e-10],
     },
-    "Ridge": {
-        "alpha": [0.001, 0.01, 0.1, 1.0],
+    "RandomForest": {
+        "n_estimators": [50, 100],
+        "max_depth": [5, 10, None],
+        "min_samples_leaf": [1, 2],
     },
-    "PLS": {
-        "n_components": [1],  # 1D input
+    "GradientBoosting": {
+        "n_estimators": [50, 100],
+        "learning_rate": [0.05, 0.1],
+        "max_depth": [2, 3],
     },
 }
 
@@ -90,11 +100,15 @@ BRANIN_GRIDS = {
         "n_restarts_optimizer": [5, 10],
         "alpha": [1e-10, 1e-8],
     },
-    "Ridge": {
-        "alpha": [0.01, 0.1, 1.0, 10.0],
+    "RandomForest": {
+        "n_estimators": [50, 100, 200],
+        "max_depth": [5, 10, None],
+        "min_samples_leaf": [1, 2],
     },
-    "PLS": {
-        "n_components": [1, 2],
+    "GradientBoosting": {
+        "n_estimators": [50, 100],
+        "learning_rate": [0.05, 0.1, 0.2],
+        "max_depth": [2, 3, 5],
     },
 }
 
@@ -108,11 +122,15 @@ SIXHUMPCAMEL_GRIDS = {
         "n_restarts_optimizer": [5, 10],
         "alpha": [1e-10, 1e-8],
     },
-    "Ridge": {
-        "alpha": [0.1, 1.0, 10.0],
+    "RandomForest": {
+        "n_estimators": [50, 100, 200],
+        "max_depth": [5, 10, 20],
+        "min_samples_leaf": [1, 2],
     },
-    "PLS": {
-        "n_components": [1, 2],
+    "GradientBoosting": {
+        "n_estimators": [50, 100],
+        "learning_rate": [0.05, 0.1],
+        "max_depth": [2, 3, 5],
     },
 }
 
@@ -127,11 +145,15 @@ GOLDSTEINPRICE_GRIDS = {
         "n_restarts_optimizer": [10],
         "alpha": [1e-8, 1e-6],
     },
-    "Ridge": {
-        "alpha": [1.0, 10.0, 100.0],
+    "RandomForest": {
+        "n_estimators": [100, 200],
+        "max_depth": [10, 20, None],
+        "min_samples_leaf": [1, 2],
     },
-    "PLS": {
-        "n_components": [1, 2],
+    "GradientBoosting": {
+        "n_estimators": [100, 200],
+        "learning_rate": [0.05, 0.1],
+        "max_depth": [3, 5],
     },
 }
 
@@ -147,11 +169,15 @@ HARTMANN3_GRIDS = {
         "n_restarts_optimizer": [5, 10],
         "alpha": [1e-10, 1e-8],
     },
-    "Ridge": {
-        "alpha": [0.1, 1.0, 10.0],
+    "RandomForest": {
+        "n_estimators": [50, 100, 200],
+        "max_depth": [5, 10, 20, None],
+        "min_samples_leaf": [1, 2, 5],
     },
-    "PLS": {
-        "n_components": [2, 3],
+    "GradientBoosting": {
+        "n_estimators": [50, 100, 200],
+        "learning_rate": [0.05, 0.1, 0.2],
+        "max_depth": [2, 3, 5],
     },
 }
 
@@ -167,11 +193,15 @@ ISHIGAMI_GRIDS = {
         "n_restarts_optimizer": [5, 10],
         "alpha": [1e-10, 1e-8],
     },
-    "Ridge": {
-        "alpha": [0.1, 1.0, 10.0, 100.0],
+    "RandomForest": {
+        "n_estimators": [100, 200],
+        "max_depth": [10, 20, None],
+        "min_samples_leaf": [1, 2],
     },
-    "PLS": {
-        "n_components": [2, 3],
+    "GradientBoosting": {
+        "n_estimators": [100, 200],
+        "learning_rate": [0.05, 0.1],
+        "max_depth": [3, 5],
     },
 }
 
@@ -190,11 +220,17 @@ HARTMANN6_GRIDS = {
         "n_restarts_optimizer": [5, 10],
         "alpha": [1e-10, 1e-8],
     },
-    "Ridge": {
-        "alpha": [0.1, 1.0, 10.0, 100.0],
+    "RandomForest": {
+        "n_estimators": [100, 200, 300],
+        "max_depth": [10, 20, None],
+        "min_samples_leaf": [1, 2, 5],
+        "max_features": ["sqrt", "log2"],
     },
-    "PLS": {
-        "n_components": [3, 4, 5],
+    "GradientBoosting": {
+        "n_estimators": [100, 200, 300],
+        "learning_rate": [0.01, 0.05, 0.1],
+        "max_depth": [3, 5, 7],
+        "subsample": [0.8, 1.0],
     },
 }
 
@@ -210,11 +246,17 @@ BOREHOLE_GRIDS = {
         "n_restarts_optimizer": [5, 10],
         "alpha": [1e-10, 1e-8],
     },
-    "Ridge": {
-        "alpha": [0.1, 1.0, 10.0, 100.0],
+    "RandomForest": {
+        "n_estimators": [100, 200, 300],
+        "max_depth": [10, 20, None],
+        "min_samples_leaf": [1, 2, 5],
+        "max_features": ["sqrt", "log2"],
     },
-    "PLS": {
-        "n_components": [3, 4, 5, 6],
+    "GradientBoosting": {
+        "n_estimators": [100, 200, 300],
+        "learning_rate": [0.01, 0.05, 0.1],
+        "max_depth": [3, 5, 7],
+        "subsample": [0.8, 1.0],
     },
 }
 
@@ -229,11 +271,17 @@ WINGWEIGHT_GRIDS = {
         "n_restarts_optimizer": [5, 10],
         "alpha": [1e-10, 1e-8],
     },
-    "Ridge": {
-        "alpha": [0.1, 1.0, 10.0, 100.0],
+    "RandomForest": {
+        "n_estimators": [100, 200, 300],
+        "max_depth": [10, 20, None],
+        "min_samples_leaf": [1, 2, 5],
+        "max_features": ["sqrt", "log2"],
     },
-    "PLS": {
-        "n_components": [3, 5, 7],
+    "GradientBoosting": {
+        "n_estimators": [100, 200, 300],
+        "learning_rate": [0.01, 0.05, 0.1],
+        "max_depth": [3, 5, 7],
+        "subsample": [0.8, 1.0],
     },
 }
 

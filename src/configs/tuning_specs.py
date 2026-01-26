@@ -5,6 +5,7 @@ SUPER EXHAUSTIVE GRID FOR GP (Final Robust Version).
 Update:
 - Keep Ridge baseline
 - Add multiple linear-kernel configurations inside GP (DotProduct variants)
+- Add exhaustive grids for RandomForest (Bagging) and GradientBoosting
 """
 
 import numpy as np
@@ -16,6 +17,8 @@ from src.models.dummy import DummySurrogateRegressor
 from src.models.ridge import RidgeSurrogateRegressor
 from src.models.pls import PLSSurrogateRegressor
 from src.models.gp import GPSurrogateRegressor
+from src.models.bagging import RandomForestSurrogateRegressor
+from src.models.boosting import GradientBoostingSurrogateRegressor
 
 
 # --- Target Mappings ---
@@ -52,9 +55,9 @@ FEATURE_COLS_FULL = [
 # --- Model Definitions ---
 MODELS = {
     "Dummy": DummySurrogateRegressor(),
-    "Ridge": RidgeSurrogateRegressor(),
-    "PLS": PLSSurrogateRegressor(),
     "GP": GPSurrogateRegressor(),
+    "RandomForest": RandomForestSurrogateRegressor(),
+    "GradientBoosting": GradientBoostingSurrogateRegressor(),
 }
 
 
@@ -165,24 +168,38 @@ def build_exhaustive_gp_kernels(n_features: int):
 
 def get_param_grids(n_features: int):
     """
-    Parameter grids for all models. Ridge kept + GP gets expanded linear kernels.
+    Parameter grids for all models. Exhaustive grids for GP, RandomForest, and GradientBoosting.
     """
     return {
         "Dummy": {
             "strategy": ["mean", "median"]
-        },
-        "Ridge": {
-            "alpha": [0.01, 0.1, 1.0, 10.0, 100.0],
-            "fit_intercept": [True],
-        },
-        "PLS": {
-            "n_components": list(range(1, min(n_features + 1, 8))),
-            "scale": [True],
         },
         "GP": {
             "alpha": [1e-10, 1e-5, 1e-2, 1.0],
             "n_restarts_optimizer": [15],
             "normalize_y": [True],
             "kernel": build_exhaustive_gp_kernels(n_features),
+        },
+        # =====================================================================
+        # BAGGING GRID (RandomForest) - Regularizado para pocos datos
+        # =====================================================================
+        "RandomForest": {
+            "n_estimators": [50, 100, 200],          # Menos árboles
+            "max_depth": [3, 5, 7],              # Profundidad limitada (sin None)
+            "min_samples_leaf": [2, 4, 8],           # Hojas más grandes
+            "max_features": ["sqrt", 0.5],     # Menos opciones
+            "bootstrap": [True],                     # Solo bootstrap (reduce varianza)
+            "random_state": [42],
+        },
+        # =====================================================================
+        # BOOSTING GRID (GradientBoosting) - Regularizado para pocos datos
+        # =====================================================================
+        "GradientBoosting": {
+            "n_estimators": [50, 100, 150],          # Menos iteraciones
+            "learning_rate": [0.01, 0.05, 0.1],      # Learning rates conservadores
+            "max_depth": [2, 3, 4],               # Árboles poco profundos
+            "subsample": [0.7, 0.8, 0.9],            # Stochastic GB para regularizar
+            "min_samples_leaf": [2, 4],           # Hojas más grandes
+            "random_state": [42],
         },
     }

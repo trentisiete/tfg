@@ -220,7 +220,7 @@ def run_tuning_session(session_name: str, feature_cols: List[str], base_output_d
 
 def main():
     # Base directory for all logs
-    BASE_LOG_DIR = LOGS_DIR / "tuning" / "productivity_hermetia_v3"
+    BASE_LOG_DIR = LOGS_DIR / "tuning" / "productivity_hermetia_v1"
 
     # 1. Run Reduced Features Experiment
     run_tuning_session(
@@ -243,5 +243,4 @@ def main():
     print("\n\nAll tuning sessions completed successfully.")
 
 if __name__ == "__main__":
-    print("Hi")
     main()

@@ -1,9 +1,0 @@
-2026-01-20 12:43:13,385 | INFO | >>> STARTING TARGET: FCR (FCR)
-2026-01-20 12:43:13,405 | INFO | Data Shape: Samples=31 | Total Features (with dummies)=9
-2026-01-20 12:43:13,406 | INFO | --- Tuning Dummy (Grid Size: 2) ---
-2026-01-20 12:43:15,166 | INFO |     [DONE] Dummy -> MAE: 0.2908 | Coverage95: N/A
-2026-01-20 12:43:15,166 | INFO | --- Tuning Ridge (Grid Size: 5) ---
-2026-01-20 12:43:15,496 | INFO |     [DONE] Ridge -> MAE: 0.3108 | Coverage95: N/A
-2026-01-20 12:43:15,498 | INFO | --- Tuning PLS (Grid Size: 7) ---
-2026-01-20 12:43:16,093 | INFO |     [DONE] PLS -> MAE: 0.3281 | Coverage95: N/A
-2026-01-20 12:43:16,094 | INFO | --- Tuning GP (Grid Size: 72) ---

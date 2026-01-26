@@ -1725,11 +1725,13 @@ def generate_benchmark_report(session_name: str,
     print("=" * 70)
     
     # Auto-detect results file
+    
     if results_json_path is None:
         benchmark_dir = LOGS_DIR / "benchmarks"
-        candidates = list(benchmark_dir.glob(f"*{session_name}*_results.json"))
+        # Search recursively in session subdirectories
+        candidates = list(benchmark_dir.glob(f"**/*{session_name}*_results.json"))
         if not candidates:
-            candidates = list(benchmark_dir.glob("*_results.json"))
+            candidates = list(benchmark_dir.glob("**/*_results.json"))
         
         if not candidates:
             raise FileNotFoundError(f"No benchmark results found in {benchmark_dir}")
@@ -1997,6 +1999,7 @@ if __name__ == "__main__":
         json_path = Path(args.json) if args.json else None
         output_path = Path(args.output) if args.output else None
         
+
         generate_benchmark_report(
             session_name=args.session,
             results_json_path=json_path,
