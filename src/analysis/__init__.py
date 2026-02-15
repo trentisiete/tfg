@@ -36,6 +36,10 @@ from .benchmark_runner import (
     nested_lodo_tuning_benchmark,
 )
 
+from .active_learning import (
+    run_active_evaluation,
+)
+
 __all__ = [
     # Metrics module
     "make_splits",
@@ -59,4 +63,5 @@ __all__ = [
     "evaluate_models_on_suite",
     "run_quick_benchmark",
     "nested_lodo_tuning_benchmark",
+    "run_active_evaluation",
 ]

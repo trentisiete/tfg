@@ -82,6 +82,10 @@ from .gp_visualization import (
     add_gp_visualizations_to_report,
 )
 
+from .benchmark_report_active import (
+    generate_active_report,
+)
+
 __all__ = [
     # Tuning evaluation
     "TuningResultsDiscovery",
@@ -118,4 +122,6 @@ __all__ = [
     "plot_gp_nd_slices",
     "generate_kernel_comparison_dashboard",
     "add_gp_visualizations_to_report",
+    # New active-only benchmark report v2
+    "generate_active_report",
 ]

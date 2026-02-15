@@ -2253,6 +2253,26 @@ def generate_benchmark_report_multimode(
         ValueError: If strict=True and requirements not met
         FileNotFoundError: If results JSON not found
     """
+    warnings.warn(
+        "benchmark_visual_reporter_multimode.py esta deprecado. Redirigiendo a benchmark_report_active (report_v2).",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    from .benchmark_report_active.pipeline import generate_active_report
+
+    redirected = generate_active_report(
+        session=session_name or None,
+        json_path=str(results_json_path) if results_json_path else None,
+        output_dir=str(output_dir) if output_dir else None,
+        phase="all",
+        topx=top_x,
+        strict=bool(strict),
+        solo_active=True,
+        max_gp_benchmarks=max_atlas_configs,
+        max_gp_steps=20,
+    )
+    return redirected
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(message)s"
@@ -2502,16 +2522,16 @@ Examples:
             top_x=args.topx,
             max_atlas_configs=args.max_atlas_configs,
         )
-        print(f"\n✅ Report generated successfully: {output_dir}")
+        print(f"\nReport generated successfully: {output_dir}")
         
     except ValueError as e:
-        print(f"\n❌ Validation Error: {e}")
+        print(f"\nValidation Error: {e}")
         return 1
     except FileNotFoundError as e:
-        print(f"\n❌ File Not Found: {e}")
+        print(f"\nFile Not Found: {e}")
         return 1
     except Exception as e:
-        print(f"\n❌ Unexpected Error: {e}")
+        print(f"\nUnexpected Error: {e}")
         traceback.print_exc()
         return 1
     

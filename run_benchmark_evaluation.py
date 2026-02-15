@@ -6,12 +6,16 @@ run_benchmark_evaluation.py
 Main script for evaluating surrogate models on synthetic benchmarks.
 
 Usage:
-    python run_benchmark_evaluation.py                           # Run comprehensive evaluation (simple CV mode)
+    python run_benchmark_evaluation.py                           # Run comprehensive evaluation (simple + active)
     python run_benchmark_evaluation.py --quick                   # Quick evaluation (few benchmarks)
     python run_benchmark_evaluation.py --benchmark forrester branin
-    python run_benchmark_evaluation.py --cv-mode simple          # Only simple train/test split (default)
-    python run_benchmark_evaluation.py --cv-mode tuning          # Only nested LODO tuning
-    python run_benchmark_evaluation.py --cv-mode both            # Both modes
+    python run_benchmark_evaluation.py --cv-mode simple          # Only simple train/test split
+    python run_benchmark_evaluation.py --cv-mode tuning          # KFold CV tuning on train set
+    python run_benchmark_evaluation.py --cv-mode both            # Simple + tuning
+    python run_benchmark_evaluation.py --cv-mode active          # Active learning with EI
+    python run_benchmark_evaluation.py --cv-mode simple_active   # Simple + active
+    python run_benchmark_evaluation.py --cv-mode tuning_active   # Tuning + active
+    python run_benchmark_evaluation.py --cv-mode all             # Simple + tuning + active
     python run_benchmark_evaluation.py --samplers sobol random   # Use both samplers (default)
     python run_benchmark_evaluation.py --n-train 20 30 40 50 60  # Custom train sizes (default: dynamic by dimension)
     python run_benchmark_evaluation.py --help
@@ -23,8 +27,8 @@ Example Output:
 
     Results structure enables plotting evolution across:
         - Samplers (Sobol vs Random)
-        - Training sizes (dynamic: 3*d, 6*d, 9*d, 12*d per benchmark dimension)
-        - CV modes (simple vs tuning)
+        - Training sizes (dynamic: 1*d, 3*d, 6*d, 9*d per benchmark dimension)
+        - CV modes (simple vs tuning vs active)
 
 Hyperparameter Grids:
     Per-benchmark grids are configured in src/configs/benchmark_grids.py
@@ -36,6 +40,10 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Optional
+import numpy as np
+
+from sklearn.base import clone
+from sklearn.model_selection import KFold, ParameterGrid
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -52,12 +60,12 @@ from src.benchmarks import (
 from src.analysis.benchmark_runner import (
     evaluate_models_on_suite,
     evaluate_model_on_dataset,
-    run_quick_benchmark,
     save_benchmark_results,
     nested_lodo_tuning_benchmark,
     BenchmarkSuiteResults,
     BenchmarkResult,
 )
+from src.analysis.active_learning import run_active_evaluation
 
 from src.configs import (
     # Benchmark grids
@@ -70,21 +78,39 @@ from src.configs import (
     # Evaluation defaults
     DEFAULT_SAMPLERS,
     N_TRAIN_MULTIPLIERS,
+    ACTIVE_LEARNING_DEFAULTS,
     EVALUATION_DEFAULTS,
     get_noise_configs,
     get_n_train_for_dimension,
+    get_active_learning_config,
     get_default_models,
     get_base_models,
-    get_simple_models,
 )
 
 from src.utils.paths import LOGS_DIR
+from src.utils.tools import _to_jsonable
+from src.utils.benchmark_evaluation_utils import (
+    _get_noise_label,
+    _save_pivot_tables,
+    _print_comprehensive_summary,
+    _print_active_summary,
+    _serialize_params,
+    _save_benchmark_tuning_results,
+    _print_tuning_summary,
+    _flatten_active_trajectories_for_csv,
+    _collect_active_audit_records,
+    _save_active_audit_logs_jsonl,
+    _save_json_verified,
+    run_quick_evaluation,
+)
 
 
 # =============================================================================
 # MAIN EVALUATION FUNCTIONS
 # =============================================================================
 
+# TODO: These functions right now don't support the infill criteria neither the n_infill.
+# This n_infill is being spent secuentially, 1 by 1.
 def run_full_evaluation(
     benchmarks: list = None,
     n_train: int = 50,
@@ -95,6 +121,9 @@ def run_full_evaluation(
 ):
     """
     Run comprehensive benchmark evaluation (simple train/test split).
+    No Validation methods, It just use the models hardcoded in "Default Models"
+
+    Note: Not necesarilly these are the best models.
 
     Args:
         benchmarks: List of benchmark names (None = all)
@@ -216,6 +245,7 @@ def run_tuned_evaluation(
     if models_to_tune is None:
         models_to_tune = list(get_base_models().keys())
 
+    # Just take the base models (GP, Dummy) to tune by CV
     base_models = get_base_models()
 
     # Filter to requested models
@@ -253,6 +283,8 @@ def run_tuned_evaluation(
 
         # Generate dataset with groups for LODO
         print(f"\nGenerating dataset (n_train={n_train}, n_groups={n_groups})...")
+        
+        # EXPLAIN_AT: Sobol sampler and gaussian noise is hardcoded here.
         dataset = generate_benchmark_dataset(
             benchmark=benchmark_name,
             n_train=n_train,
@@ -274,6 +306,8 @@ def run_tuned_evaluation(
 
         for model_name, base_model in base_models.items():
             # Get grid for this benchmark/model combination
+            # This code is in src/configs/benchmark_grids.py
+            # Each benchmark has a specific grid for each model.
             grid = get_grid_for_evaluation(benchmark_name, model_name, use_default_grids)
 
             if grid is None or len(grid) == 0:
@@ -308,7 +342,7 @@ def run_tuned_evaluation(
                     "macro_rmse_mean": macro.get("rmse", {}).get("mean"),
                     "macro_r2_mean": macro.get("r2", {}).get("mean"),
                     "n_folds": summary.get("n_folds"),
-                    "full_results": _serialize_tuning_results(tuning_result),
+                    "full_results": _to_jsonable(tuning_result),
                 }
 
                 print(f"      Best MAE: {macro.get('mae', {}).get('mean', 'N/A'):.4f}")
@@ -344,8 +378,7 @@ def run_tuned_evaluation(
     }
 
     summary_path = output_dir / "tuning_summary.json"
-    with open(summary_path, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2, default=str)
+    _save_json_verified(summary, summary_path, default=_to_jsonable)
 
     print("\n" + "=" * 70)
     print("TUNING COMPLETE")
@@ -367,9 +400,14 @@ def run_comprehensive_evaluation(
     benchmarks: List[str] = None,
     samplers: List[str] = None,
     n_train_list: List[int] = None,
-    n_test: int = 300,
+    n_test: int = 200,
     n_groups: int = 5,
-    cv_mode: str = "both",
+    cv_mode: str = "simple_active",
+    n_infill: Optional[int] = None,
+    ei_xi: float = 0.01,
+    active_cand_mult: int = 500,
+    active_cv_check_every: int = 5,
+    active_train_all_models: bool = False,
     noise_configs: List[Dict] = None,
     seed: int = 42,
     output_name: str = None,
@@ -384,7 +422,7 @@ def run_comprehensive_evaluation(
     This function allows systematic evaluation across:
         - Multiple samplers (Sobol, LHS)
         - Multiple training set sizes
-        - Different CV modes (simple train/test, nested LODO tuning, or both)
+        - Different CV modes (simple train/test, KFold tuning, active learning)
 
     Results are saved in a structured format optimized for plotting the evolution
     of model performance across these different configurations.
@@ -393,9 +431,15 @@ def run_comprehensive_evaluation(
         benchmarks: List of benchmark names (None = all available)
         samplers: List of samplers ["sobol", "lhs"] (default: ["sobol", "lhs"])
         n_train_list: List of training sizes (default: [20, 30, 40, 50, 60])
-        n_test: Number of test samples (default: 300)
-        n_groups: Number of groups for LODO CV (default: 5)
-        cv_mode: "simple" (train/test), "tuning" (nested LODO), or "both" (default)
+        n_test: Number of test samples (default: 200)
+        n_groups: Synthetic groups setting for legacy LODO workflows (default: 5)
+        cv_mode: "simple", "tuning", "both", "active", "simple_active", "tuning_active", or "all"
+        n_infill: Active-learning infill budget (default: 5 * benchmark_dim)
+        ei_xi: Exploration parameter for EI (default: 0.01)
+        active_cand_mult: Candidate pool multiplier per dim (default: 500)
+        active_cv_check_every: Audit interval in active mode (default: 5)
+        active_train_all_models: If True, train all active models and compare.
+            If False, train only one GP model in active mode.
         noise_configs: List of noise configurations (default: standard set)
         seed: Random seed (default: 42)
         output_name: Custom output directory name
@@ -412,7 +456,7 @@ def run_comprehensive_evaluation(
         ...     benchmarks=["forrester", "branin"],
         ...     samplers=["sobol", "lhs"],
         ...     n_train_list=[20, 30, 40, 50],
-        ...     cv_mode="both"
+        ...     cv_mode="all"
         ... )
     """
     import json
@@ -430,11 +474,36 @@ def run_comprehensive_evaluation(
         noise_configs = get_noise_configs(include_heteroscedastic=False)
     if models_to_tune is None:
         models_to_tune = list(get_base_models().keys())
+    if ei_xi is None:
+        ei_xi = ACTIVE_LEARNING_DEFAULTS.get("ei_xi", 0.01)
+    if active_cand_mult is None:
+        active_cand_mult = ACTIVE_LEARNING_DEFAULTS.get("active_cand_mult", 500)
+    if active_cv_check_every is None:
+        active_cv_check_every = ACTIVE_LEARNING_DEFAULTS.get("active_cv_check_every", 5)
 
     # Validate cv_mode
-    valid_cv_modes = ["simple", "tuning", "both"]
+    valid_cv_modes = ["simple", "tuning", "both", "active", "simple_active", "tuning_active", "all"]
     if cv_mode not in valid_cv_modes:
         raise ValueError(f"cv_mode must be one of {valid_cv_modes}, got '{cv_mode}'")
+    if n_infill is not None and n_infill < 1:
+        raise ValueError("n_infill must be >= 1 when provided")
+    if ei_xi < 0:
+        raise ValueError("ei_xi must be >= 0")
+    if active_cand_mult < 1:
+        raise ValueError("active_cand_mult must be >= 1")
+    if active_cv_check_every < 0:
+        raise ValueError("active_cv_check_every must be >= 0")
+
+    if cv_mode == "both":
+        cv_modes_to_run_global = ["simple", "tuning"]
+    elif cv_mode == "simple_active":
+        cv_modes_to_run_global = ["simple", "active"]
+    elif cv_mode == "tuning_active":
+        cv_modes_to_run_global = ["tuning", "active"]
+    elif cv_mode == "all":
+        cv_modes_to_run_global = ["simple", "tuning", "active"]
+    else:
+        cv_modes_to_run_global = [cv_mode]
 
     # Create output directory
     if output_name is None:
@@ -445,13 +514,13 @@ def run_comprehensive_evaluation(
     # Calculate total experiments
     n_benchmarks = len(benchmarks)
     n_samplers = len(samplers)
-    n_train_sizes_info = "dynamic (3*d to 12*d)" if n_train_list is None else str(n_train_list)
+    n_train_sizes_info = "dynamic (1*d to 9*d)" if n_train_list is None else str(n_train_list)
     n_noise = len(noise_configs)
-    n_cv_modes = 2 if cv_mode == "both" else 1
-    
-    # Calcular total de configs aproximado
+    n_cv_modes = len(cv_modes_to_run_global)
+
+    # Calculate total configurations approximately
     if n_train_list is None:
-        # Estimación: promedio de 4 tamaños por benchmark
+        # Estimate: average of 4 sizes per benchmark
         total_configs = n_benchmarks * n_samplers * 4 * n_noise
     else:
         total_configs = n_benchmarks * n_samplers * len(n_train_list) * n_noise
@@ -466,9 +535,15 @@ def run_comprehensive_evaluation(
     print(f"  Noise configs ({n_noise}): {[c['type'] for c in noise_configs]}")
     print(f"  CV mode: {cv_mode}")
     print(f"  Test samples: {n_test}")
-    print(f"  LODO groups: {n_groups}")
+    print(f"  Groups setting (legacy LODO only): {n_groups}")
+    infill_per_dim = ACTIVE_LEARNING_DEFAULTS.get("n_infill_per_dim", 5)
+    print(
+        f"  Active n_infill: "
+        f"{n_infill if n_infill is not None else f'dynamic ({infill_per_dim}*d)'}"
+    )
+    print(f"  Active EI xi: {ei_xi}")
     print(f"\nTotal dataset configurations: {total_configs}")
-    print(f"CV modes to run: {['simple', 'tuning'] if cv_mode == 'both' else [cv_mode]}")
+    print(f"CV modes to run: {cv_modes_to_run_global}")
     print(f"Seed: {seed}")
     print("=" * 70)
 
@@ -483,10 +558,24 @@ def run_comprehensive_evaluation(
             "n_test": n_test,
             "n_groups": n_groups,
             "cv_mode": cv_mode,
+            "cv_modes_to_run": cv_modes_to_run_global,
             "noise_configs": noise_configs,
             "seed": seed,
             "scoring": scoring,
             "models": models_to_tune,
+            "active_config": {
+                "n_infill": n_infill,
+                "n_infill_per_dim_default": ACTIVE_LEARNING_DEFAULTS.get("n_infill_per_dim", 5),
+                "ei_xi": ei_xi,
+                "active_cand_mult": active_cand_mult,
+                "optimizer_budget_formula": "max(2000, active_cand_mult * dim)",
+                "active_cv_check_every": active_cv_check_every,
+                "active_switch_enable": ACTIVE_LEARNING_DEFAULTS.get("active_switch_enable", True),
+                "active_switch_warmup_steps": ACTIVE_LEARNING_DEFAULTS.get("active_switch_warmup_steps", 5),
+                "active_switch_min_improvement": ACTIVE_LEARNING_DEFAULTS.get("active_switch_min_improvement", 0.01),
+                "active_switch_cooldown_steps": ACTIVE_LEARNING_DEFAULTS.get("active_switch_cooldown_steps", 5),
+                "active_train_all_models": bool(active_train_all_models),
+            },
         },
         "results": {},  # Nested: sampler -> n_train -> benchmark -> noise -> cv_mode -> model
     }
@@ -502,33 +591,33 @@ def run_comprehensive_evaluation(
         all_results["results"][sampler] = {}
 
         for bench_idx, benchmark_name in enumerate(benchmarks):
-            # Calcular n_train_list dinámicamente si no se especificó
+            # n_train_list is calculated dynamically based on benchmark dimension
             bench_func = get_benchmark(benchmark_name)
             bench_dim = bench_func.dim
-            
+
             if n_train_list is None:
                 current_n_train_list = get_n_train_for_dimension(bench_dim)
             else:
                 current_n_train_list = n_train_list
-            
+
             print(f"\n{'='*70}")
             print(f"SAMPLER: {sampler.upper()} | BENCHMARK: {benchmark_name} (dim={bench_dim})")
             print(f"N_TRAIN values: {current_n_train_list}")
             print(f"{'='*70}")
-            
+
             for n_train in current_n_train_list:
                 if n_train not in all_results["results"][sampler]:
                     all_results["results"][sampler][n_train] = {}
                 if benchmark_name not in all_results["results"][sampler][n_train]:
                     all_results["results"][sampler][n_train][benchmark_name] = {}
-                
+
                 for noise_cfg in noise_configs:
                     noise_type = noise_cfg.get("type", "none")
                     noise_label = _get_noise_label(noise_cfg)
 
                     config_idx += 1
                     print(f"\n[{config_idx}] {benchmark_name} (d={bench_dim}) | {noise_label} | {sampler} | n={n_train}")
-                    
+
                     all_results["results"][sampler][n_train][benchmark_name][noise_label] = {}
 
                     # Generate dataset
@@ -548,7 +637,7 @@ def run_comprehensive_evaluation(
                         continue
 
                     # Run CV modes
-                    cv_modes_to_run = ["simple", "tuning"] if cv_mode == "both" else [cv_mode]
+                    cv_modes_to_run = cv_modes_to_run_global
 
                     for current_cv_mode in cv_modes_to_run:
                         print(f"  Running {current_cv_mode} evaluation...")
@@ -559,8 +648,9 @@ def run_comprehensive_evaluation(
                                 dataset=dataset,
                                 models=get_default_models(),
                             )
-                        else:
-                            # Nested LODO tuning
+                        elif current_cv_mode == "tuning":
+                            # KFold CV tuning on train split (no group dependency),
+                            # then final evaluation on the fixed benchmark test set.
                             cv_results = _run_tuning_evaluation(
                                 dataset=dataset,
                                 base_models=get_base_models(),
@@ -569,12 +659,55 @@ def run_comprehensive_evaluation(
                                 scoring=scoring,
                                 n_jobs=n_jobs,
                                 use_default_grids=use_default_grids,
+                                seed=seed,
+                            )
+                        else:
+                            if n_train == 0:
+                                print("    WARNING: n_train=0 in active mode. Auto-correcting to 1 initial sample.")
+
+                            active_cfg = get_active_learning_config(
+                                dim=bench_dim,
+                                n_infill=n_infill,
+                                ei_xi=ei_xi,
+                                active_cand_mult=active_cand_mult,
+                                active_cv_check_every=active_cv_check_every,
+                            )
+                            noise_kwargs = {k: v for k, v in noise_cfg.items() if k != "type"}
+                            if active_train_all_models:
+                                active_models = get_default_models()
+                            else:
+                                base_models = get_base_models()
+                                if "GP" not in base_models:
+                                    raise ValueError(
+                                        "Active single-model mode requires 'GP' in get_base_models()."
+                                    )
+                                active_models = {"GP": base_models["GP"]}
+                            cv_results = run_active_evaluation(
+                                dataset=dataset,
+                                models=active_models,
+                                benchmark_name=benchmark_name,
+                                sampler=sampler,
+                                noise_type=noise_type,
+                                noise_kwargs=noise_kwargs,
+                                n_infill=active_cfg["n_infill"],
+                                xi=active_cfg["ei_xi"],
+                                active_cand_mult=active_cfg["active_cand_mult"],
+                                active_cv_check_every=active_cfg["active_cv_check_every"],
+                                active_switch_enable=active_cfg.get("active_switch_enable", True),
+                                active_switch_warmup_steps=active_cfg.get("active_switch_warmup_steps", 5),
+                                active_switch_min_improvement=active_cfg.get("active_switch_min_improvement", 0.01),
+                                active_switch_cooldown_steps=active_cfg.get("active_switch_cooldown_steps", 5),
+                                use_default_grids=use_default_grids,
+                                seed=seed,
+                                verbose=True,
                             )
 
                         all_results["results"][sampler][n_train][benchmark_name][noise_label][current_cv_mode] = cv_results
 
                         # Add to summary rows
                         for model_name, model_results in cv_results.items():
+                            if current_cv_mode == "active" and not model_results.get("active_supported", False):
+                                continue
                             summary_rows.append({
                                 "sampler": sampler,
                                 "n_train": n_train,
@@ -588,6 +721,7 @@ def run_comprehensive_evaluation(
                                 "nlpd": model_results.get("nlpd"),
                                 "coverage_95": model_results.get("coverage_95"),
                                 "fit_time": model_results.get("fit_time"),
+                                "active_supported": model_results.get("active_supported", True),
                             })
 
     total_time = time.perf_counter() - t_start
@@ -595,13 +729,23 @@ def run_comprehensive_evaluation(
 
     # Save full results
     results_path = output_dir / "comprehensive_results.json"
-    with open(results_path, "w", encoding="utf-8") as f:
-        json.dump(all_results, f, indent=2, default=_json_serializer)
+    _save_json_verified(all_results, results_path, default=_to_jsonable)
 
     # Save summary DataFrame
     summary_df = pd.DataFrame(summary_rows)
     summary_csv_path = output_dir / "summary.csv"
     summary_df.to_csv(summary_csv_path, index=False)
+
+    # Save active-learning artifacts (if active mode was run)
+    active_traj_df = _flatten_active_trajectories_for_csv(all_results)
+    if not active_traj_df.empty:
+        active_traj_path = output_dir / "active_trajectory.csv"
+        active_traj_df.to_csv(active_traj_path, index=False)
+
+    active_audit_records = _collect_active_audit_records(all_results)
+    if active_audit_records:
+        active_audit_path = output_dir / "active_hparam_audit.jsonl"
+        _save_active_audit_logs_jsonl(active_audit_records, active_audit_path)
 
     # Save pivot tables for easy plotting
     _save_pivot_tables(summary_df, output_dir)
@@ -614,27 +758,17 @@ def run_comprehensive_evaluation(
     print(f"  - comprehensive_results.json (full structured results)")
     print(f"  - summary.csv (flat table for plotting)")
     print(f"  - pivot_*.csv (pivot tables by dimension)")
+    if not active_traj_df.empty:
+        print("  - active_trajectory.csv (active-learning per-step trajectory)")
+    if active_audit_records:
+        print("  - active_hparam_audit.jsonl (periodic CV audit logs)")
 
     # Print quick summary
     _print_comprehensive_summary(summary_df)
+    if not active_traj_df.empty:
+        _print_active_summary(active_traj_df)
 
     return all_results
-
-
-def _get_noise_label(noise_cfg: Dict) -> str:
-    """Generate a label for a noise configuration."""
-    noise_type = noise_cfg.get("type", "none")
-    if noise_type == "none":
-        return "NoNoise"
-    elif noise_type == "gaussian":
-        sigma = noise_cfg.get("sigma", 0.1)
-        return f"Gaussian_s{sigma}"
-    elif noise_type == "heteroscedastic":
-        return "Heteroscedastic"
-    elif noise_type == "proportional":
-        return "Proportional"
-    return noise_type
-
 
 def _run_simple_evaluation(
     dataset,
@@ -686,14 +820,36 @@ def _run_tuning_evaluation(
     scoring: str,
     n_jobs: int,
     use_default_grids: bool,
+    seed: int,
 ) -> Dict[str, Any]:
     """
-    Run nested LODO tuning evaluation on a dataset.
+    Run KFold CV tuning on training data, then evaluate best params on test data.
 
     Returns:
-        Dict mapping model_name -> metrics (macro averaged)
+        Dict mapping model_name -> final test metrics + CV selection diagnostics.
     """
+    def _is_invalid_score(value: Any) -> bool:
+        return value is None or (isinstance(value, float) and not np.isfinite(value))
+
+    def _mean_std(values: List[float]) -> Dict[str, Optional[float]]:
+        if not values:
+            return {"mean": None, "std": None}
+        arr = np.asarray(values, dtype=float)
+        return {"mean": float(np.mean(arr)), "std": float(np.std(arr))}
+
     results = {}
+    X_train = dataset.X_train
+    y_train = dataset.y_train
+    n_samples = int(len(y_train))
+    n_splits = min(5, n_samples)
+
+    if n_splits < 2:
+        msg = f"Insufficient training samples for KFold tuning (n_train={n_samples}, need >=2)"
+        for model_name in models_to_tune:
+            results[model_name] = {"error": msg}
+        return results
+
+    cv = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
 
     for model_name in models_to_tune:
         if model_name not in base_models:
@@ -707,227 +863,114 @@ def _run_tuning_evaluation(
             continue
 
         try:
-            tuning_result = nested_lodo_tuning_benchmark(
-                base_model=base_model,
-                param_grid=grid,
-                dataset=dataset,
-                scoring=scoring,
-                n_jobs=n_jobs,
+            param_candidates = list(ParameterGrid(grid))
+
+            def _score_single_param(params: Dict[str, Any]) -> Dict[str, Any]:
+                fold_scores: List[float] = []
+                fold_errors: List[str] = []
+
+                for train_idx, valid_idx in cv.split(X_train, y_train):
+                    m = clone(base_model)
+                    try:
+                        m.set_params(**params)
+                        m.fit(X_train[train_idx], y_train[train_idx])
+                        mean_pred, std_pred = m.predict_dist(X_train[valid_idx])
+                        fold_metrics = m.compute_metrics(
+                            y_train[valid_idx],
+                            mean_pred,
+                            std_pred,
+                            extended=(scoring == "nlpd"),
+                        )
+                        score = fold_metrics.get(scoring)
+                        if _is_invalid_score(score):
+                            raise ValueError(f"invalid_{scoring}_score")
+                        fold_scores.append(float(score))
+                    except Exception as exc:
+                        fold_errors.append(str(exc))
+
+                return {
+                    "params_raw": params,
+                    "mean_score": float(np.mean(fold_scores)) if fold_scores else None,
+                    "std_score": float(np.std(fold_scores)) if fold_scores else None,
+                    "n_valid_folds": len(fold_scores),
+                    "errors": fold_errors,
+                }
+
+            if n_jobs is not None and n_jobs > 1:
+                from joblib import Parallel, delayed
+                ranking = Parallel(n_jobs=n_jobs, prefer="processes")(
+                    delayed(_score_single_param)(params) for params in param_candidates
+                )
+            else:
+                ranking = [_score_single_param(params) for params in param_candidates]
+
+            ranking.sort(
+                key=lambda rec: (
+                    rec["mean_score"] is None,
+                    float("inf") if rec["mean_score"] is None else rec["mean_score"],
+                )
             )
 
-            summary = tuning_result.get("summary", {})
-            macro = summary.get("macro", {})
+            if not ranking or ranking[0]["mean_score"] is None:
+                results[model_name] = {"error": f"KFold tuning failed for scoring={scoring}"}
+                continue
+
+            best = ranking[0]
+            best_params = best["params_raw"]
+
+            # Estimate variability for key metrics on CV folds using selected params.
+            cv_metric_values: Dict[str, List[float]] = {
+                "mae": [],
+                "rmse": [],
+                "r2": [],
+                "nlpd": [],
+                "coverage_95": [],
+            }
+            for train_idx, valid_idx in cv.split(X_train, y_train):
+                m = clone(base_model)
+                m.set_params(**best_params)
+                m.fit(X_train[train_idx], y_train[train_idx])
+                mean_pred, std_pred = m.predict_dist(X_train[valid_idx])
+                fold_metrics = m.compute_metrics(
+                    y_train[valid_idx],
+                    mean_pred,
+                    std_pred,
+                    extended=True,
+                )
+                for metric_name in cv_metric_values:
+                    value = fold_metrics.get(metric_name)
+                    if value is not None and np.isfinite(value):
+                        cv_metric_values[metric_name].append(float(value))
+
+            # Fit selected model on full train and evaluate on held-out test.
+            tuned_model = clone(base_model)
+            tuned_model.set_params(**best_params)
+            final_result = evaluate_model_on_dataset(
+                model=tuned_model,
+                dataset=dataset,
+                store_predictions=False,
+            )
+            metrics = final_result.metrics
 
             results[model_name] = {
-                "mae": macro.get("mae", {}).get("mean"),
-                "mae_std": macro.get("mae", {}).get("std"),
-                "rmse": macro.get("rmse", {}).get("mean"),
-                "rmse_std": macro.get("rmse", {}).get("std"),
-                "r2": macro.get("r2", {}).get("mean"),
-                "r2_std": macro.get("r2", {}).get("std"),
-                "nlpd": macro.get("nlpd", {}).get("mean"),
-                "coverage_95": macro.get("coverage_95", {}).get("mean"),
-                "n_folds": summary.get("n_folds"),
-                "best_params": _get_most_common_params(tuning_result.get("chosen_params", [])),
+                "mae": metrics.mae,
+                "mae_std": _mean_std(cv_metric_values["mae"])["std"],
+                "rmse": metrics.rmse,
+                "rmse_std": _mean_std(cv_metric_values["rmse"])["std"],
+                "r2": metrics.r2,
+                "r2_std": _mean_std(cv_metric_values["r2"])["std"],
+                "nlpd": metrics.nlpd,
+                "coverage_95": metrics.coverage_95,
+                "n_folds": n_splits,
+                "best_params": _serialize_params(best_params),
+                "cv_primary_metric": scoring,
+                "cv_primary_mean": best["mean_score"],
+                "cv_primary_std": best["std_score"],
             }
         except Exception as e:
             results[model_name] = {"error": str(e)}
 
     return results
-
-
-def _get_most_common_params(chosen_params: List[Dict]) -> Dict:
-    """Get most commonly chosen parameters across folds."""
-    if not chosen_params:
-        return {}
-
-    # For simplicity, return the first fold's params
-    # A more sophisticated approach would compute mode
-    return _serialize_params(chosen_params[0]) if chosen_params else {}
-
-
-def _json_serializer(obj):
-    """JSON serializer for objects not serializable by default."""
-    import numpy as np
-
-    if isinstance(obj, np.ndarray):
-        return obj.tolist()
-    elif isinstance(obj, np.integer):
-        return int(obj)
-    elif isinstance(obj, np.floating):
-        return float(obj)
-    elif hasattr(obj, '__dict__'):
-        return str(obj)
-    return str(obj)
-
-
-def _save_pivot_tables(df: 'pd.DataFrame', output_dir: Path):
-    """Save pivot tables organized by different dimensions for easy plotting."""
-    import pandas as pd
-
-    if df.empty:
-        return
-
-    # Pivot by n_train (for learning curve plots)
-    for metric in ["mae", "rmse", "r2"]:
-        if metric in df.columns:
-            try:
-                pivot = df.pivot_table(
-                    index=["benchmark", "model", "sampler", "cv_mode"],
-                    columns="n_train",
-                    values=metric,
-                    aggfunc="mean"
-                )
-                pivot.to_csv(output_dir / f"pivot_by_ntrain_{metric}.csv")
-            except Exception:
-                pass
-
-    # Pivot by sampler (for sampler comparison)
-    for metric in ["mae", "rmse", "r2"]:
-        if metric in df.columns:
-            try:
-                pivot = df.pivot_table(
-                    index=["benchmark", "model", "n_train", "cv_mode"],
-                    columns="sampler",
-                    values=metric,
-                    aggfunc="mean"
-                )
-                pivot.to_csv(output_dir / f"pivot_by_sampler_{metric}.csv")
-            except Exception:
-                pass
-
-    # Pivot by cv_mode (for CV comparison)
-    for metric in ["mae", "rmse", "r2"]:
-        if metric in df.columns:
-            try:
-                pivot = df.pivot_table(
-                    index=["benchmark", "model", "n_train", "sampler"],
-                    columns="cv_mode",
-                    values=metric,
-                    aggfunc="mean"
-                )
-                pivot.to_csv(output_dir / f"pivot_by_cvmode_{metric}.csv")
-            except Exception:
-                pass
-
-
-def _print_comprehensive_summary(df: 'pd.DataFrame'):
-    """Print a quick summary of the comprehensive evaluation."""
-    if df.empty:
-        print("\nNo results to summarize.")
-        return
-
-    print("\n--- Quick Summary ---")
-
-    # Best model per benchmark (by MAE)
-    if "mae" in df.columns:
-        print("\nBest model per benchmark (by MAE, averaged across configs):")
-        best = df.groupby(["benchmark", "model"])["mae"].mean().reset_index()
-        best_per_bench = best.loc[best.groupby("benchmark")["mae"].idxmin()]
-        for _, row in best_per_bench.iterrows():
-            print(f"  {row['benchmark']:15s} -> {row['model']:20s} (MAE: {row['mae']:.4f})")
-
-    # Effect of n_train
-    if "n_train" in df.columns and "mae" in df.columns:
-        print("\nAverage MAE by n_train:")
-        by_ntrain = df.groupby("n_train")["mae"].mean()
-        for n, mae in by_ntrain.items():
-            print(f"  n_train={n:3d} -> MAE: {mae:.4f}")
-
-    # Effect of sampler
-    if "sampler" in df.columns and "mae" in df.columns:
-        print("\nAverage MAE by sampler:")
-        by_sampler = df.groupby("sampler")["mae"].mean()
-        for s, mae in by_sampler.items():
-            print(f"  {s:10s} -> MAE: {mae:.4f}")
-
-
-def _serialize_params(params: dict) -> dict:
-    """Convert params to JSON-serializable format."""
-    result = {}
-    for k, v in params.items():
-        if hasattr(v, '__class__') and 'kernel' in str(type(v).__name__).lower():
-            result[k] = str(v)
-        elif hasattr(v, 'tolist'):
-            result[k] = v.tolist()
-        else:
-            result[k] = v
-    return result
-
-
-def _serialize_tuning_results(results: dict) -> dict:
-    """Serialize tuning results to JSON-compatible format."""
-    import numpy as np
-
-    def _convert(obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, dict):
-            return {k: _convert(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [_convert(v) for v in obj]
-        elif hasattr(obj, '__dict__'):
-            return str(obj)
-        return obj
-
-    return _convert(results)
-
-
-def _save_benchmark_tuning_results(results: dict, path: Path):
-    """Save benchmark tuning results to JSON."""
-    import json
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, default=str)
-
-
-def _print_tuning_summary(all_results: dict, benchmarks: list, models: list):
-    """Print summary table of tuning results."""
-    import pandas as pd
-
-    rows = []
-    for bench in benchmarks:
-        if bench not in all_results:
-            continue
-        for model in models:
-            if model not in all_results[bench].get("models", {}):
-                continue
-            res = all_results[bench]["models"][model]
-            rows.append({
-                "benchmark": bench,
-                "model": model,
-                "mae": res.get("macro_mae_mean"),
-                "rmse": res.get("macro_rmse_mean"),
-                "r2": res.get("macro_r2_mean"),
-            })
-
-    if rows:
-        df = pd.DataFrame(rows)
-        print("\n--- Tuning Results Summary ---")
-        print(df.to_string(index=False))
-    else:
-        print("\nNo results to display")
-
-
-def run_quick_evaluation(seed: int = 42):
-    """Run quick benchmark for rapid testing."""
-    models = get_simple_models()
-
-    results = run_quick_benchmark(
-        models=models,
-        benchmarks=["forrester", "branin", "hartmann3"],
-        n_train=30,
-        n_test=100,
-        noise_sigma=0.1,
-        seed=seed,
-        verbose=True,
-    )
-
-    return results
-
 
 # =============================================================================
 # CLI
@@ -939,7 +982,7 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Run comprehensive evaluation with defaults (both CV modes, sobol+lhs, multiple train sizes)
+  # Run comprehensive evaluation with defaults (simple + active, sobol+random, dynamic train sizes)
   python run_benchmark_evaluation.py
 
   # Quick test with few benchmarks
@@ -948,21 +991,27 @@ Examples:
   # Specific benchmarks with custom train sizes
   python run_benchmark_evaluation.py -b forrester branin --n-train 20 30 40 50
 
-  # Default: simple CV mode with sobol+random samplers and dynamic n_train
+  # Default: simple + active with sobol+random samplers and dynamic n_train
   python run_benchmark_evaluation.py
-  
+
   # Only Sobol sampling
   python run_benchmark_evaluation.py --samplers sobol
 
-  # Nested LODO tuning mode
+  # KFold tuning mode
   python run_benchmark_evaluation.py --cv-mode tuning --n-jobs 4
+
+  # Active learning mode (EI infill)
+  python run_benchmark_evaluation.py --cv-mode active --n-infill 15 --ei-xi 0.01
+
+  # Active learning: train all models and compare
+  python run_benchmark_evaluation.py --cv-mode active --active-train-all-models
 
   # Custom train sizes (overrides dynamic)
   python run_benchmark_evaluation.py --n-train 20 30 40 50 60
-  
+
   # Full custom evaluation
   python run_benchmark_evaluation.py -b forrester branin hartmann3 \\
-      --cv-mode both --samplers sobol lhs random --n-train 10 20 30
+      --cv-mode all --samplers sobol lhs random --n-train 10 20 30
         """
     )
 
@@ -976,9 +1025,9 @@ Examples:
     mode_group.add_argument(
         "--cv-mode",
         type=str,
-        default="simple",
-        choices=["simple", "tuning", "both"],
-        help="CV mode: 'simple' (train/test split), 'tuning' (nested LODO), 'both' (default: simple)"
+        default="simple_active",
+        choices=["simple", "tuning", "both", "active", "simple_active", "tuning_active", "all"],
+        help="CV mode: 'simple', 'tuning', 'both', 'active', 'simple_active', 'tuning_active', or 'all' (default: simple_active)"
     )
 
     # Data configuration
@@ -1001,19 +1050,19 @@ Examples:
         nargs="+",
         type=int,
         default=None,
-        help="Training sample sizes. Default: dynamic [3*d, 6*d, 9*d, 12*d] per benchmark dimension"
+        help="Training sample sizes. Default: dynamic [1*d, 3*d, 6*d, 9*d] per benchmark dimension"
     )
     data_group.add_argument(
         "--n-test",
         type=int,
-        default=300,
-        help="Number of test samples (default: 300)"
+        default=200,
+        help="Number of test samples (default: 200)"
     )
     data_group.add_argument(
         "--n-groups",
         type=int,
         default=5,
-        help="Number of groups for LODO cross-validation (default: 5)"
+        help="Synthetic groups setting for legacy LODO workflows (default: 5)"
     )
     data_group.add_argument(
         "--seed",
@@ -1052,6 +1101,42 @@ Examples:
         help="Parallel jobs for grid search (default: 1)"
     )
 
+    # Active learning configuration
+    active_group = parser.add_argument_group("Active Learning")
+    active_group.add_argument(
+        "--n-infill",
+        type=int,
+        default=None,
+        help="Sequential EI infill steps. Default: dynamic 5 * benchmark_dim"
+    )
+    active_group.add_argument(
+        "--ei-xi",
+        type=float,
+        default=ACTIVE_LEARNING_DEFAULTS.get("ei_xi", 0.01),
+        help=f"EI exploration parameter xi (default: {ACTIVE_LEARNING_DEFAULTS.get('ei_xi', 0.01)})"
+    )
+    active_group.add_argument(
+        "--active-cand-mult",
+        type=int,
+        default=ACTIVE_LEARNING_DEFAULTS.get("active_cand_mult", 500),
+        help=f"Continuous EI optimizer budget multiplier per dimension (default: {ACTIVE_LEARNING_DEFAULTS.get('active_cand_mult', 500)})"
+    )
+    active_group.add_argument(
+        "--active-cv-check-every",
+        type=int,
+        default=ACTIVE_LEARNING_DEFAULTS.get("active_cv_check_every", 5),
+        help=f"Run CV audit every N active steps (default: {ACTIVE_LEARNING_DEFAULTS.get('active_cv_check_every', 5)})"
+    )
+    active_group.add_argument(
+        "--active-train-all-models",
+        action="store_true",
+        default=ACTIVE_LEARNING_DEFAULTS.get("active_train_all_models", False),
+        help=(
+            "If set, active mode trains all default active models and compares them. "
+            "By default, active mode trains a single GP model."
+        ),
+    )
+
     # Output
     output_group = parser.add_argument_group("Output")
     output_group.add_argument(
@@ -1078,7 +1163,7 @@ Examples:
     parser.add_argument(
         "--tune", "-t",
         action="store_true",
-        help="[DEPRECATED] Use --cv-mode tuning instead. Runs only nested LODO tuning."
+        help="[DEPRECATED] Use --cv-mode tuning instead."
     )
 
     args = parser.parse_args()
@@ -1118,6 +1203,13 @@ Examples:
     print(f"  Train sizes: {args.n_train}")
     print(f"  Benchmarks: {args.benchmarks or 'all'}")
     print(f"  Models:     {args.models or 'all default'}")
+    infill_per_dim = ACTIVE_LEARNING_DEFAULTS.get("n_infill_per_dim", 5)
+    print(
+        f"  Active n_infill: "
+        f"{args.n_infill if args.n_infill is not None else f'dynamic ({infill_per_dim}*d)'}"
+    )
+    print(f"  Active EI xi: {args.ei_xi}")
+    print(f"  Active train all models: {args.active_train_all_models}")
 
     run_comprehensive_evaluation(
         benchmarks=args.benchmarks,
@@ -1126,6 +1218,11 @@ Examples:
         n_test=args.n_test,
         n_groups=args.n_groups,
         cv_mode=args.cv_mode,
+        n_infill=args.n_infill,
+        ei_xi=args.ei_xi,
+        active_cand_mult=args.active_cand_mult,
+        active_cv_check_every=args.active_cv_check_every,
+        active_train_all_models=args.active_train_all_models,
         seed=args.seed,
         output_name=args.output_name,
         scoring=args.scoring,
