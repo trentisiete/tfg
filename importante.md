@@ -1,0 +1,1 @@
+En las imágenes de latex poner .eps

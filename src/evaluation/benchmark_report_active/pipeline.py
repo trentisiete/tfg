@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
@@ -31,6 +32,24 @@ def _ensure_dirs(base: Path) -> Dict[str, Path]:
     for p in dirs.values():
         p.mkdir(parents=True, exist_ok=True)
     return dirs
+
+
+def _clear_previous_outputs(base: Path) -> None:
+    base = Path(base)
+    targets = [
+        base / "tables",
+        base / "figures",
+        base / "index.md",
+        base / "report_meta.json",
+    ]
+    for t in targets:
+        if t.is_dir():
+            shutil.rmtree(t, ignore_errors=True)
+        elif t.is_file():
+            try:
+                t.unlink()
+            except OSError:
+                pass
 
 
 def _write_index(
@@ -126,6 +145,7 @@ def generate_active_report(
     final_df = build_final_table(master_df=master_df, summary_df=bundle.summary_df)
 
     out = Path(output_dir).expanduser().resolve() if output_dir else (bundle.session_dir / "report_v2")
+    _clear_previous_outputs(out)
     dirs = _ensure_dirs(out)
 
     notes: List[str] = list(bundle.warnings)

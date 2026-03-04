@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import List
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 from .styling import build_model_style_map, place_legend, save_figure
@@ -32,9 +31,12 @@ def _plot_noise_grid(
         return
 
     nrows = len(noises)
-    fig, axs = plt.subplots(nrows=nrows, ncols=1, figsize=(12.0, 3.4 * nrows), sharex=True)
+    fig, axs = plt.subplots(nrows=nrows, ncols=1, figsize=(12.5, 3.5 * nrows), sharex=True)
     if nrows == 1:
         axs = [axs]
+
+    legend_handles = []
+    legend_labels = []
 
     for i, noise in enumerate(noises):
         ax = axs[i]
@@ -51,19 +53,32 @@ def _plot_noise_grid(
         for (model, sampler), sb in grouped.groupby(["model", "sampler"]):
             st = style_map[model]
             label = f"{model} | {sampler}"
-            ax.plot(
+            line = ax.plot(
                 sb["n_train_current"],
                 sb[metric],
                 color=st["color"],
                 linestyle=st["linestyle"],
                 marker=st["marker"],
                 label=label,
-            )
+            )[0]
+            if label not in legend_labels:
+                legend_handles.append(line)
+                legend_labels.append(label)
+
         ax.set_title(f"{benchmark} | ruido={noise}")
         ax.set_ylabel(ylabel)
-        place_legend(ax, outside=True)
 
     axs[-1].set_xlabel("n_train_current")
+    if legend_handles:
+        fig.legend(
+            legend_handles,
+            legend_labels,
+            loc="upper center",
+            bbox_to_anchor=(0.5, 1.01),
+            ncol=min(4, len(legend_labels)),
+            frameon=True,
+        )
+    fig.subplots_adjust(hspace=0.45, top=0.90)
     fig.suptitle(f"Evolucion de {ylabel} por ruido ({benchmark})")
     save_figure(fig, out_path, dpi=dpi, save_svg=save_svg)
 
@@ -78,7 +93,7 @@ def _plot_aggregated_curve(
     dpi: int,
     save_svg: bool,
 ) -> None:
-    fig, ax = plt.subplots(figsize=(10.5, 5.5))
+    fig, ax = plt.subplots(figsize=(10.8, 5.6))
     g = (
         bench_df.groupby(["n_train_current", "model"], as_index=False)[metric]
         .agg(["mean", "std"])
@@ -88,6 +103,7 @@ def _plot_aggregated_curve(
     if g.empty:
         plt.close(fig)
         return
+
     for model, mb in g.groupby("model"):
         st = style_map[model]
         x = mb["n_train_current"].to_numpy()
@@ -96,7 +112,7 @@ def _plot_aggregated_curve(
         ax.plot(x, y, color=st["color"], marker=st["marker"], linestyle=st["linestyle"], label=model)
         ax.fill_between(x, y - s, y + s, color=st["color"], alpha=0.18)
 
-    ax.set_title(f"Evolucion agregada de {ylabel} (media ± std) - {benchmark}")
+    ax.set_title(f"Evolucion agregada de {ylabel} (media +/- std) - {benchmark}")
     ax.set_xlabel("n_train_current")
     ax.set_ylabel(ylabel)
     place_legend(ax, outside=True)

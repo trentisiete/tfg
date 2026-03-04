@@ -10,6 +10,7 @@ import seaborn as sns
 HATCHES = ["", "//", "\\\\", "..", "xx", "--", "oo", "++"]
 MARKERS = ["o", "s", "^", "D", "P", "X", "v", "*"]
 LINESTYLES = ["-", "--", "-.", ":"]
+IMAGE_SUFFIXES = {".png", ".svg", ".pdf", ".jpg", ".jpeg", ".tif", ".tiff"}
 
 
 def apply_publication_style(dpi: int = 300) -> None:
@@ -57,10 +58,35 @@ def place_legend(ax, outside: bool = True) -> None:
         ax.legend(handles, labels, loc="best", frameon=True)
 
 
+def sanitize_filename(value: str) -> str:
+    text = str(value)
+    safe = "".join(ch if ch.isalnum() or ch in ("-", "_") else "_" for ch in text)
+    while "__" in safe:
+        safe = safe.replace("__", "_")
+    return safe.strip("_") or "item"
+
+
+def _resolve_base_output_path(path: Path) -> Path:
+    p = Path(path)
+    # If suffix is an image extension, remove it and keep base stem.
+    if p.suffix.lower() in IMAGE_SUFFIXES:
+        return p.with_suffix("")
+    return p
+
+
 def save_figure(fig, path: Path, dpi: int = 300, save_svg: bool = False) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path.with_suffix(".png"), dpi=dpi, bbox_inches="tight")
+    base = _resolve_base_output_path(Path(path))
+    base.parent.mkdir(parents=True, exist_ok=True)
+
+    # Robust layout for dense scientific multipanel figures.
+    try:
+        fig.tight_layout(pad=1.25)
+    except Exception:
+        pass
+
+    png_path = Path(str(base) + ".png")
+    fig.savefig(png_path, dpi=dpi, bbox_inches="tight", pad_inches=0.30)
     if save_svg:
-        fig.savefig(path.with_suffix(".svg"), dpi=dpi, bbox_inches="tight")
+        svg_path = Path(str(base) + ".svg")
+        fig.savefig(svg_path, dpi=dpi, bbox_inches="tight", pad_inches=0.25)
     plt.close(fig)

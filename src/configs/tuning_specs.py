@@ -5,7 +5,6 @@ SUPER EXHAUSTIVE GRID FOR GP (Final Robust Version).
 Update:
 - Keep Ridge baseline
 - Add multiple linear-kernel configurations inside GP (DotProduct variants)
-- Add exhaustive grids for RandomForest (Bagging) and GradientBoosting
 """
 
 import numpy as np
@@ -56,8 +55,8 @@ FEATURE_COLS_FULL = [
 MODELS = {
     "Dummy": DummySurrogateRegressor(),
     "GP": GPSurrogateRegressor(),
-    "RandomForest": RandomForestSurrogateRegressor(),
-    "GradientBoosting": GradientBoostingSurrogateRegressor(),
+    # "RandomForest": RandomForestSurrogateRegressor(),
+    # "GradientBoosting": GradientBoostingSurrogateRegressor(),
 }
 
 
@@ -179,27 +178,5 @@ def get_param_grids(n_features: int):
             "n_restarts_optimizer": [15],
             "normalize_y": [True],
             "kernel": build_exhaustive_gp_kernels(n_features),
-        },
-        # =====================================================================
-        # BAGGING GRID (RandomForest) - Regularizado para pocos datos
-        # =====================================================================
-        "RandomForest": {
-            "n_estimators": [50, 100, 200],          # Menos árboles
-            "max_depth": [3, 5, 7],              # Profundidad limitada (sin None)
-            "min_samples_leaf": [2, 4, 8],           # Hojas más grandes
-            "max_features": ["sqrt", 0.5],     # Menos opciones
-            "bootstrap": [True],                     # Solo bootstrap (reduce varianza)
-            "random_state": [42],
-        },
-        # =====================================================================
-        # BOOSTING GRID (GradientBoosting) - Regularizado para pocos datos
-        # =====================================================================
-        "GradientBoosting": {
-            "n_estimators": [50, 100, 150],          # Menos iteraciones
-            "learning_rate": [0.01, 0.05, 0.1],      # Learning rates conservadores
-            "max_depth": [2, 3, 4],               # Árboles poco profundos
-            "subsample": [0.7, 0.8, 0.9],            # Stochastic GB para regularizar
-            "min_samples_leaf": [2, 4],           # Hojas más grandes
-            "random_state": [42],
         },
     }
