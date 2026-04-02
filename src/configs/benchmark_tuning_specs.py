@@ -258,7 +258,7 @@ def get_simple_models() -> Dict[str, Any]:
 
 EVALUATION_DEFAULTS = {
     "n_test": 200,
-    "n_groups": 0,
+    "n_groups": None,  # Deprecated: synthetic groups not used in benchmarks
     "cv_mode": "simple_active",
     "seed": 42,
     "scoring": "mae",

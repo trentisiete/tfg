@@ -80,7 +80,7 @@ def _reconstruct_snapshots(
         sampler=sampler,
         noise=str(noise_cfg["type"]),
         noise_kwargs=dict(noise_cfg["kwargs"]),
-        n_groups=int(metadata.get("n_groups", 5)),
+        n_groups=None,
         seed=seed,
     )
     bench = get_benchmark(benchmark)

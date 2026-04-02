@@ -257,7 +257,6 @@ def run_tuned_evaluation(
     print(f"\nBenchmarks ({len(benchmarks)}): {benchmarks}")
     print(f"Models to tune ({len(base_models)}): {list(base_models.keys())}")
     print(f"Train samples: {n_train}, Test samples: {n_test}")
-    print(f"Groups for LODO: {n_groups} [DEPRECATED]")
     print(f"Scoring metric: {scoring}")
     print(f"Use default grids: {use_default_grids}")
     print(f"Seed: {seed}")
@@ -281,9 +280,9 @@ def run_tuned_evaluation(
         # Get grids for this benchmark
         grids = merge_with_defaults(benchmark_name) if use_default_grids else {}
 
-        # Generate dataset with groups for LODO
-        print(f"\nGenerating dataset (n_train={n_train}, n_groups={n_groups})...")
-        
+        # Generate dataset
+        print(f"\nGenerating dataset (n_train={n_train})...")
+
         # EXPLAIN_AT: Sobol sampler and gaussian noise is hardcoded here.
         dataset = generate_benchmark_dataset(
             benchmark=benchmark_name,
@@ -293,14 +292,12 @@ def run_tuned_evaluation(
             noise="gaussian",
             noise_kwargs={"sigma": 0.1},
             seed=seed,
-            n_groups=n_groups,
         )
 
         benchmark_results = {
             "benchmark": benchmark_name,
             "n_train": n_train,
             "n_test": n_test,
-            "n_groups": n_groups,
             "models": {},
         }
 
@@ -369,7 +366,6 @@ def run_tuned_evaluation(
         "settings": {
             "n_train": n_train,
             "n_test": n_test,
-            "n_groups": n_groups,
             "scoring": scoring,
             "use_default_grids": use_default_grids,
             "seed": seed,
@@ -535,7 +531,6 @@ def run_comprehensive_evaluation(
     print(f"  Noise configs ({n_noise}): {[c['type'] for c in noise_configs]}")
     print(f"  CV mode: {cv_mode}")
     print(f"  Test samples: {n_test}")
-    print(f"  Groups setting (legacy LODO only): {n_groups}")
     infill_per_dim = ACTIVE_LEARNING_DEFAULTS.get("n_infill_per_dim", 5)
     print(
         f"  Active n_infill: "
@@ -557,7 +552,6 @@ def run_comprehensive_evaluation(
             "samplers": samplers,
             "n_train_list": n_train_list if n_train_list is not None else "dynamic_by_dimension",
             "n_test": n_test,
-            "n_groups": n_groups,
             "cv_mode": cv_mode,
             "cv_modes_to_run": cv_modes_to_run_global,
             "noise_configs": noise_configs,
@@ -631,7 +625,6 @@ def run_comprehensive_evaluation(
                             sampler=sampler,
                             noise=noise_type,
                             noise_kwargs={k: v for k, v in noise_cfg.items() if k != "type"},
-                            n_groups=n_groups,
                             seed=seed,
                         )
                     except Exception as e:
@@ -676,8 +669,10 @@ def run_comprehensive_evaluation(
                             )
                             noise_kwargs = {k: v for k, v in noise_cfg.items() if k != "type"}
                             if active_train_all_models:
+                                # Pre-configured models
                                 active_models = get_default_models()
                             else:
+                                # Base models refer to a base model to do grid search
                                 base_models = get_base_models()
                                 if "GP" not in base_models:
                                     raise ValueError(
@@ -1063,8 +1058,8 @@ Examples:
     data_group.add_argument(
         "--n-groups",
         type=int,
-        default=5,
-        help="Synthetic groups setting for legacy LODO workflows (default: 5)"
+        default=None,
+        help="[DEPRECATED] Legacy LODO groups setting, no longer used in benchmark evaluation."
     )
     data_group.add_argument(
         "--seed",
@@ -1218,7 +1213,6 @@ Examples:
         samplers=args.samplers,
         n_train_list=args.n_train,
         n_test=args.n_test,
-        n_groups=args.n_groups,
         cv_mode=args.cv_mode,
         n_infill=args.n_infill,
         ei_xi=args.ei_xi,

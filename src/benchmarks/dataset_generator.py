@@ -58,7 +58,7 @@ class SyntheticDataset:
     bounds: List[Tuple[float, float]] = field(default_factory=list)
 
     # Optional: groups for LODO-style CV (simulated batches)
-    # We are not considering this part in the TFG
+    # We are not considering this part in the Benchmarking evaluation
     groups_train: Optional[np.ndarray] = None
     groups_test: Optional[np.ndarray] = None
 
@@ -185,17 +185,9 @@ def generate_benchmark_dataset(
     noise_std_test = noise_injector.get_noise_std(X_test, y_test_clean)
 
     # Generate synthetic groups if requested (for LODO-style evaluation)
-    # This is not being used, create LODO sinthetically is not easy and this is incorrect.
-    # Mainly because the groups are generated randomly and not based on spatial clustering.
-    # Therefore, we are not considering this part in the TFG.
+    # n_groups is deprecated: synthetic LODO groups are not meaningful for benchmarks.
     groups_train = None
     groups_test = None
-
-    if n_groups is not None and n_groups > 1:
-        # Assign groups based on spatial clustering or simple split
-        rng = np.random.default_rng(seed)
-        groups_train = rng.integers(0, n_groups, size=n_train)
-        groups_test = rng.integers(0, n_groups, size=n_test)
 
     return SyntheticDataset(
         X_train=X_train,
@@ -245,7 +237,7 @@ def generate_multi_benchmark_suite(
                 {"type": "heteroscedastic", "sigma_base": 0.05}
             ]
             Default: [{"type": "none"}, {"type": "gaussian", "sigma": 0.1}]
-        n_groups: Number of groups for LODO-style CV
+        n_groups: [DEPRECATED] No longer used in benchmark evaluation.
         seed: Base random seed
 
     Returns:
@@ -294,7 +286,6 @@ def generate_multi_benchmark_suite(
                 sampler=sampler,
                 noise=noise_type,
                 noise_kwargs=noise_cfg,
-                n_groups=n_groups,
                 seed=seed_counter,
             )
 
