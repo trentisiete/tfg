@@ -207,7 +207,7 @@ def run_tuned_evaluation(
     benchmarks: list = None,
     n_train: int = 50,
     n_test: int = 300,
-    n_groups: int = 5,
+    n_groups: int = None,
     seed: int = 42,
     output_name: str = None,
     scoring: str = "mae",
@@ -225,7 +225,7 @@ def run_tuned_evaluation(
         benchmarks: List of benchmark names (None = all configured)
         n_train: Training samples per benchmark
         n_test: Test samples per benchmark
-        n_groups: Number of groups for LODO cross-validation
+        n_groups: Number of groups for LODO cross-validation [DEPRECATED]
         seed: Random seed
         output_name: Custom name for output files
         scoring: Metric for tuning ('mae', 'rmse', 'nlpd')
@@ -257,7 +257,7 @@ def run_tuned_evaluation(
     print(f"\nBenchmarks ({len(benchmarks)}): {benchmarks}")
     print(f"Models to tune ({len(base_models)}): {list(base_models.keys())}")
     print(f"Train samples: {n_train}, Test samples: {n_test}")
-    print(f"Groups for LODO: {n_groups}")
+    print(f"Groups for LODO: {n_groups} [DEPRECATED]")
     print(f"Scoring metric: {scoring}")
     print(f"Use default grids: {use_default_grids}")
     print(f"Seed: {seed}")
@@ -401,7 +401,7 @@ def run_comprehensive_evaluation(
     samplers: List[str] = None,
     n_train_list: List[int] = None,
     n_test: int = 200,
-    n_groups: int = 5,
+    n_groups: int = None,
     cv_mode: str = "simple_active",
     n_infill: Optional[int] = None,
     ei_xi: float = 0.01,
@@ -432,7 +432,7 @@ def run_comprehensive_evaluation(
         samplers: List of samplers ["sobol", "lhs"] (default: ["sobol", "lhs"])
         n_train_list: List of training sizes (default: [20, 30, 40, 50, 60])
         n_test: Number of test samples (default: 200)
-        n_groups: Synthetic groups setting for legacy LODO workflows (default: 5)
+        n_groups: Synthetic groups setting [DEPRECATED] (default: None)
         cv_mode: "simple", "tuning", "both", "active", "simple_active", "tuning_active", or "all"
         n_infill: Active-learning infill budget (default: 5 * benchmark_dim)
         ei_xi: Exploration parameter for EI (default: 0.01)
@@ -498,7 +498,7 @@ def run_comprehensive_evaluation(
         cv_modes_to_run_global = ["simple", "tuning"]
     elif cv_mode == "simple_active":
         cv_modes_to_run_global = ["simple", "active"]
-    elif cv_mode == "tuning_active":
+    elif cv_mode == "tuning_active": # This is the one we used
         cv_modes_to_run_global = ["tuning", "active"]
     elif cv_mode == "all":
         cv_modes_to_run_global = ["simple", "tuning", "active"]
@@ -548,6 +548,7 @@ def run_comprehensive_evaluation(
     print("=" * 70)
 
     # Master results container
+    # At this time is a nested dict structure with the configuration.
     all_results = {
         "metadata": {
             "session_name": output_name,
@@ -596,6 +597,7 @@ def run_comprehensive_evaluation(
             bench_dim = bench_func.dim
 
             if n_train_list is None:
+                # Calculate n_train_list adapted to benchmark dimension using N_TRAIN_MULTIPLIERS
                 current_n_train_list = get_n_train_for_dimension(bench_dim)
             else:
                 current_n_train_list = n_train_list

@@ -43,7 +43,7 @@ class _PredictDistAdapter:
 class ActiveStepRecord:
     step: int
     n_train_current: int
-    incumbent_best: float
+    incumbent_best: float # Best observed y value before this step
     ei_next: float
     x_next: List[float]
     y_next: float

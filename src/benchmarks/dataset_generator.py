@@ -190,6 +190,7 @@ def generate_benchmark_dataset(
     # Therefore, we are not considering this part in the TFG.
     groups_train = None
     groups_test = None
+
     if n_groups is not None and n_groups > 1:
         # Assign groups based on spatial clustering or simple split
         rng = np.random.default_rng(seed)

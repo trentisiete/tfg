@@ -51,15 +51,12 @@ def get_noise_configs(include_heteroscedastic: bool = False) -> List[Dict[str, A
 # SAMPLING CONFIGURATIONS
 # =============================================================================
 
-# FUTURE_TODO: This samplers can only be used in the initial stage of the benchmark.
-#        Therefore, we have to implement Infill criteria samplers to confirm the
-#        fact that our strategy relay on Active Learning.
 
 DEFAULT_SAMPLERS = ["sobol", "random"]
 
 # Multipliers for dynamic n_train calculation: n_train = multiplier * dimension
 
-N_TRAIN_MULTIPLIERS = [1, 3, 6, 9]
+N_TRAIN_MULTIPLIERS = [1, 2, 4, 8]
 
 
 def get_n_train_for_dimension(dim: int) -> List[int]:
@@ -70,7 +67,7 @@ def get_n_train_for_dimension(dim: int) -> List[int]:
         dim: Benchmark dimension
 
     Returns:
-        List of n_train values [1*d, 3*d, 6*d, 9*d]
+        List of n_train values [1*d, 2*d, 4*d, 8*d]
 
     WARNING: Change number of N_TRAIN_MULTIPLIERS if you want different n_train_samples.
     """
@@ -214,6 +211,7 @@ def get_default_models() -> Dict[str, Any]:
             kernel=RBF() + WhiteKernel(noise_level=1e-5),
             n_restarts_optimizer=3
         ),
+        #TODO: LINEAL
     }
 
     return models
@@ -260,7 +258,7 @@ def get_simple_models() -> Dict[str, Any]:
 
 EVALUATION_DEFAULTS = {
     "n_test": 200,
-    "n_groups": 5,
+    "n_groups": 0,
     "cv_mode": "simple_active",
     "seed": 42,
     "scoring": "mae",
