@@ -20,10 +20,9 @@ from typing import Dict, List, Any, Optional
 # =============================================================================
 
 NOISE_CONFIGS_STANDARD = [
-    {"type": "none"},                           # Normal/base case (no synthetic noise)
-    {"type": "gaussian", "sigma": 0.05},        # Low Gaussian noise
-    {"type": "gaussian", "sigma": 0.1},         # Moderate Gaussian noise
-    {"type": "gaussian", "sigma": 0.3},         # High Gaussian noise
+    {"type": "none"},                           # Clean (no synthetic noise)
+    {"type": "gaussian", "sigma": 0.5},         # Moderate noise
+    {"type": "gaussian", "sigma": 1.0},         # High noise
 ]
 
 NOISE_CONFIGS_EXTENDED = NOISE_CONFIGS_STANDARD + [
@@ -177,28 +176,29 @@ def get_active_learning_config(
 
 
 # =============================================================================
-# MODEL CONFIGURATIONS
+# MODEL CONFIGURATIONS [USED IN TFG]
 # =============================================================================
 
-def get_default_models() -> Dict[str, Any]:
+def get_default_models(dim: Optional[int] = None) -> Dict[str, Any]:
     """
     Get default model configurations for benchmarking.
 
     Includes GP kernel variants and baseline.
+    If dim > 1, includes ARD variants with per-dimension length scales.
 
     Returns:
         Dict of model_name -> model_instance
     """
-    from sklearn.gaussian_process.kernels import Matern, WhiteKernel, RBF
+    import numpy as np
+    from sklearn.gaussian_process.kernels import Matern, WhiteKernel, RBF, DotProduct
     from src.models.gp import GPSurrogateRegressor
     from src.models.dummy import DummySurrogateRegressor
-
 
     models = {
         # Baseline
         "Dummy": DummySurrogateRegressor(strategy="mean"),
 
-        # GP variants
+        # Isotropic GP variants
         "GP_Matern32": GPSurrogateRegressor(
             kernel=Matern(nu=1.5) + WhiteKernel(noise_level=1e-5),
             n_restarts_optimizer=3
@@ -211,8 +211,23 @@ def get_default_models() -> Dict[str, Any]:
             kernel=RBF() + WhiteKernel(noise_level=1e-5),
             n_restarts_optimizer=3
         ),
-        #TODO: LINEAL
+        "GP_Linear": GPSurrogateRegressor(
+            kernel=DotProduct(sigma_0=1.0) + WhiteKernel(noise_level=1e-5),
+            n_restarts_optimizer=3
+        ),
     }
+
+    # ARD variants: one length_scale per dimension (only meaningful for dim > 1)
+    if dim is not None and dim > 1:
+        ls = np.ones(dim)
+        models["GP_Matern52_ARD"] = GPSurrogateRegressor(
+            kernel=Matern(nu=2.5, length_scale=ls) + WhiteKernel(noise_level=1e-5),
+            n_restarts_optimizer=3
+        )
+        models["GP_RBF_ARD"] = GPSurrogateRegressor(
+            kernel=RBF(length_scale=ls) + WhiteKernel(noise_level=1e-5),
+            n_restarts_optimizer=3
+        )
 
     return models
 

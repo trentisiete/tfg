@@ -27,6 +27,7 @@ from typing import Dict, List, Any, Optional
 
 
 # DEFAULT HYPERPARAMETER GRIDS (used when no benchmark-specific grid exists)
+#### JUST FOR TUNING BENCHMARK [NOT USED IN TFG, but defined for completeness]
 # =============================================================================
 
 DEFAULT_GRIDS = {
@@ -55,6 +56,8 @@ DEFAULT_GRIDS = {
 
 
 # BENCHMARK-SPECIFIC HYPERPARAMETER GRIDS
+
+### JUST FOR TUNING BENCHMARK [NOT USED IN TFG]
 
 # LOW DIMENSIONAL BENCHMARKS (1D - 3D)
 # -----------------------------------------------------------------------------
@@ -208,7 +211,7 @@ WINGWEIGHT_GRIDS = {
 }
 
 
-# MASTER REGISTRY
+# MASTER REGISTRY [NOT USED IN TFG]
 # =============================================================================
 
 BENCHMARK_GRIDS: Dict[str, Dict[str, Dict[str, Any]]] = {

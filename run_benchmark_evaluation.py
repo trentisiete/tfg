@@ -641,7 +641,7 @@ def run_comprehensive_evaluation(
                             # Simple train/test evaluation
                             cv_results = _run_simple_evaluation(
                                 dataset=dataset,
-                                models=get_default_models(),
+                                models=get_default_models(dim=bench_dim),
                             )
                         elif current_cv_mode == "tuning":
                             # KFold CV tuning on train split (no group dependency),
@@ -670,7 +670,7 @@ def run_comprehensive_evaluation(
                             noise_kwargs = {k: v for k, v in noise_cfg.items() if k != "type"}
                             if active_train_all_models:
                                 # Pre-configured models
-                                active_models = get_default_models()
+                                active_models = get_default_models(dim=bench_dim)
                             else:
                                 # Base models refer to a base model to do grid search
                                 base_models = get_base_models()
