@@ -215,15 +215,18 @@ def _grid_model_key(model_name: str) -> str:
     return model_name
 
 
-def _score_params_cv_mae(
+def _score_params_cv(
     model_template: SurrogateRegressor,
     params: Dict[str, Any],
     X_train: np.ndarray,
     y_train: np.ndarray,
     cv: KFold,
+    scoring: str = "mae",
 ) -> Dict[str, Any]:
-    """Score one hyperparameter set with KFold CV MAE."""
-    fold_mae: List[float] = []
+    """Score one hyperparameter set with KFold CV using MAE or NLPD."""
+    from scipy.stats import norm as _norm
+
+    fold_scores: List[float] = []
     fold_errors: List[str] = []
 
     for train_idx, valid_idx in cv.split(X_train):
@@ -231,15 +234,35 @@ def _score_params_cv_mae(
         try:
             m.set_params(**params)
             m.fit(X_train[train_idx], y_train[train_idx])
-            y_pred = m.predict(X_train[valid_idx])
-            fold_mae.append(float(mean_absolute_error(y_train[valid_idx], y_pred)))
+
+            if scoring == "nlpd":
+                mean, std = m.predict_dist(X_train[valid_idx])
+                mean = np.asarray(mean).ravel()
+                if std is None:
+                    fold_errors.append("no_predictive_std")
+                    continue
+                std = np.asarray(std).ravel()
+                std = np.clip(std, 1e-8, None)
+                nlpd = -float(np.mean(
+                    _norm.logpdf(y_train[valid_idx], loc=mean, scale=std)
+                ))
+                fold_scores.append(nlpd)
+            else:
+                y_pred = m.predict(X_train[valid_idx])
+                fold_scores.append(
+                    float(mean_absolute_error(y_train[valid_idx], y_pred))
+                )
         except Exception as exc:
             fold_errors.append(str(exc))
 
+    mean_score = float(np.mean(fold_scores)) if fold_scores else None
     return {
-        "mean_mae": float(np.mean(fold_mae)) if fold_mae else None,
-        "fold_mae": fold_mae,
+        "mean_score": mean_score,
+        "fold_scores": fold_scores,
         "errors": fold_errors,
+        # Keep backward-compatible key
+        "mean_mae": mean_score,
+        "fold_mae": fold_scores,
     }
 
 
@@ -252,11 +275,13 @@ def run_cv_audit(
     step: int,
     use_default_grids: bool = True,
     seed: int = 42,
+    scoring: str = "mae",
 ) -> Dict[str, Any]:
     """
-    Periodic CV-MAE audit for logging only.
+    Periodic CV audit for logging and optional hyperparameter switching.
 
-    This does not mutate active-learning model selection.
+    Args:
+        scoring: "mae" (accuracy only) or "nlpd" (accuracy + calibration).
     """
     n_samples = int(len(y_train))
     if n_samples < 3:
@@ -283,12 +308,13 @@ def run_cv_audit(
 
     ranking: List[Dict[str, Any]] = []
     for params in ParameterGrid(grid):
-        scored = _score_params_cv_mae(
+        scored = _score_params_cv(
             model_template=model_template,
             params=params,
             X_train=X_train,
             y_train=y_train,
             cv=cv,
+            scoring=scoring,
         )
         ranking.append(
             {
@@ -311,7 +337,7 @@ def run_cv_audit(
     return {
         "step": step,
         "status": "ok",
-        "metric": "mae",
+        "metric": scoring,
         "model_name": model_name,
         "model_key": model_key,
         "n_splits": n_splits,
@@ -411,6 +437,7 @@ def run_active_evaluation(
     use_default_grids: bool = True,
     seed: int = 42,
     verbose: bool = True,
+    audit_scoring: str = "mae",
 ) -> Dict[str, Any]:
     """
     Run sequential active learning using EI for each model.
@@ -574,6 +601,7 @@ def run_active_evaluation(
                     step=step,
                     use_default_grids=use_default_grids,
                     seed=seed,
+                    scoring=audit_scoring,
                 )
                 audit["timestamp"] = datetime.now().isoformat()
                 audit["current_mll_state"] = _extract_mll_state(m)
@@ -606,12 +634,13 @@ def run_active_evaluation(
                         shuffle=True,
                         random_state=seed + step,
                     )
-                    scored_current = _score_params_cv_mae(
+                    scored_current = _score_params_cv(
                         model_template=model,
                         params=current_selected_params,
                         X_train=X_train,
                         y_train=y_train,
                         cv=cv,
+                        scoring=audit_scoring,
                     )
                     current_cv_mean = scored_current.get("mean_mae")
 
