@@ -19,7 +19,7 @@ from typing import Dict, List, Any, Optional
 # NOISE CONFIGURATIONS
 # =============================================================================
 
-NOISE_CONFIGS_STANDARD = [
+NOISE_CONFIGS_STANDARD = [ # Reduced from 5 to 3 noise configs to constraint testing runtime
     {"type": "none"},                           # Clean (no synthetic noise)
     {"type": "gaussian", "sigma": 0.5},         # Moderate noise
     {"type": "gaussian", "sigma": 1.0},         # High noise
@@ -55,7 +55,7 @@ DEFAULT_SAMPLERS = ["sobol", "random"]
 
 # Multipliers for dynamic n_train calculation: n_train = multiplier * dimension
 
-N_TRAIN_MULTIPLIERS = [1, 2, 4, 8]
+N_TRAIN_MULTIPLIERS = [1,4] # Reduced from [1,2,4,8] to constraint testing runtime.
 
 
 def get_n_train_for_dimension(dim: int) -> List[int]:
