@@ -690,7 +690,7 @@ def run_comprehensive_evaluation(
                                 xi=active_cfg["ei_xi"],
                                 active_cand_mult=active_cfg["active_cand_mult"],
                                 active_cv_check_every=active_cfg["active_cv_check_every"],
-                                active_switch_enable=active_cfg.get("active_switch_enable", True),
+                                active_switch_enable=not active_train_all_models and active_cfg.get("active_switch_enable", True),
                                 active_switch_warmup_steps=active_cfg.get("active_switch_warmup_steps", 5),
                                 active_switch_min_improvement=active_cfg.get("active_switch_min_improvement", 0.01),
                                 active_switch_cooldown_steps=active_cfg.get("active_switch_cooldown_steps", 5),
