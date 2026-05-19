@@ -3,5 +3,4 @@
 *.pyc
 data/
 logs/
-outputs
 tests/
