@@ -165,6 +165,7 @@ def main() -> int:
                 benchmarks=["forrester"],
                 samplers=list(args.samplers),
                 n_train_list=[n_train],
+                n_train_exclusive=True,
                 n_test=int(args.n_test),
                 cv_mode="active",
                 n_infill=int(n_infill),

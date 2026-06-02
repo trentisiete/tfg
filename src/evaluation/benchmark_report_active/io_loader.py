@@ -49,6 +49,10 @@ def _resolve_session_dir(session: Optional[str], json_path: Optional[str]) -> Pa
         return sp.resolve() if sp.is_dir() else sp.resolve().parent
 
     root = LOGS_DIR / "benchmarks"
+    exact = root / str(session)
+    if exact.is_dir() and (exact / "comprehensive_results.json").exists():
+        return exact
+
     candidates = [
         d
         for d in root.glob(f"*{session}*")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -49,6 +50,16 @@ def _parse_x_next_cell(v) -> np.ndarray:
         return v.astype(float).ravel()
     if isinstance(v, (list, tuple)):
         return np.asarray(v, dtype=float).ravel()
+    if isinstance(v, str):
+        s = v.strip()
+        if not s:
+            return np.empty((0,), dtype=float)
+        try:
+            parsed = ast.literal_eval(s)
+            if isinstance(parsed, (list, tuple, np.ndarray)):
+                return np.asarray(parsed, dtype=float).ravel()
+        except Exception:
+            pass
     return np.asarray([float(v)], dtype=float)
 
 
@@ -85,16 +96,27 @@ def _reconstruct_snapshots(
     )
     bench = get_benchmark(benchmark)
 
-    x_app = np.vstack([_parse_x_next_cell(v) for v in block["x_next"]]) if len(block) else np.empty((0, ds.X_train.shape[1]))
-    y_app = block["y_next"].to_numpy(dtype=float) if "y_next" in block else np.empty((0,))
+    additions: List[Tuple[int, np.ndarray, float]] = []
+    if "x_next" in block and "y_next" in block:
+        for row in block.itertuples(index=False):
+            x = _parse_x_next_cell(getattr(row, "x_next"))
+            y = getattr(row, "y_next")
+            if x.size != ds.X_train.shape[1] or pd.isna(y):
+                continue
+            additions.append((int(getattr(row, "step")), x, float(y)))
 
     snapshots: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
     # n=0 means no observed points in the progression plot (pure prior view).
     snapshots[0] = (np.empty((0, bench.dim), dtype=float), np.empty((0,), dtype=float))
     for step in sorted(block["step"].astype(int).unique().tolist()):
         k = int(step)
-        Xk = x_app[:k] if len(x_app) >= k else np.empty((0, bench.dim), dtype=float)
-        yk = y_app[:k] if len(y_app) >= k else np.empty((0,), dtype=float)
+        selected = [(x, y) for add_step, x, y in additions if add_step <= k]
+        if selected:
+            Xk = np.vstack([x for x, _ in selected])
+            yk = np.asarray([y for _, y in selected], dtype=float)
+        else:
+            Xk = np.empty((0, bench.dim), dtype=float)
+            yk = np.empty((0,), dtype=float)
         snapshots[k] = (Xk, yk)
     return ds.X_test, ds.y_test_clean, snapshots, bench
 

@@ -45,8 +45,8 @@ class ActiveStepRecord:
     n_train_current: int
     incumbent_best: float # Best observed y value before this step
     ei_next: float
-    x_next: List[float]
-    y_next: float
+    x_next: Optional[List[float]]
+    y_next: Optional[float]
     fit_time_step: float
     predict_time_step: float
     mae_test: Optional[float]
@@ -352,8 +352,8 @@ def build_active_step_record(
     n_train_current: int,
     incumbent_best: float,
     ei_next: float,
-    x_next: np.ndarray,
-    y_next: float,
+    x_next: Optional[np.ndarray],
+    y_next: Optional[float],
     fit_time_step: float,
     predict_time_step: float,
     metrics,
@@ -363,8 +363,8 @@ def build_active_step_record(
         n_train_current=int(n_train_current),
         incumbent_best=float(incumbent_best),
         ei_next=float(ei_next),
-        x_next=np.asarray(x_next).ravel().tolist(),
-        y_next=float(y_next),
+        x_next=[] if x_next is None else np.asarray(x_next).ravel().tolist(),
+        y_next=None if y_next is None else float(y_next),
         fit_time_step=float(fit_time_step),
         predict_time_step=float(predict_time_step),
         mae_test=metrics.mae,
@@ -427,6 +427,7 @@ def run_active_evaluation(
     noise_type: str,
     noise_kwargs: Optional[Dict[str, Any]],
     n_infill: int,
+    max_train_total: Optional[int] = None,
     xi: float = 0.01,
     active_cand_mult: int = 500,
     active_cv_check_every: int = 5,
@@ -479,9 +480,31 @@ def run_active_evaluation(
             X_train = x0
             y_train = np.asarray(y0).ravel()
 
+        n_initial = int(len(y_train))
+        train_cap = int(max_train_total) if max_train_total is not None else None
+        if train_cap is not None:
+            room = max(0, train_cap - n_initial)
+            effective_n_infill = min(int(n_infill), room)
+        else:
+            effective_n_infill = int(n_infill)
+
+        if verbose and effective_n_infill != int(n_infill):
+            print(
+                f"    [active] model={model_name} n_infill capped: "
+                f"{n_infill} -> {effective_n_infill} "
+                f"(initial={n_initial}, max_train_total={train_cap})"
+            )
+        if verbose and train_cap is not None and n_initial >= train_cap:
+            print(
+                f"    [active] model={model_name} at train cap "
+                f"({n_initial}>={train_cap}); no infill steps"
+            )
+
         m = clone(model)
         try:
+            t0 = time.perf_counter()
             m.fit(X_train, y_train)
+            initial_fit_time = time.perf_counter() - t0
         except Exception as exc:
             results[model_name] = {
                 "model": model_name,
@@ -534,7 +557,43 @@ def run_active_evaluation(
             k: all_params[k] for k in grid_keys if k in all_params
         }
 
-        for step in range(1, int(n_infill) + 1):
+        t0 = time.perf_counter()
+        mean_test, std_test = m.predict_dist(dataset.X_test)
+        predict_time = time.perf_counter() - t0
+        metrics = compute_surrogate_metrics(
+            y_true=dataset.y_test_clean,
+            y_pred=mean_test,
+            std_pred=std_test,
+        )
+        trajectory.append(
+            build_active_step_record(
+                step=0,
+                n_train_current=n_initial,
+                incumbent_best=float(np.min(y_train)),
+                ei_next=0.0,
+                x_next=None,
+                y_next=None,
+                fit_time_step=initial_fit_time,
+                predict_time_step=predict_time,
+                metrics=metrics,
+            )
+        )
+        if verbose:
+            print(
+                f"      step=000 initial_design n={n_initial} "
+                f"rmse={trajectory[-1]['rmse_test']:.6f}"
+            )
+
+        if effective_n_infill == 0:
+            results[model_name] = build_active_final_record(
+                model_name=model_name,
+                trajectory=trajectory,
+                hyperparam_audit=audits,
+                active_supported=True,
+            )
+            continue
+
+        for step in range(1, effective_n_infill + 1):
             incumbent_best = float(np.min(y_train))
             selection = select_next_x(
                 model=m,

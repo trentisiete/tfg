@@ -8,6 +8,8 @@ from typing import Dict, Iterable, List, Optional
 import pandas as pd
 
 from .aggregations import build_final_table, build_master_active_table, summarize_active_coverage
+from .dummy_baseline import generate_dummy_baseline_outputs
+from .incumbent_analysis import generate_incumbent_outputs
 from .io_loader import load_input_bundle
 from .plots_by_benchmark import generate_by_benchmark_outputs
 from .plots_evolution import generate_evolution_plots
@@ -75,6 +77,10 @@ def _write_index(
     ]
     for name in sorted(tables.keys()):
         lines.append(f"- [**{name}**](tables/{name}.csv)")
+    if (out_dir / "tables" / "interpretacion_evolucion_infill.md").exists():
+        lines.append("- [**interpretacion_evolucion_infill**](tables/interpretacion_evolucion_infill.md)")
+    if (out_dir / "tables" / "interpretacion_incumbent_infill.md").exists():
+        lines.append("- [**interpretacion_incumbent_infill**](tables/interpretacion_incumbent_infill.md)")
 
     lines.extend(
         [
@@ -173,12 +179,15 @@ def generate_active_report(
             dpi=dpi,
             save_svg=save_svg,
         )
-        generate_evolution_plots(
+        evolution_tables = generate_evolution_plots(
             master_df=master_df,
             out_dir=dirs["evolution"],
+            tables_dir=dirs["tables"],
+            metadata=bundle.metadata,
             dpi=dpi,
             save_svg=save_svg,
         )
+        tables.update(evolution_tables)
         generate_sampling_effects_plots(
             master_df=master_df,
             final_df=final_df,
@@ -186,6 +195,24 @@ def generate_active_report(
             dpi=dpi,
             save_svg=save_svg,
         )
+        dummy_tables = generate_dummy_baseline_outputs(
+            master_df=master_df,
+            tables_dir=dirs["tables"],
+            figures_dir=dirs["evolution"],
+            metadata=bundle.metadata,
+            dpi=dpi,
+            save_svg=save_svg,
+        )
+        tables.update(dummy_tables)
+        incumbent_tables = generate_incumbent_outputs(
+            master_df=master_df,
+            tables_dir=dirs["tables"],
+            figures_dir=dirs["evolution"],
+            metadata=bundle.metadata,
+            dpi=dpi,
+            save_svg=save_svg,
+        )
+        tables.update(incumbent_tables)
 
     if phase in {"2", "all"}:
         generate_gp_predictions(

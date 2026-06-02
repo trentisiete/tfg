@@ -17,7 +17,8 @@ Usage:
     python run_benchmark_evaluation.py --cv-mode tuning_active   # Tuning + active
     python run_benchmark_evaluation.py --cv-mode all             # Simple + tuning + active
     python run_benchmark_evaluation.py --samplers sobol random   # Use both samplers (default)
-    python run_benchmark_evaluation.py --n-train 20 30 40 50 60  # Custom train sizes (default: dynamic by dimension)
+    python run_benchmark_evaluation.py --n-train 50              # Add literal sizes to default {1, m*d}
+    python run_benchmark_evaluation.py --n-train 20 30 --n-train-only  # Only those sizes (no defaults)
     python run_benchmark_evaluation.py --help
 
 Example Output:
@@ -77,6 +78,7 @@ from src.configs import (
     DEFAULT_GRIDS,
     # Evaluation defaults
     DEFAULT_SAMPLERS,
+    N_TRAIN_ABSOLUTE,
     N_TRAIN_MULTIPLIERS,
     ACTIVE_LEARNING_DEFAULTS,
     EVALUATION_DEFAULTS,
@@ -396,10 +398,14 @@ def run_comprehensive_evaluation(
     benchmarks: List[str] = None,
     samplers: List[str] = None,
     n_train_list: List[int] = None,
+    n_train_exclusive: bool = False,
+    use_n_train_absolute: bool = True,
+    use_n_train_multipliers: bool = True,
     n_test: int = 200,
     n_groups: int = None,
     cv_mode: str = "simple_active",
     n_infill: Optional[int] = None,
+    max_train_total: Optional[int] = None,
     ei_xi: float = 0.01,
     active_cand_mult: int = 500,
     active_cv_check_every: int = 5,
@@ -426,11 +432,16 @@ def run_comprehensive_evaluation(
     Args:
         benchmarks: List of benchmark names (None = all available)
         samplers: List of samplers ["sobol", "lhs"] (default: ["sobol", "lhs"])
-        n_train_list: List of training sizes (default: [20, 30, 40, 50, 60])
+        n_train_list: Extra literal training sizes merged into the resolved list per
+            benchmark (default resolution uses N_TRAIN_ABSOLUTE and N_TRAIN_MULTIPLIERS).
+        n_train_exclusive: If True, use only n_train_list (no config absolute/multipliers).
+        use_n_train_absolute: Include N_TRAIN_ABSOLUTE from config (default: True).
+        use_n_train_multipliers: Include m * dim from N_TRAIN_MULTIPLIERS (default: True).
         n_test: Number of test samples (default: 200)
         n_groups: Synthetic groups setting [DEPRECATED] (default: None)
         cv_mode: "simple", "tuning", "both", "active", "simple_active", "tuning_active", or "all"
         n_infill: Active-learning infill budget (default: 5 * benchmark_dim)
+        max_train_total: Max training points (initial + infill). Default: 50
         ei_xi: Exploration parameter for EI (default: 0.01)
         active_cand_mult: Candidate pool multiplier per dim (default: 500)
         active_cv_check_every: Audit interval in active mode (default: 5)
@@ -451,7 +462,7 @@ def run_comprehensive_evaluation(
         >>> results = run_comprehensive_evaluation(
         ...     benchmarks=["forrester", "branin"],
         ...     samplers=["sobol", "lhs"],
-        ...     n_train_list=[20, 30, 40, 50],
+        ...     n_train_list=[50],
         ...     cv_mode="all"
         ... )
     """
@@ -464,8 +475,9 @@ def run_comprehensive_evaluation(
         benchmarks = list_benchmarks()
     if samplers is None:
         samplers = DEFAULT_SAMPLERS.copy()
-    # n_train_list se calcula dinámicamente por benchmark si es None
-    # Usando N_TRAIN_MULTIPLIERS de configs
+    if n_train_exclusive and not n_train_list:
+        raise ValueError("n_train_exclusive=True requires a non-empty n_train_list")
+
     if noise_configs is None:
         noise_configs = get_noise_configs(include_heteroscedastic=False)
     if models_to_tune is None:
@@ -476,6 +488,10 @@ def run_comprehensive_evaluation(
         active_cand_mult = ACTIVE_LEARNING_DEFAULTS.get("active_cand_mult", 500)
     if active_cv_check_every is None:
         active_cv_check_every = ACTIVE_LEARNING_DEFAULTS.get("active_cv_check_every", 5)
+    if max_train_total is None:
+        max_train_total = ACTIVE_LEARNING_DEFAULTS.get("max_train_total", 50)
+    if max_train_total < 1:
+        raise ValueError(f"max_train_total must be >= 1, got {max_train_total}")
 
     # Validate cv_mode
     valid_cv_modes = ["simple", "tuning", "both", "active", "simple_active", "tuning_active", "all"]
@@ -510,16 +526,34 @@ def run_comprehensive_evaluation(
     # Calculate total experiments
     n_benchmarks = len(benchmarks)
     n_samplers = len(samplers)
-    n_train_sizes_info = "dynamic (1*d to 9*d)" if n_train_list is None else str(n_train_list)
+    if n_train_exclusive:
+        n_train_sizes_info = f"exclusive {n_train_list}"
+    elif n_train_list:
+        n_train_sizes_info = (
+            f"merged absolute={N_TRAIN_ABSOLUTE if use_n_train_absolute else []} "
+            f"+ extra={n_train_list} "
+            f"+ multipliers={N_TRAIN_MULTIPLIERS if use_n_train_multipliers else []}"
+        )
+    else:
+        n_train_sizes_info = (
+            f"default absolute={N_TRAIN_ABSOLUTE} + multipliers={N_TRAIN_MULTIPLIERS}"
+        )
     n_noise = len(noise_configs)
     n_cv_modes = len(cv_modes_to_run_global)
 
-    # Calculate total configurations approximately
-    if n_train_list is None:
-        # Estimate: average of 4 sizes per benchmark
-        total_configs = n_benchmarks * n_samplers * 4 * n_noise
+    # Estimate configurations (use dim=6 as representative for dynamic sizes)
+    if n_train_exclusive:
+        n_sizes_est = len(n_train_list)
     else:
-        total_configs = n_benchmarks * n_samplers * len(n_train_list) * n_noise
+        n_sizes_est = len(
+            get_n_train_for_dimension(
+                6,
+                extra_absolute=n_train_list,
+                include_absolute=use_n_train_absolute,
+                include_multipliers=use_n_train_multipliers,
+            )
+        )
+    total_configs = n_benchmarks * n_samplers * n_sizes_est * n_noise
 
     print("=" * 70)
     print("COMPREHENSIVE BENCHMARK EVALUATION")
@@ -550,7 +584,15 @@ def run_comprehensive_evaluation(
             "timestamp": datetime.now().isoformat(),
             "benchmarks": benchmarks,
             "samplers": samplers,
-            "n_train_list": n_train_list if n_train_list is not None else "dynamic_by_dimension",
+            "n_train_list": n_train_list,
+            "n_train_resolution": {
+                "exclusive": n_train_exclusive,
+                "use_absolute": use_n_train_absolute,
+                "absolute_defaults": list(N_TRAIN_ABSOLUTE),
+                "use_multipliers": use_n_train_multipliers,
+                "multipliers": list(N_TRAIN_MULTIPLIERS),
+                "extra_absolute": list(n_train_list) if n_train_list else [],
+            },
             "n_test": n_test,
             "cv_mode": cv_mode,
             "cv_modes_to_run": cv_modes_to_run_global,
@@ -570,6 +612,7 @@ def run_comprehensive_evaluation(
                 "active_switch_min_improvement": ACTIVE_LEARNING_DEFAULTS.get("active_switch_min_improvement", 0.01),
                 "active_switch_cooldown_steps": ACTIVE_LEARNING_DEFAULTS.get("active_switch_cooldown_steps", 5),
                 "active_train_all_models": bool(active_train_all_models),
+                "max_train_total": max_train_total,
             },
         },
         "results": {},  # Nested: sampler -> n_train -> benchmark -> noise -> cv_mode -> model
@@ -590,11 +633,17 @@ def run_comprehensive_evaluation(
             bench_func = get_benchmark(benchmark_name)
             bench_dim = bench_func.dim
 
-            if n_train_list is None:
-                # Calculate n_train_list adapted to benchmark dimension using N_TRAIN_MULTIPLIERS
-                current_n_train_list = get_n_train_for_dimension(bench_dim)
+            if n_train_exclusive:
+                current_n_train_list = get_n_train_for_dimension(
+                    bench_dim, exclusive=n_train_list
+                )
             else:
-                current_n_train_list = n_train_list
+                current_n_train_list = get_n_train_for_dimension(
+                    bench_dim,
+                    extra_absolute=n_train_list,
+                    include_absolute=use_n_train_absolute,
+                    include_multipliers=use_n_train_multipliers,
+                )
 
             print(f"\n{'='*70}")
             print(f"SAMPLER: {sampler.upper()} | BENCHMARK: {benchmark_name} (dim={bench_dim})")
@@ -687,6 +736,7 @@ def run_comprehensive_evaluation(
                                 noise_type=noise_type,
                                 noise_kwargs=noise_kwargs,
                                 n_infill=active_cfg["n_infill"],
+                                max_train_total=max_train_total,
                                 xi=active_cfg["ei_xi"],
                                 active_cand_mult=active_cfg["active_cand_mult"],
                                 active_cv_check_every=active_cfg["active_cv_check_every"],
@@ -1047,7 +1097,25 @@ Examples:
         nargs="+",
         type=int,
         default=None,
-        help="Training sample sizes. Default: dynamic [1*d, 3*d, 6*d, 9*d] per benchmark dimension"
+        help=(
+            "Extra literal training sizes merged per run with N_TRAIN_ABSOLUTE and "
+            "m*dim multipliers (default: absolute [1] + multipliers [1,4])."
+        ),
+    )
+    data_group.add_argument(
+        "--n-train-only",
+        action="store_true",
+        help="Use only --n-train values (no N_TRAIN_ABSOLUTE nor multipliers).",
+    )
+    data_group.add_argument(
+        "--no-n-train-absolute",
+        action="store_true",
+        help="Do not include N_TRAIN_ABSOLUTE from config (still merges --n-train and multipliers).",
+    )
+    data_group.add_argument(
+        "--no-n-train-multipliers",
+        action="store_true",
+        help="Do not include m*dim sizes from N_TRAIN_MULTIPLIERS.",
     )
     data_group.add_argument(
         "--n-test",
@@ -1105,6 +1173,15 @@ Examples:
         type=int,
         default=None,
         help="Sequential EI infill steps. Default: dynamic 5 * benchmark_dim"
+    )
+    active_group.add_argument(
+        "--max-train-total",
+        type=int,
+        default=ACTIVE_LEARNING_DEFAULTS.get("max_train_total", 50),
+        help=(
+            "Maximum training points (initial n_train + infill). "
+            f"Default: {ACTIVE_LEARNING_DEFAULTS.get('max_train_total', 50)}"
+        ),
     )
     active_group.add_argument(
         "--ei-xi",
@@ -1212,9 +1289,13 @@ Examples:
         benchmarks=args.benchmarks,
         samplers=args.samplers,
         n_train_list=args.n_train,
+        n_train_exclusive=args.n_train_only,
+        use_n_train_absolute=not args.no_n_train_absolute,
+        use_n_train_multipliers=not args.no_n_train_multipliers,
         n_test=args.n_test,
         cv_mode=args.cv_mode,
         n_infill=args.n_infill,
+        max_train_total=args.max_train_total,
         ei_xi=args.ei_xi,
         active_cand_mult=args.active_cand_mult,
         active_cv_check_every=args.active_cv_check_every,

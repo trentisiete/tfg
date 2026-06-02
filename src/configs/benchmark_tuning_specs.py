@@ -4,6 +4,7 @@
 Contains:
     - NOISE_CONFIGS: Standard noise configurations for testing
     - DEFAULT_SAMPLERS: Default sampling strategies
+    - N_TRAIN_ABSOLUTE: Fixed training sizes (independent of dimension)
     - N_TRAIN_MULTIPLIERS: Multipliers for dynamic n_train calculation
     - ACTIVE_LEARNING_DEFAULTS: Defaults for EI-based active learning
     - get_default_models(): Default model configurations
@@ -53,24 +54,52 @@ def get_noise_configs(include_heteroscedastic: bool = False) -> List[Dict[str, A
 
 DEFAULT_SAMPLERS = ["sobol", "random"]
 
-# Multipliers for dynamic n_train calculation: n_train = multiplier * dimension
+# Fixed training sizes (same count for every benchmark dimension).
+N_TRAIN_ABSOLUTE = [1]
 
-N_TRAIN_MULTIPLIERS = [1,4] # Reduced from [1,2,4,8] to constraint testing runtime.
+# Multipliers for dynamic n_train: n_train = multiplier * dimension
+N_TRAIN_MULTIPLIERS = [1, 4]  # Reduced from [1,2,4,8] to constraint testing runtime.
 
 
-def get_n_train_for_dimension(dim: int) -> List[int]:
+def get_n_train_for_dimension(
+    dim: int,
+    *,
+    extra_absolute: Optional[List[int]] = None,
+    include_absolute: bool = True,
+    include_multipliers: bool = True,
+    exclusive: Optional[List[int]] = None,
+) -> List[int]:
     """
-    Calculate training sizes for a given dimension.
+    Resolve training sizes for a benchmark dimension.
+
+    Default (all flags on, no extras): {N_TRAIN_ABSOLUTE} ∪ {m * dim | m in N_TRAIN_MULTIPLIERS}.
+    Example with N_TRAIN_ABSOLUTE=[1] and N_TRAIN_MULTIPLIERS=[1,4], dim=2 -> [1, 2, 8].
 
     Args:
         dim: Benchmark dimension
+        extra_absolute: Additional literal sizes (e.g. from CLI --n-train)
+        include_absolute: Include N_TRAIN_ABSOLUTE from config
+        include_multipliers: Include m * dim for each N_TRAIN_MULTIPLIERS entry
+        exclusive: If set, return only these sizes (ignores other sources)
 
     Returns:
-        List of n_train values [1*d, 2*d, 4*d, 8*d]
-
-    WARNING: Change number of N_TRAIN_MULTIPLIERS if you want different n_train_samples.
+        Sorted unique list of n_train values (>= 0)
     """
-    return [m * dim for m in N_TRAIN_MULTIPLIERS]
+    if dim < 1:
+        raise ValueError(f"dim must be >= 1, got {dim}")
+
+    if exclusive is not None:
+        return sorted({int(v) for v in exclusive if int(v) >= 0})
+
+    values: List[int] = []
+    if include_absolute:
+        values.extend(N_TRAIN_ABSOLUTE)
+    if extra_absolute:
+        values.extend(int(v) for v in extra_absolute)
+    if include_multipliers:
+        values.extend(int(m) * int(dim) for m in N_TRAIN_MULTIPLIERS)
+
+    return sorted({int(v) for v in values if int(v) >= 0})
 
 
 # =============================================================================
@@ -85,6 +114,7 @@ ACTIVE_LEARNING_DEFAULTS: Dict[str, Any] = {
     # Initial and sequential budget
     "min_initial_train": 1,
     "n_infill_per_dim": 5,
+    "max_train_total": 50,
     # EI behavior
     "ei_xi": 0.01,
     # Continuous optimizer budget rule: max(min_budget, active_cand_mult * dim)
@@ -171,6 +201,10 @@ def get_active_learning_config(
         int(cfg["optimizer_budget_min"]),
         int(cfg["active_cand_mult"]) * int(dim),
     )
+
+    max_train_total = int(cfg.get("max_train_total", 0))
+    if max_train_total < 1:
+        raise ValueError(f"max_train_total must be >= 1, got {max_train_total}")
 
     return cfg
 
@@ -287,4 +321,5 @@ EVALUATION_DEFAULTS = {
     "active_switch_min_improvement": ACTIVE_LEARNING_DEFAULTS["active_switch_min_improvement"],
     "active_switch_cooldown_steps": ACTIVE_LEARNING_DEFAULTS["active_switch_cooldown_steps"],
     "active_train_all_models": ACTIVE_LEARNING_DEFAULTS["active_train_all_models"],
+    "max_train_total": ACTIVE_LEARNING_DEFAULTS["max_train_total"],
 }

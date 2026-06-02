@@ -79,10 +79,11 @@ def save_figure(fig, path: Path, dpi: int = 300, save_svg: bool = False) -> None
     base.parent.mkdir(parents=True, exist_ok=True)
 
     # Robust layout for dense scientific multipanel figures.
-    try:
-        fig.tight_layout(pad=1.25)
-    except Exception:
-        pass
+    if not getattr(fig, "_skip_tight_layout", False):
+        try:
+            fig.tight_layout(pad=1.25)
+        except Exception:
+            pass
 
     png_path = Path(str(base) + ".png")
     fig.savefig(png_path, dpi=dpi, bbox_inches="tight", pad_inches=0.30)
