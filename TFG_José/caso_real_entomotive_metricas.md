@@ -29,9 +29,9 @@ Codigo:
 
 Artefactos esperados para la variante sin TPC:
 
-- Logs esperados: `outputs/logs/tuning/productivity_hermetia_gp_ard_kernels_no_tpc_v1`.
-- Graficas esperadas: `outputs/plots/comprehensive_report_gp_ard_kernels_no_tpc_v1`.
-- Reportes esperados: `outputs/reports/entomotive_real_case_no_tpc_v1`.
+- Logs esperados: `outputs/logs/tuning/TFG_MAIN_real_case_hermetia_no_tpc_tuning`.
+- Graficas esperadas: `outputs/plots/TFG_MAIN_real_case_gp_report_no_tpc`.
+- Reportes esperados: `outputs/reports/TFG_MAIN_real_case_audit_no_tpc`.
 - Subcarpetas esperadas por target: `fcr`, `quitina`, `proteina`.
 - No debe existir una carpeta nueva `tpc` en esos artefactos.
 
@@ -325,9 +325,9 @@ La variante sin TPC ya esta materializada en codigo y artefactos:
 
 - `src/configs/tuning_specs.py` itera solo `FCR`, `Quitina` y `Proteina` en `TARGET_MAP`.
 - `src/configs/tuning_specs.py` ya no contiene entradas ARD para TPC en `SELECTED_ARD_BY_CASE`.
-- `run_exhaustive_tuning.py` apunta a `outputs/logs/tuning/productivity_hermetia_gp_ard_kernels_no_tpc_v1`.
-- `tuning_visual_report.py` apunta a `outputs/plots/comprehensive_report_gp_ard_kernels_no_tpc_v1`.
-- `audit_entomotive_real_case.py` apunta a `outputs/reports/entomotive_real_case_no_tpc_v1` y `outputs/plots/entomotive_real_case_no_tpc_v1`.
+- `run_exhaustive_tuning.py` apunta a `outputs/logs/tuning/TFG_MAIN_real_case_hermetia_no_tpc_tuning`.
+- `tuning_visual_report.py` apunta a `outputs/plots/TFG_MAIN_real_case_gp_report_no_tpc`.
+- `audit_entomotive_real_case.py` apunta a `outputs/reports/TFG_MAIN_real_case_audit_no_tpc` y `outputs/plots/TFG_MAIN_real_case_audit_no_tpc`.
 - `audit_entomotive_real_case.py` recalcula el ranking observado con tres componentes: FCR invertido, Quitina y Proteina.
 - `audit_entomotive_real_case.py` genera la grafica de objetivos observados sin TPC.
 - No existe `src/metrics/regression.py`; las metricas se encuentran en `src/analysis/surrogate_metrics.py` y se invocan desde `src/models/base.py`.

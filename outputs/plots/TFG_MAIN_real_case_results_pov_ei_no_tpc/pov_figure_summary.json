@@ -1,5 +1,5 @@
 {
-  "output_dir": "outputs\\plots\\entomotive_real_case_no_tpc_pov_v1",
+  "output_dir": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc",
   "figures": [
     "fig_01_lodo_generalization_vs_dummy.png",
     "fig_02_error_by_left_out_diet.png",

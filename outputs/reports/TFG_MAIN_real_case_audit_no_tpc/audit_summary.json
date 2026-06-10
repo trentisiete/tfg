@@ -15,8 +15,8 @@
     "GP_RBF_NoARD"
   ],
   "report": "TFG_Jos\u00e9\\caso_real_entomotive_validacion.md",
-  "report_dir": "outputs\\reports\\entomotive_real_case_no_tpc_v1",
-  "plot_dir": "outputs\\plots\\entomotive_real_case_no_tpc_v1",
+  "report_dir": "outputs\\reports\\TFG_MAIN_real_case_audit_no_tpc",
+  "plot_dir": "outputs\\plots\\TFG_MAIN_real_case_audit_no_tpc",
   "checks": {
     "pass": 52,
     "warn": 0

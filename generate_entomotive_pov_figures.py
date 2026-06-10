@@ -18,9 +18,9 @@ from src.utils.tools import slugify
 
 
 DATA_FILE = ENTOMOTIVE_DATA_DIR / "productivity_hermetia_lote.csv"
-LOG_ROOT = LOGS_DIR / "tuning" / "productivity_hermetia_gp_ard_kernels_no_tpc_v1"
-REPORT_DIR = OUTPUTS_DIR / "reports" / "entomotive_real_case_no_tpc_v1"
-OUTPUT_DIR = OUTPUTS_DIR / "plots" / "entomotive_real_case_no_tpc_pov_v1"
+LOG_ROOT = LOGS_DIR / "tuning" / "TFG_MAIN_real_case_hermetia_no_tpc_tuning"
+REPORT_DIR = OUTPUTS_DIR / "reports" / "TFG_MAIN_real_case_audit_no_tpc"
+OUTPUT_DIR = OUTPUTS_DIR / "plots" / "TFG_MAIN_real_case_results_pov_ei_no_tpc"
 METRICS_FILE = REPORT_DIR / "active_model_metrics.csv"
 RANKING_FILE = REPORT_DIR / "observed_equal_weight_ranking.csv"
 

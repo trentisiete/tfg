@@ -17,9 +17,9 @@ from src.utils.paths import ENTOMOTIVE_DATA_DIR, LOGS_DIR, OUTPUTS_DIR, PROJECT_
 
 
 DATA_FILE = ENTOMOTIVE_DATA_DIR / "productivity_hermetia_lote.csv"
-LOG_ROOT = LOGS_DIR / "tuning" / "productivity_hermetia_gp_ard_kernels_no_tpc_v1"
-REPORT_DIR = OUTPUTS_DIR / "reports" / "entomotive_real_case_no_tpc_v1"
-PLOT_DIR = OUTPUTS_DIR / "plots" / "entomotive_real_case_no_tpc_v1"
+LOG_ROOT = LOGS_DIR / "tuning" / "TFG_MAIN_real_case_hermetia_no_tpc_tuning"
+REPORT_DIR = OUTPUTS_DIR / "reports" / "TFG_MAIN_real_case_audit_no_tpc"
+PLOT_DIR = OUTPUTS_DIR / "plots" / "TFG_MAIN_real_case_audit_no_tpc"
 TFG_REPORT = PROJECT_ROOT / "TFG_José" / "caso_real_entomotive_validacion.md"
 
 ENTOMOTIVE_DATASETS = [

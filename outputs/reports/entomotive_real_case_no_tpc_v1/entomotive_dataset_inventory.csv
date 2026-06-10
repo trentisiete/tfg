@@ -1,7 +1,0 @@
-dataset,rows,columns,species,n_diets,role
-productivity_hermetia_lote.csv,33,43,Hermetia,11,dataset modelado en el pipeline real
-productivity_tenebrio_lote.csv,57,51,Tenebrio,19,dataset generado disponible
-productivity_all_lote.csv,90,51,"Hermetia, Tenebrio",19,dataset generado disponible
-quality_hermetia_dieta.csv,11,40,Hermetia,11,dataset generado disponible
-quality_tenebrio_dieta.csv,19,42,Tenebrio,19,dataset generado disponible
-quality_all_dieta.csv,30,42,"Hermetia, Tenebrio",19,dataset generado disponible

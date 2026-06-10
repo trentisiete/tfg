@@ -301,7 +301,7 @@ Por tanto, la seleccion de Hermetia no significa que Tenebrio sea invalido. Sign
 
    Los resultados de la corrida vigente se guardan bajo:
 
-   - `outputs/logs/tuning/productivity_hermetia_gp_ard_kernels_no_tpc_v1`
+   - `outputs/logs/tuning/TFG_MAIN_real_case_hermetia_no_tpc_tuning`
 
    Validacion:
 
@@ -367,7 +367,7 @@ Por tanto, la seleccion de Hermetia no significa que Tenebrio sea invalido. Sign
 
    Carpeta de salida:
 
-   - `outputs/plots/comprehensive_report_gp_ard_kernels_no_tpc_v1`
+   - `outputs/plots/TFG_MAIN_real_case_gp_report_no_tpc`
 
    Hay graficas para:
 

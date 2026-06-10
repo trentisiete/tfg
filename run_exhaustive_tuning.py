@@ -221,7 +221,7 @@ def run_tuning_session(session_name: str, feature_cols: List[str], base_output_d
 
 def main():
     # Base directory for all logs
-    BASE_LOG_DIR = LOGS_DIR / "tuning" / "productivity_hermetia_gp_ard_kernels_no_tpc_v1"
+    BASE_LOG_DIR = LOGS_DIR / "tuning" / "TFG_MAIN_real_case_hermetia_no_tpc_tuning"
 
     # 1. Run Reduced Features Experiment
     run_tuning_session(

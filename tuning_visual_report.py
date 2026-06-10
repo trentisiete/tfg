@@ -11,9 +11,9 @@ from src.utils.paths import ENTOMOTIVE_DATA_DIR, LOGS_DIR, PLOTS_DIR
 from src.utils.tools import slugify
 
 
-BASE_LOG_DIR = LOGS_DIR / "tuning" / "productivity_hermetia_gp_ard_kernels_no_tpc_v1"
+BASE_LOG_DIR = LOGS_DIR / "tuning" / "TFG_MAIN_real_case_hermetia_no_tpc_tuning"
 DATA_FILE = ENTOMOTIVE_DATA_DIR / "productivity_hermetia_lote.csv"
-GLOBAL_OUTPUT_DIR = PLOTS_DIR / "comprehensive_report_gp_ard_kernels_no_tpc_v1"
+GLOBAL_OUTPUT_DIR = PLOTS_DIR / "TFG_MAIN_real_case_gp_report_no_tpc"
 
 
 def build_X_y_groups(df: pd.DataFrame, target_col: str, feature_cols: list):

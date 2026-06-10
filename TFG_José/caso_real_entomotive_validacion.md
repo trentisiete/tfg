@@ -121,11 +121,11 @@ El caso real se evalua con LODO por dieta: cada fold deja fuera una dieta comple
 
 ## Figuras limpias generadas
 
-- `outputs\plots\entomotive_real_case_no_tpc_v1\dataset_targets_by_diet.png`
-- `outputs\plots\entomotive_real_case_no_tpc_v1\observed_equal_weight_ranking.png`
-- `outputs\plots\entomotive_real_case_no_tpc_v1\active_mae_reduced_features.png`
-- `outputs\plots\entomotive_real_case_no_tpc_v1\active_mae_full_features.png`
-- `outputs\plots\entomotive_real_case_no_tpc_v1\gp_coverage95_active.png`
+- `outputs\plots\TFG_MAIN_real_case_audit_no_tpc\dataset_targets_by_diet.png`
+- `outputs\plots\TFG_MAIN_real_case_audit_no_tpc\observed_equal_weight_ranking.png`
+- `outputs\plots\TFG_MAIN_real_case_audit_no_tpc\active_mae_reduced_features.png`
+- `outputs\plots\TFG_MAIN_real_case_audit_no_tpc\active_mae_full_features.png`
+- `outputs\plots\TFG_MAIN_real_case_audit_no_tpc\gp_coverage95_active.png`
 
 ## Conclusion tecnica
 
