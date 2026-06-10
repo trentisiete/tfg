@@ -1,0 +1,47 @@
+% chapters/01_introduccion.tex
+\chapter{Introducción}
+\label{chap:introduccion}
+
+Muchos problemas reales de optimización consisten en encontrar una configuración de entrada que produzca una respuesta favorable. Sin embargo, en numerosos contextos de ingeniería, ciencia de datos o experimentación física, evaluar cada configuración puede ser costoso, lento o limitado. En estos casos, no es viable explorar exhaustivamente todo el espacio de búsqueda ni aplicar directamente métodos que requieran muchas evaluaciones de la función objetivo. El problema deja de ser únicamente encontrar el mejor punto, y pasa a ser decidir cómo aprender lo máximo posible a partir de un número reducido de observaciones.
+
+Este escenario aparece cuando la función que se desea optimizar se comporta como una caja negra: se pueden observar salidas para ciertas entradas, pero no se dispone de una expresión analítica sencilla ni de derivadas que permitan guiar directamente la búsqueda. Además, las observaciones pueden estar afectadas por ruido o variabilidad experimental. Por tanto, cualquier estrategia de optimización debe equilibrar dos necesidades: aproximar el comportamiento de la función con los datos disponibles y decidir qué nuevas configuraciones conviene evaluar.
+
+Los modelos sustitutos surgen precisamente como una herramienta para abordar este tipo de problemas. La idea principal es construir una aproximación barata de evaluar a partir de un conjunto limitado de observaciones. Esta aproximación no reemplaza definitivamente al sistema real, pero permite analizar el espacio de búsqueda, realizar predicciones en puntos no observados y orientar la selección de nuevas evaluaciones. Entre los distintos tipos de modelos sustitutos, los procesos gaussianos resultan especialmente interesantes porque proporcionan tanto una media predictiva como una estimación de incertidumbre. Esta incertidumbre permite distinguir entre regiones donde el modelo parece fiable y regiones donde todavía existe desconocimiento.
+
+En el contexto de la optimización basada en modelos sustitutos, la incertidumbre no solo se utiliza como diagnóstico, sino también como parte activa del proceso de búsqueda. Funciones de adquisición como Expected Improvement combinan explotación e exploración: favorecen puntos donde el modelo predice buenos valores, pero también regiones donde la incertidumbre es suficientemente alta como para justificar una nueva evaluación. De este modo, el proceso de optimización no se basa únicamente en seguir la mejor predicción media, sino en seleccionar puntos que puedan aportar mejora o información útil.
+
+Este TFG estudia este enfoque en dos escenarios complementarios. En primer lugar, se utilizan benchmarks sintéticos, donde la función objetivo es conocida y puede evaluarse de forma controlada. Este escenario permite analizar el ciclo completo de optimización secuencial: diseño inicial, entrenamiento del proceso gaussiano, selección de nuevos puntos mediante Expected Improvement y actualización del conjunto observado. En segundo lugar, se aplica el enfoque a un caso real basado en datos experimentales de dietas para \textit{Hermetia illucens}. En este caso, las observaciones proceden de ensayos ya realizados y el objetivo no es afirmar una dieta óptima definitiva, sino evaluar si el modelo puede generalizar a dietas no vistas y proponer candidatos razonables para una posible evaluación futura.
+
+Por tanto, el trabajo no pretende presentar los modelos sustitutos como sustitutos de la validación experimental. Su papel se entiende como una herramienta de apoyo: permiten reducir el espacio de búsqueda, cuantificar incertidumbre y priorizar nuevas evaluaciones cuando el presupuesto experimental es limitado. Esta distinción es especialmente importante en el caso real, donde las predicciones del modelo deben interpretarse como hipótesis experimentales y no como conclusiones biológicas cerradas.
+
+\section{Objetivos}
+\label{sec:objetivos}
+
+El objetivo general de este TFG es desarrollar y evaluar un marco de optimización basada en modelos sustitutos probabilísticos, centrado en procesos gaussianos, para aproximar funciones objetivo con evaluaciones limitadas y apoyar la búsqueda de configuraciones prometedoras.
+
+Para alcanzar este objetivo general, se plantean los siguientes objetivos específicos:
+
+\begin{enumerate}
+    \item Estudiar los fundamentos de los modelos sustitutos y, en particular, de los procesos gaussianos como modelos probabilísticos capaces de proporcionar predicción puntual e incertidumbre.
+
+    \item Implementar un marco experimental basado en procesos gaussianos y Expected Improvement para analizar el ciclo completo de optimización secuencial en funciones benchmark sintéticas.
+
+    \item Evaluar en los benchmarks si el proceso de \emph{infill} permite mejorar el mejor valor encontrado respecto al diseño inicial, y analizar cómo influyen factores como el kernel, el tamaño inicial, el ruido y la dimensionalidad del problema.
+
+    \item Comparar la calidad predictiva del GP con su utilidad para guiar la optimización, diferenciando entre métricas de error, métricas probabilísticas y mejora del \emph{incumbent}.
+
+    \item Aplicar el enfoque a un caso real de dietas para \textit{Hermetia illucens}, construyendo una representación supervisada a partir de variables de formulación, composición nutricional y tipo de subproducto.
+
+    \item Evaluar la capacidad de generalización del modelo en el caso real mediante un protocolo \emph{Leave-One-Diet-Out}, evitando fuga de información entre réplicas de una misma dieta.
+
+    \item Analizar si la incertidumbre predictiva del GP puede servir como señal de apoyo para interpretar la fiabilidad de las predicciones y priorizar nuevas formulaciones candidatas.
+
+    \item Plantear una fase prospectiva de pre-\emph{infill} que permita identificar candidatos para futuras evaluaciones experimentales.
+\end{enumerate}
+
+Estos objetivos están diseñados para cubrir tanto la parte metodológica como la parte aplicada del trabajo. Los benchmarks permiten comprobar el comportamiento del enfoque en un entorno controlado, mientras que el caso real permite estudiar sus posibilidades y limitaciones cuando los datos son escasos, agrupados por dieta y procedentes de ensayos experimentales.
+
+\section{Estructura del documento}
+\label{sec:estructura_documento}
+
+El resto del documento se organiza del siguiente modo. El Capítulo~\ref{chap:estado_arte} introduce el marco teórico necesario para el trabajo, incluyendo la optimización con evaluaciones costosas, los modelos sustitutos, los procesos gaussianos, el diseño experimental, las funciones de adquisición y las métricas de evaluación. El Capítulo~\ref{chap:diseno_experimental} presenta la experimentación realizada, primero sobre benchmarks sintéticos y después sobre el caso real de dietas para insectos. Finalmente, el Capítulo~\ref{chap:conclusiones_trabajo_futuro} resume las principales conclusiones obtenidas y plantea posibles líneas de trabajo futuro.

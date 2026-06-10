@@ -1,0 +1,4 @@
+target,criterion,diet_name,byproduct_type,inclusion_pct,mean_value
+FCR,min,Quinoa30,quinoa,30,1.5432158751887648
+QUITINA (%),max,Orujo70,orujo,70,15.31837764643533
+PROTEINA (%),max,Orujo50,orujo,50,32.14739293244424

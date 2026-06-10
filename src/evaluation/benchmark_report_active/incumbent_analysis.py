@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+import matplotlib.patheffects as path_effects
 import numpy as np
 import pandas as pd
 
@@ -514,6 +516,291 @@ def _plot_final_bars(summary: pd.DataFrame, out_path: Path, dpi: int, save_svg: 
     save_figure(fig, out_path, dpi=dpi, save_svg=save_svg)
 
 
+def _model_short_name(model: str) -> str:
+    mapping = {
+        "GP_Linear": "Linear",
+        "GP_Matern32": "M32",
+        "GP_Matern52": "M52",
+        "GP_Matern52_ARD": "M52-ARD",
+        "GP_RBF": "RBF",
+        "GP_RBF_ARD": "RBF-ARD",
+    }
+    return mapping.get(str(model), str(model).replace("GP_", ""))
+
+
+def _normalised_auc_for_trajectory(block: pd.DataFrame) -> float:
+    valid = block.sort_values("step")[["step", "relative_incumbent_improvement"]].copy()
+    valid["step"] = pd.to_numeric(valid["step"], errors="coerce")
+    valid["relative_incumbent_improvement"] = pd.to_numeric(
+        valid["relative_incumbent_improvement"], errors="coerce"
+    )
+    valid = valid.replace([np.inf, -np.inf], np.nan).dropna()
+    if valid.empty:
+        return np.nan
+    x = valid["step"].to_numpy(dtype=float)
+    y = valid["relative_incumbent_improvement"].to_numpy(dtype=float)
+    span = float(np.nanmax(x) - np.nanmin(x))
+    if span <= 1e-12:
+        return float(y[-1])
+    return float(np.trapezoid(y, x) / span)
+
+
+def _build_incumbent_efficiency_summary(
+    trajectory_df: pd.DataFrame,
+    aggregated_summary: pd.DataFrame,
+) -> pd.DataFrame:
+    if trajectory_df.empty:
+        return pd.DataFrame()
+
+    rows: List[Dict[str, object]] = []
+    for trajectory_id, block in trajectory_df.sort_values("step").groupby("trajectory_id", dropna=False):
+        first = block.iloc[0]
+        last = block.iloc[-1]
+        rows.append(
+            {
+                "trajectory_id": trajectory_id,
+                "benchmark": first["benchmark"],
+                "model": first["model"],
+                "sampler": first["sampler"],
+                "noise": first["noise"],
+                "n_train": int(first["n_train"]),
+                "final_step": int(last["step"]),
+                "final_relative_incumbent_improvement": last["relative_incumbent_improvement"],
+                "auc_relative_incumbent_improvement": _normalised_auc_for_trajectory(block),
+                "metric_note": first["incumbent_metric_note"],
+                "optimum_available": bool(first["optimum_available"]),
+            }
+        )
+    run_efficiency = pd.DataFrame(rows)
+    if run_efficiency.empty:
+        return pd.DataFrame()
+
+    summary = (
+        run_efficiency.groupby(["benchmark", "model"], as_index=False)
+        .agg(
+            mean_final_incumbent_improvement=("final_relative_incumbent_improvement", "mean"),
+            std_final_incumbent_improvement=("final_relative_incumbent_improvement", "std"),
+            mean_auc_incumbent_improvement=("auc_relative_incumbent_improvement", "mean"),
+            std_auc_incumbent_improvement=("auc_relative_incumbent_improvement", "std"),
+            n_runs=("trajectory_id", "nunique"),
+            final_step_min=("final_step", "min"),
+            final_step_max=("final_step", "max"),
+            metric_note=("metric_note", "first"),
+            optimum_available=("optimum_available", "all"),
+        )
+        .sort_values(["benchmark", "mean_final_incumbent_improvement"], ascending=[True, False])
+    )
+
+    if not aggregated_summary.empty and {"benchmark", "model", "best_n_train_initial"}.issubset(
+        aggregated_summary.columns
+    ):
+        summary = summary.merge(
+            aggregated_summary[["benchmark", "model", "best_n_train_initial"]],
+            on=["benchmark", "model"],
+            how="left",
+        )
+
+    summary["efficiency_ratio_auc_to_final"] = np.where(
+        summary["mean_final_incumbent_improvement"].abs() > 1e-12,
+        summary["mean_auc_incumbent_improvement"] / summary["mean_final_incumbent_improvement"],
+        np.nan,
+    )
+
+    def classify(row: pd.Series) -> str:
+        final = row["mean_final_incumbent_improvement"]
+        ratio = row["efficiency_ratio_auc_to_final"]
+        std = row["std_final_incumbent_improvement"]
+        if pd.isna(final):
+            return "sin datos"
+        if final <= 0:
+            return "sin mejora del incumbent"
+        if pd.notna(std) and std > abs(final):
+            return "mejora poco robusta"
+        if final >= 0.50 and pd.notna(ratio) and ratio >= 0.60:
+            return "mejora temprana y fuerte"
+        if final >= 0.50:
+            return "mejora final fuerte pero tardia"
+        if pd.notna(ratio) and ratio >= 0.60:
+            return "mejora temprana moderada"
+        return "mejora moderada o tardia"
+
+    summary["comentario"] = summary.apply(classify, axis=1)
+    columns = [
+        "benchmark",
+        "model",
+        "mean_final_incumbent_improvement",
+        "std_final_incumbent_improvement",
+        "mean_auc_incumbent_improvement",
+        "std_auc_incumbent_improvement",
+        "efficiency_ratio_auc_to_final",
+        "n_runs",
+        "final_step_min",
+        "final_step_max",
+        "best_n_train_initial",
+        "metric_note",
+        "comentario",
+    ]
+    return summary[[c for c in columns if c in summary.columns]].copy()
+
+
+def _plot_incumbent_efficiency_map(
+    efficiency: pd.DataFrame,
+    out_path: Path,
+    dpi: int,
+    save_svg: bool,
+) -> None:
+    required = {
+        "benchmark",
+        "model",
+        "mean_final_incumbent_improvement",
+        "mean_auc_incumbent_improvement",
+        "std_final_incumbent_improvement",
+    }
+    if efficiency.empty or not required.issubset(efficiency.columns):
+        return
+
+    benchmarks = sorted(efficiency["benchmark"].dropna().astype(str).unique().tolist())
+    if not benchmarks:
+        return
+
+    style_map = build_model_style_map(efficiency["model"].dropna().astype(str).unique().tolist())
+    std_max = float(pd.to_numeric(efficiency["std_final_incumbent_improvement"], errors="coerce").max())
+    if not np.isfinite(std_max) or std_max <= 1e-12:
+        std_max = 1.0
+
+    ncols = 2
+    nrows = int(np.ceil(len(benchmarks) / ncols))
+    fig, axs = plt.subplots(nrows=nrows, ncols=ncols, figsize=(12.8, 4.45 * nrows))
+    axs = np.atleast_1d(axs).ravel()
+    label_offsets = [(8, 7), (8, -12), (-48, 7), (-52, -12), (8, 20), (-58, 20)]
+    special_offsets = {
+        ("borehole", "GP_Linear"): (-54, 16),
+        ("borehole", "GP_Matern32"): (8, 3),
+        ("borehole", "GP_Matern52"): (8, -16),
+        ("borehole", "GP_Matern52_ARD"): (-62, -10),
+        ("borehole", "GP_RBF"): (8, 10),
+        ("borehole", "GP_RBF_ARD"): (-62, 10),
+        ("branin", "GP_Matern52_ARD"): (-72, 9),
+        ("branin", "GP_Matern32"): (8, 8),
+        ("branin", "GP_Matern52"): (-48, -10),
+        ("branin", "GP_RBF_ARD"): (-62, 2),
+        ("branin", "GP_RBF"): (8, -8),
+        ("forrester", "GP_Matern52"): (12, -8),
+        ("forrester", "GP_RBF"): (-46, -12),
+        ("forrester", "GP_Matern32"): (8, -14),
+        ("forrester", "GP_Linear"): (8, 8),
+        ("hartmann6", "GP_RBF"): (8, 16),
+        ("hartmann6", "GP_Matern52_ARD"): (-62, -12),
+        ("hartmann6", "GP_Matern52"): (-50, 10),
+        ("hartmann6", "GP_Matern32"): (-54, 24),
+        ("hartmann6", "GP_RBF_ARD"): (8, -18),
+        ("hartmann6", "GP_Linear"): (8, 8),
+    }
+
+    for i, benchmark in enumerate(benchmarks):
+        ax = axs[i]
+        block = efficiency[efficiency["benchmark"].astype(str) == benchmark].copy()
+        block = block.dropna(subset=["mean_final_incumbent_improvement", "mean_auc_incumbent_improvement"])
+        if block.empty:
+            ax.set_axis_off()
+            continue
+
+        x = block["mean_final_incumbent_improvement"].to_numpy(dtype=float)
+        y = block["mean_auc_incumbent_improvement"].to_numpy(dtype=float)
+        x_min = min(-0.03, float(np.nanmin(x)) - 0.06)
+        x_max = max(0.10, float(np.nanmax(x)) + 0.08)
+        y_min = min(-0.03, float(np.nanmin(y)) - 0.06)
+        y_max = max(0.10, float(np.nanmax(y)) + 0.08)
+        x_min = float(np.floor(x_min * 10.0) / 10.0)
+        x_max = float(np.ceil(x_max * 10.0) / 10.0)
+        y_min = float(np.floor(y_min * 10.0) / 10.0)
+        y_max = float(np.ceil(y_max * 10.0) / 10.0)
+        ax.set_xlim(x_min, x_max)
+        ax.set_ylim(y_min, y_max)
+
+        ax.axvspan(0.0, x_max, color="#d8f3dc", alpha=0.20, zorder=0)
+        ax.axvline(0.0, color="#333333", linestyle=":", linewidth=1.1, zorder=1)
+        ax.axhline(0.0, color="#333333", linestyle=":", linewidth=1.1, zorder=1)
+        diag_max = min(x_max, y_max)
+        diag_min = max(x_min, y_min)
+        if diag_max > diag_min:
+            ax.plot(
+                [diag_min, diag_max],
+                [diag_min, diag_max],
+                color="#777777",
+                linestyle="--",
+                linewidth=1.0,
+                alpha=0.75,
+                zorder=1,
+            )
+
+        best_idx = block["mean_final_incumbent_improvement"].idxmax()
+        for j, row in enumerate(block.sort_values("mean_final_incumbent_improvement").itertuples(index=True)):
+            model = str(row.model)
+            std = float(row.std_final_incumbent_improvement) if pd.notna(row.std_final_incumbent_improvement) else 0.0
+            size = 70.0 + 230.0 * min(max(std / std_max, 0.0), 1.0)
+            color = style_map.get(model, {}).get("color", "#4c78a8")
+            marker = "*" if row.Index == best_idx else "o"
+            ax.scatter(
+                [row.mean_final_incumbent_improvement],
+                [row.mean_auc_incumbent_improvement],
+                s=size + (65 if marker == "*" else 0),
+                color=color,
+                marker=marker,
+                edgecolor="black",
+                linewidth=0.75 if marker == "o" else 1.0,
+                alpha=0.92,
+                zorder=3,
+            )
+            dx, dy = special_offsets.get(
+                (str(benchmark).lower(), model),
+                label_offsets[j % len(label_offsets)],
+            )
+            txt = ax.annotate(
+                _model_short_name(model),
+                (row.mean_final_incumbent_improvement, row.mean_auc_incumbent_improvement),
+                xytext=(dx, dy),
+                textcoords="offset points",
+                fontsize=8.2,
+                zorder=4,
+            )
+            txt.set_path_effects([path_effects.withStroke(linewidth=3.0, foreground="white")])
+
+        note = str(block["metric_note"].iloc[0]) if "metric_note" in block.columns else ""
+        metric_text = "gap al optimo" if note == "gap_reduction_to_known_optimum" else "valor limpio inicial"
+        ax.set_title(f"{benchmark}\n{metric_text}")
+        ax.set_xlabel("Mejora final del incumbent")
+        ax.set_ylabel("Eficiencia acumulada normalizada")
+        ax.grid(True, alpha=0.24)
+
+    for k in range(len(benchmarks), len(axs)):
+        axs[k].set_axis_off()
+
+    size_values = [0.05, 0.20, 0.40]
+    size_handles = [
+        plt.scatter([], [], s=70.0 + 230.0 * min(v / std_max, 1.0), color="white", edgecolor="black", label=f"std={v:.2f}")
+        for v in size_values
+        if v <= std_max * 1.05 or v == size_values[0]
+    ]
+    handles = [
+        Line2D([0], [0], marker="*", color="none", markerfacecolor="#777777", markeredgecolor="black", markersize=11, label="mejor final"),
+        Line2D([0], [0], color="#777777", linestyle="--", linewidth=1.0, label="mejora temprana ideal"),
+        *size_handles,
+    ]
+    fig.legend(handles=handles, loc="lower center", ncol=min(5, len(handles)), frameon=True, bbox_to_anchor=(0.5, 0.02))
+    fig.suptitle("Mapa de eficiencia de optimizacion durante el infill", y=0.965)
+    fig.text(
+        0.5,
+        0.925,
+        "Derecha = mejor minimo final; arriba = mejora acumulada antes y de forma sostenida; tamano = variabilidad entre trayectorias",
+        ha="center",
+        fontsize=9,
+    )
+    fig.subplots_adjust(left=0.085, right=0.975, bottom=0.16, top=0.85, hspace=0.50, wspace=0.30)
+    fig._skip_tight_layout = True
+    save_figure(fig, out_path, dpi=dpi, save_svg=save_svg)
+
+
 def _select_best_models(summary: pd.DataFrame) -> Dict[str, str]:
     if summary.empty:
         return {}
@@ -722,6 +1009,7 @@ def generate_incumbent_outputs(
     grouped = _aggregate_by_step(trajectory_df)
     run_df = _build_run_improvements(trajectory_df)
     by_ntrain, aggregated = _summarise_run_improvements(run_df)
+    efficiency = _build_incumbent_efficiency_summary(trajectory_df, aggregated)
 
     tables_dir = Path(tables_dir)
     figures_dir = Path(figures_dir)
@@ -731,6 +1019,7 @@ def generate_incumbent_outputs(
     counts.to_csv(tables_dir / "counts_by_step_incumbent.csv", index=False)
     by_ntrain.to_csv(tables_dir / "summary_incumbent_initial_final_by_benchmark_ntrain_model.csv", index=False)
     aggregated.to_csv(tables_dir / "summary_incumbent_relative_improvement_by_benchmark_model.csv", index=False)
+    efficiency.to_csv(tables_dir / "incumbent_efficiency_by_benchmark_model.csv", index=False)
 
     style_map = build_model_style_map(active_df["model"].unique())
     for benchmark in sorted(grouped["benchmark"].dropna().astype(str).unique().tolist()):
@@ -757,6 +1046,12 @@ def generate_incumbent_outputs(
         dpi=dpi,
         save_svg=save_svg,
     )
+    _plot_incumbent_efficiency_map(
+        efficiency=efficiency,
+        out_path=figures_dir / "incumbent_efficiency_map_by_benchmark",
+        dpi=dpi,
+        save_svg=save_svg,
+    )
     _write_interpretation(
         path=tables_dir / "interpretacion_incumbent_infill.md",
         summary=aggregated,
@@ -771,4 +1066,5 @@ def generate_incumbent_outputs(
         "counts_by_step_incumbent": counts,
         "summary_incumbent_initial_final_by_benchmark_ntrain_model": by_ntrain,
         "summary_incumbent_relative_improvement_by_benchmark_model": aggregated,
+        "incumbent_efficiency_by_benchmark_model": efficiency,
     }

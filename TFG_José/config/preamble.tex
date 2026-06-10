@@ -1,0 +1,64 @@
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-nodecimaldot,es-noindentfirst]{babel}
+
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{microtype}
+\usepackage{amsthm}
+
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage[final]{graphicx}
+\usepackage{array}
+\usepackage{epstopdf}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage{placeins}
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{bm}
+
+\usepackage{hyperref}
+
+\pdfstringdefDisableCommands{%
+  \def\bm#1{#1}%
+  \def\mathbb#1{#1}%
+  \def\mathbf#1{#1}%
+  \def\boldsymbol#1{#1}%
+}
+
+\usepackage{cleveref}
+
+\usepackage{csquotes}
+
+% Código 
+\usepackage{listings}
+
+% Bibliografía
+\usepackage[
+    backend=biber,
+    style=numeric-comp,
+    sorting=none
+]{biblatex}
+
+\addbibresource{frontmatter/references.bib}
+% Mejoras visuales
+\usepackage{caption}
+\usepackage{subcaption}
+
+% Comandos útiles
+\newcommand{\keywords}[1]{%
+  \vfill
+  \noindent\textbf{Palabras clave:} #1
+}
+
+\newcommand{\keywordsEN}[1]{%
+  \vfill
+  \noindent\textbf{Keywords:} #1
+}
+\newtheorem{proposition}{Proposición}
+
+\usepackage{tabularx}
+\usepackage{array}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}

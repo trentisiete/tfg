@@ -1,0 +1,252 @@
+\chapter{Material complementario del experimento de benchmarks}
+\label{app:benchmarks_complementario}
+
+Este anexo recoge el material metodológico y gráfico del experimento de benchmarks que se ha retirado del cuerpo principal para mantener la memoria dentro del límite de extensión. En el Capítulo~\ref{chap:diseno_experimental} se conservan los elementos principales del análisis: la tabla de benchmarks, la configuración general del experimento, el resumen del \emph{incumbent}, la evolución del \emph{incumbent}, el resumen predictivo y la jerarquía de factores experimentales.
+
+\section{Dominio detallado del benchmark Borehole}
+\label{app:dominio_borehole}
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Dominio del benchmark Borehole.}
+\label{tab:app_dominio_borehole}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{1.8cm} X p{3.4cm}@{}}
+\toprule
+\textbf{Variable} & \textbf{Descripción} & \textbf{Dominio} \\
+\midrule
+\(r_w\)
+& Radio del pozo
+& \([0.05, 0.15]\) \\
+
+    \(r\) 
+    & Radio de influencia 
+    & \([100, 50000]\) \\
+
+    \(T_u\) 
+    & Transmisividad del acuífero superior 
+    & \([63070, 115600]\) \\
+
+    \(H_u\) 
+    & Carga piezométrica superior 
+    & \([990, 1110]\) \\
+
+    \(T_l\) 
+    & Transmisividad del acuífero inferior 
+    & \([63.1, 116]\) \\
+
+    \(H_l\) 
+    & Carga piezométrica inferior 
+    & \([700, 820]\) \\
+
+    \(L\) 
+    & Longitud del pozo 
+    & \([1120, 1680]\) \\
+
+    \(K_w\) 
+    & Conductividad hidráulica del pozo 
+    & \([9855, 12045]\) \\
+    \bottomrule 
+\end{tabularx}
+
+\end{table}
+\FloatBarrier
+\newpage
+\section{Flujo del proceso de \emph{infill}}
+\label{app:flujo_infill}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+box/.style={
+rectangle,
+rounded corners=3pt,
+draw=black,
+align=center,
+minimum width=4.0cm,
+minimum height=1.05cm,
+inner sep=4pt,
+font=\small
+},
+arrow/.style={
+-{Latex[length=2mm]},
+thick
+},
+looparrow/.style={
+-{Latex[length=2mm]},
+thick,
+dashed,
+rounded corners=6pt
+},
+looplabel/.style={
+font=\small,
+fill=white,
+inner xsep=4pt,
+inner ysep=1pt
+}
+]
+
+    \node[box] (init) at (0,0) {
+        \textbf{Diseño inicial}\\
+        \(\mathcal{D}_n=\{(\bm{x}_i,y_i)\}_{i=1}^{n}\)
+    };
+
+    \node[box] (train) at (5.4,0) {
+        \textbf{Entrenar GP}\\
+        sobre \(\mathcal{D}_n\)
+    };
+
+    \node[box] (pred) at (10.8,0) {
+        \textbf{Predicción}\\
+        \(\mu(\bm{x}),\,\sigma(\bm{x})\)
+    };
+
+    \node[box] (ei) at (10.8,-2.25) {
+        \textbf{Calcular EI}\\
+        minimización
+    };
+
+    \node[box] (opt) at (5.4,-2.25) {
+        \textbf{Optimizar EI}\\
+        \(\bm{x}_{\mathrm{next}}=\operatorname*{arg\,max}_{\bm{x}} EI(\bm{x})\)
+    };
+
+    \node[box] (eval) at (0,-2.25) {
+        \textbf{Evaluar benchmark}\\
+        \(y_{\mathrm{next}}=f(\bm{x}_{\mathrm{next}})\)
+    };
+
+    \node[box] (update) at (0,-4.5) {
+        \textbf{Actualizar datos}\\
+        \(\mathcal{D}_{n+1}=\mathcal{D}_n \cup\)\\
+        \(\{(\bm{x}_{\mathrm{next}},y_{\mathrm{next}})\}\)
+    };
+
+    \node[box] (metrics) at (5.4,-4.5) {
+        \textbf{Evaluar métricas}\\
+        test y mejor valor observado
+    };
+
+    \draw[arrow] (init) -- (train);
+    \draw[arrow] (train) -- (pred);
+    \draw[arrow] (pred) -- (ei);
+    \draw[arrow] (ei) -- (opt);
+    \draw[arrow] (opt) -- (eval);
+    \draw[arrow] (eval) -- (update);
+    \draw[arrow] (update) -- (metrics);
+
+    \coordinate (loopA) at (13.8,-4.5);
+    \coordinate (loopB) at (13.8,1.85);
+    \coordinate (loopC) at (5.4,1.85);
+
+    \draw[looparrow]
+        (metrics.east)
+        -- (loopA)
+        -- (loopB)
+        -- node[looplabel, above, midway]
+            {Repetir hasta agotar el presupuesto de \emph{infill}}
+        (loopC)
+        -- (train.north);
+
+\end{tikzpicture}%
+}
+\caption{Flujo del proceso de \emph{infill} empleado en los benchmarks sintéticos. En cada iteración se entrena una configuración GP con las observaciones disponibles, se calcula EI, se selecciona el siguiente punto maximizando dicho criterio, se evalúa la función benchmark y se actualiza el conjunto de entrenamiento.}
+\label{fig:app_flujo_infill}
+
+\end{figure}
+\FloatBarrier
+
+\subsection*{Descripción detallada del proceso de \emph{infill}}
+
+El proceso de \emph{infill} reproduce un escenario de optimización con evaluaciones costosas, donde cada nuevo punto debe seleccionarse de forma informada. En este experimento, la función objetivo se formula como un problema de minimización, por lo que la mejora esperada se calcula respecto al mejor valor observado hasta el momento.
+
+En cada iteración, el GP se ajusta con el conjunto de observaciones disponible \(\mathcal{D}_n\) y se calcula el criterio EI sobre el dominio de búsqueda. Aunque la función objetivo se minimiza, EI se maximiza, ya que se busca el punto con mayor mejora esperada:
+
+\[
+\bm{x}_{\mathrm{next}}
+=
+\operatorname*{arg\,max}_{\bm{x}\in\mathcal{X}} EI(\bm{x}).
+\]
+
+La maximización de EI se realiza mediante \emph{Differential Evolution}, al tratarse de una estrategia robusta para funciones de adquisición potencialmente multimodales y sin necesidad de gradientes. Además, se emplea \texttt{polish=True}, aplicando un refinamiento local con L-BFGS-B tras la búsqueda global. Dado que los optimizadores de SciPy están formulados como problemas de minimización, en la implementación se optimiza $-EI(\bm{x})$, lo que equivale a maximizar $EI(\bm{x})$.
+\newpage
+\section{Configuración de semillas y reproducibilidad}
+\label{app:semillas_benchmarks}
+
+\begin{table}[htbp]
+\centering
+\caption{Configuración de semillas empleada en el experimento benchmark.}
+\label{tab:app_semillas_benchmarks}
+\begin{tabular}{p{4.2cm} p{10.8cm}}
+\toprule
+\textbf{Elemento} & \textbf{Semilla utilizada} \\
+\midrule
+Entrenamiento inicial
+& 42. \\
+
+    Conjunto de test 
+    & 1042. \\
+
+    Ruido en entrenamiento y test 
+    & 42. \\
+
+    Ruido durante \emph{infill} 
+    & 42. \\
+
+    EI, Differential Evolution y respaldo aleatorio 
+    & En cada iteración se utiliza una semilla dependiente del paso, \(S + \text{step} \times 1009\), donde \(S\) es la semilla base de la configuración. \\
+
+    Auditoría de validación cruzada en modo activo
+& Si se activa la auditoría mediante KFold, la semilla depende del paso para mantener la reproducibilidad de cada iteración. \\
+    \bottomrule
+\end{tabular}
+
+\end{table}
+\FloatBarrier
+\newpage
+\section{Mejora final del \emph{incumbent} por benchmark}
+\label{app:mejora_final_incumbent}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{assets/final_relative_incumbent_improvement_by_benchmark.eps}
+\caption{Mejora relativa final del mínimo encontrado durante el proceso de \emph{infill}. En Forrester, Branin y Hartmann6 se representa la reducción relativa del \emph{gap} al óptimo. En Borehole, al no disponer de óptimo definido en la implementación, se muestra la reducción relativa del mejor valor limpio respecto al diseño inicial. Las barras indican la media y las líneas verticales la desviación típica sobre las trayectorias agregadas.}
+\label{fig:app_final_relative_incumbent_improvement}
+\end{figure}
+\FloatBarrier
+
+\newpage
+\section{Evolución relativa del MAE}
+\label{app:evolucion_relativa_mae}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{assets/evolution_relative_mae_best_model_by_benchmark.png}
+\caption{Evolución relativa del MAE para el mejor modelo predictivo de cada benchmark. La línea discontinua marca el valor inicial. Valores inferiores a 1 indican una reducción del error respecto al modelo entrenado únicamente con el diseño inicial.}
+\label{fig:app_evolution_relative_mae_best_model}
+\end{figure}
+\FloatBarrier
+\newpage
+\section{Diagnóstico predictivo y probabilístico}
+\label{app:diagnostico_predictivo_probabilistico}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{assets/mae_vs_probabilistic_diagnostics_by_step.png}
+\caption{Relación entre precisión puntual y diagnóstico probabilístico durante el proceso de \emph{infill}. El eje horizontal representa el MAE relativo respecto al inicio y el eje vertical el NLPD relativo. El cuadrante inferior izquierdo corresponde al caso deseable, con mejora simultánea en error puntual y diagnóstico probabilístico. El color indica el error de calibración de la cobertura al 95 \%, definido como \(\left|\mathrm{coverage}_{95}-0.95\right|\).}
+\label{fig:app_mae_vs_probabilistic_diagnostics}
+\end{figure}
+\FloatBarrier
+\newpage
+\section{Efecto de las condiciones experimentales}
+\label{app:efecto_condiciones_experimentales}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{assets/factor_effects_paired_for_tfg.png}
+\caption{Efectos emparejados de distintas condiciones experimentales sobre la mejora del \emph{incumbent} y la mejora relativa del MAE. Un delta positivo indica que la primera condición de la comparación obtiene mayor mejora media. Las barras horizontales representan la desviación típica de los deltas emparejados.}
+\label{fig:app_factor_effects_paired}
+\end{figure}
+\FloatBarrier

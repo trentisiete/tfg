@@ -1,0 +1,53 @@
+% frontmatter/simbolos.tex
+\chapter*{Glosario de símbolos}
+\addcontentsline{toc}{chapter}{Glosario de símbolos}
+
+% Solo si te compensa (muchas fórmulas).
+% Ejemplo:
+\begin{tabular}{ll}
+$\bm{x}$ & Vector de entradas (hiperparámetros) \\
+$f(\bm{x})$ & Función objetivo desconocida / computacionalmente costosa \\
+$\mu(\bm{x})$ & Media predictiva del Modelo Sustituto \\
+$\sigma(\bm{x})$ & Desviación típica predictiva \\
+
+$\mathcal{X}$ & Espacio de búsqueda (dominio de las entradas), $\mathcal{X}\subset\mathbb{R}^{d}$ \\
+$d$ & Dimensión del vector de entradas $\bm{x}$ \\
+$\bm{x}^\star$ & Solución óptima (minimizador global) \\
+$c(\bm{x})$ & Coste (computacional/experimental) de evaluar en $\bm{x}$ \\
+$B$ & Presupuesto máximo de evaluaciones de $f$ \\
+$\mathcal{D}_n$ & Conjunto de datos observado, $\{(\bm{x}_i,y_i)\}_{i=1}^{n}$ \\
+$y_i$ & Observación al evaluar en $\bm{x}_i$ / Etiqueta \\
+$\varepsilon_i$ & Término de ruido en la observación \\
+$\sigma_\varepsilon^2$ & Varianza del ruido de observación \\
+$\hat{f}(\bm{x})$ & Modelo sustituto (aproximación aprendida de $f$) \\
+$n$ & Número de evaluaciones disponibles del sistema real \\
+$\varepsilon$ & Ruido de la observación (si se modela $y=f(\bm{x})+\varepsilon$) \\
+
+$m(\bm{x})$ & Función de media del GP \\
+$k(\bm{x},\bm{x}')$ & Kernel / función de covarianza \\
+$\bm{K}$ & Matriz kernel, $K_{ij}=k(\bm{x}_i,\bm{x}_j)$ \\
+$\sigma_n^2$ & Varianza del ruido de observación \\
+$\bm{K}_y$ & Covarianza de $\bm{y}$, $\bm{K}_y=\bm{K}+\sigma_n^2\bm{I}$ \\
+$\bm{x}_*$ & Punto de prueba (test) \\
+$\bm{k}_*$ & Vector $K(X,\bm{x}_*)$ de covarianzas con el test \\
+$k_{**}$ & Escalar $k(\bm{x}_*,\bm{x}_*)$ \\
+$\bar{f}_*$ & Media posterior predictiva en $\bm{x}_*$ \\
+$\mathbb{V}[f_*]$ & Varianza posterior predictiva (incertidumbre epistémica) \\
+$\mu(\bm{x}_*)$ & Media predictiva (definir $\mu(\bm{x}_*) := \bar{f}_*$) \\
+$\sigma^2(\bm{x}_*)$ & Varianza predictiva (definir $\sigma^2(\bm{x}_*) := \mathbb{V}[f_*]$) \\
+$\bm{\phi}(\bm{x})$ & Vector de características / funciones base \\
+$\bm{w}$ & Vector de pesos del modelo en espacio de características \\
+$\bm{\Sigma}_p$ & Covarianza del prior sobre $\bm{w}$ \\
+$\bm{\theta}$ & Hiperparámetros del kernel \\
+$\ell,\ell_d$ & Length-scale (global / por dimensión en ARD) \\
+$\bm{M}$ & Matriz de escalas (ARD), típicamente $\mathrm{diag}(\ell_d^{-2})$ \\
+$r$ & Distancia $r=\|\bm{x}-\bm{x}'\|$ en kernels estacionarios \\
+$\nu$ & Parámetro de suavidad del kernel Mat\'ern \\
+$\delta_{\bm{x},\bm{x}'}$ & Delta de Kronecker (1 si coincide, 0 en otro caso) \\
+$\bm{y}$ & Vector de observaciones, $\bm{y}=[y_1,\dots,y_n]^\top$ \\
+$\bm{\Phi}$ & Matriz de diseño en espacio de características, con columnas $\bm{\phi}(\bm{x}_i)$ \\
+$\bar{\bm{w}}$ & Media posterior de los pesos \\
+$\bm{A}$ & Matriz de precisión posterior en espacio de pesos \\
+% Añadir en frontmatter/simbolos.tex
+
+\end{tabular}

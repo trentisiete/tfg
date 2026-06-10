@@ -1,0 +1,108 @@
+% main.tex
+\documentclass[11pt,a4paper,oneside, final]{report}
+
+\input{config/preamble}
+\input{config/metadata}
+\addbibresource{frontmatter/references.bib}
+
+\begin{document}
+
+% -------------------------
+% PORTADA ¿Hay que cambiar?
+% -------------------------
+\begin{titlepage}
+    \centering
+    {\Large Universidad Autónoma de Madrid \par}
+    {\Large Escuela Politécnica Superior \par}
+    \vspace{1.5cm}
+    {\LARGE \textbf{\TFGTitle} \par}
+    \vspace{0.5cm}
+    {\large \TFGSubtitle \par}
+    \vspace{1.5cm}
+    {\large \textbf{Trabajo Fin de Grado} \par}
+    \vspace{1.5cm}
+    \begin{flushleft}
+        \textbf{Autor:} \TFGAuthor \\
+        \textbf{Tutor:} \TFGTutor \\
+        \textbf{Grado:} \TFGDegree \\
+        \textbf{Fecha:} \TFGDate
+    \end{flushleft}
+    \vfill
+\end{titlepage}
+\cleardoublepage
+
+% -------------------------
+% PRELIMINARES
+% -------------------------
+% Dedicatoria 
+\input{frontmatter/dedicatoria}
+\cleardoublepage
+
+% Agradecimientos
+\input{frontmatter/agradecimientos}
+\cleardoublepage
+
+% Numeración romana para preliminares
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+% Resumen (1 página) + palabras clave al final
+\input{frontmatter/resumen}
+\cleardoublepage
+
+% Abstract (página separada) + keywords al final
+\input{frontmatter/abstract}
+\cleardoublepage
+
+% Glosario de símbolos
+\input{frontmatter/simbolos}
+\cleardoublepage
+
+% Acrónimos 
+\input{frontmatter/acronimos}
+\cleardoublepage
+
+% -------------------------
+% ÍNDICES
+\tableofcontents
+\cleardoublepage
+
+\listoffigures
+\cleardoublepage
+
+\listoftables
+\cleardoublepage
+
+% código con listings:
+% \lstlistoflistings
+% \cleardoublepage
+
+% algoritmos (Creo):
+% \listofalgorithms
+% \cleardoublepage
+
+% -------------------------
+% CUERPO (máx. 40 páginas)
+
+\pagenumbering{arabic}
+
+\include{chapters/01_introduccion}
+\include{chapters/02_estado_arte}
+\include{chapters/03_metodologia}
+\include{chapters/04_conclusiones_trabajo_futuro}
+
+% -------------------------
+% BIBLIOGRAFÍA 
+% -------------------------
+ \cleardoublepage
+ \printbibliography
+
+% -------------------------
+% ANEXOS 
+% -------------------------
+\appendix
+\include{appendices/A_benchmarks_complementario}
+\include{appendices/B_tablas_extra}
+\include{appendices/C_figuras_extra}
+
+\end{document}

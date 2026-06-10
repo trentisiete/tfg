@@ -19,7 +19,7 @@ from src.utils.tools import _to_jsonable, slugify
 # Spec Imports
 from src.configs.tuning_specs import (
     TARGET_MAP,
-    MODELS,
+    get_models_for_case,
     get_param_grids,
     FEATURE_COLS_FULL,
     FEATURE_COLS_REDUCED
@@ -154,6 +154,7 @@ def run_tuning_session(session_name: str, feature_cols: List[str], base_output_d
         logging.info("Data Shape: Samples=%d | Total Features (with dummies)=%d", len(y), n_features_total)
 
         # Get Dynamic Grids based on actual feature count (including dummies)
+        current_models = get_models_for_case(session_name, target_label)
         current_param_grids = get_param_grids(n_features_total)
 
         summary = {
@@ -169,7 +170,7 @@ def run_tuning_session(session_name: str, feature_cols: List[str], base_output_d
         }
 
         # Loop Models
-        for model_name, model in MODELS.items():
+        for model_name, model in current_models.items():
             param_grid = current_param_grids[model_name]
             grid_size = int(np.prod([len(v) for v in param_grid.values()]))
 
@@ -220,7 +221,7 @@ def run_tuning_session(session_name: str, feature_cols: List[str], base_output_d
 
 def main():
     # Base directory for all logs
-    BASE_LOG_DIR = LOGS_DIR / "tuning" / "productivity_hermetia_v1"
+    BASE_LOG_DIR = LOGS_DIR / "tuning" / "productivity_hermetia_gp_ard_kernels_no_tpc_v1"
 
     # 1. Run Reduced Features Experiment
     run_tuning_session(

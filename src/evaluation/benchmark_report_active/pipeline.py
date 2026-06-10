@@ -9,6 +9,7 @@ import pandas as pd
 
 from .aggregations import build_final_table, build_master_active_table, summarize_active_coverage
 from .dummy_baseline import generate_dummy_baseline_outputs
+from .factor_effects import generate_factor_effect_outputs
 from .incumbent_analysis import generate_incumbent_outputs
 from .io_loader import load_input_bundle
 from .plots_by_benchmark import generate_by_benchmark_outputs
@@ -16,6 +17,7 @@ from .plots_evolution import generate_evolution_plots
 from .plots_global import generate_global_plots
 from .plots_gp import generate_gp_predictions
 from .plots_sampling import generate_sampling_effects_plots
+from .predictive_diagnostics import generate_predictive_diagnostics_outputs
 from .styling import apply_publication_style
 from .tables import generate_phase1_tables
 
@@ -27,6 +29,7 @@ def _ensure_dirs(base: Path) -> Dict[str, Path]:
         "by_benchmark": base / "figures" / "by_benchmark",
         "global": base / "figures" / "global",
         "sampling_effects": base / "figures" / "sampling_effects",
+        "factor_effects": base / "figures" / "factor_effects",
         "evolution": base / "figures" / "evolution",
         "overview_final": base / "figures" / "overview_final",
         "gp_predictions": base / "figures" / "gp_predictions",
@@ -81,6 +84,10 @@ def _write_index(
         lines.append("- [**interpretacion_evolucion_infill**](tables/interpretacion_evolucion_infill.md)")
     if (out_dir / "tables" / "interpretacion_incumbent_infill.md").exists():
         lines.append("- [**interpretacion_incumbent_infill**](tables/interpretacion_incumbent_infill.md)")
+    if (out_dir / "tables" / "interpretacion_predictiva_tfg.md").exists():
+        lines.append("- [**interpretacion_predictiva_tfg**](tables/interpretacion_predictiva_tfg.md)")
+    if (out_dir / "tables" / "verification_predictive_metrics.md").exists():
+        lines.append("- [**verification_predictive_metrics**](tables/verification_predictive_metrics.md)")
 
     lines.extend(
         [
@@ -90,6 +97,7 @@ def _write_index(
             "- [Global](figures/global/)",
             "- [Evolucion](figures/evolution/)",
             "- [Sampling effects](figures/sampling_effects/)",
+            "- [Factor effects](figures/factor_effects/)",
             "- [Overview final](figures/overview_final/)",
             "- [GP predictions](figures/gp_predictions/)",
             "",
@@ -213,6 +221,23 @@ def generate_active_report(
             save_svg=save_svg,
         )
         tables.update(incumbent_tables)
+        predictive_tables = generate_predictive_diagnostics_outputs(
+            master_df=master_df,
+            tables_dir=dirs["tables"],
+            figures_dir=dirs["evolution"],
+            dpi=dpi,
+            save_svg=save_svg,
+        )
+        tables.update(predictive_tables)
+        factor_effect_tables = generate_factor_effect_outputs(
+            master_df=master_df,
+            tables_dir=dirs["tables"],
+            figures_dir=dirs["factor_effects"],
+            metadata=bundle.metadata,
+            dpi=dpi,
+            save_svg=save_svg,
+        )
+        tables.update(factor_effect_tables)
 
     if phase in {"2", "all"}:
         generate_gp_predictions(

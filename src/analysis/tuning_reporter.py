@@ -1,6 +1,8 @@
 import ast
 import json
 import logging
+import re
+import textwrap
 import warnings
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
@@ -10,14 +12,11 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.gaussian_process.kernels import ConstantKernel, DotProduct, Matern, RBF, WhiteKernel
 
 # Import model classes
 from src.models.gp import GPSurrogateRegressor
-from src.models.pls import PLSSurrogateRegressor
-from src.models.ridge import RidgeSurrogateRegressor
 from src.models.dummy import DummySurrogateRegressor
-from src.models.bagging import RandomForestSurrogateRegressor
-from src.models.boosting import GradientBoostingSurrogateRegressor
 
 # Publication-ready style
 sns.set_theme(style="whitegrid", context="paper", font_scale=1.2)
@@ -68,17 +67,103 @@ class ModelReconstructor:
     """Reconstructs models from saved parameters for introspection."""
     MODEL_MAP = {
         "GP": GPSurrogateRegressor,
-        "PLS": PLSSurrogateRegressor,
-        "Ridge": RidgeSurrogateRegressor,
+        "GP_Linear": GPSurrogateRegressor,
+        "GP_RBF": GPSurrogateRegressor,
+        "GP_RBF_NoARD": GPSurrogateRegressor,
+        "GP_RBF_ARD": GPSurrogateRegressor,
+        "GP_Matern32": GPSurrogateRegressor,
+        "GP_Matern32_NoARD": GPSurrogateRegressor,
+        "GP_Matern32_ARD": GPSurrogateRegressor,
+        "GP_Matern52": GPSurrogateRegressor,
+        "GP_Matern52_NoARD": GPSurrogateRegressor,
+        "GP_Matern52_ARD": GPSurrogateRegressor,
+        "GP_Compuesto": GPSurrogateRegressor,
+        "GP_Compuesto_NoARD": GPSurrogateRegressor,
+        "GP_Compuesto_ARD": GPSurrogateRegressor,
         "Dummy": DummySurrogateRegressor,
-        "RandomForest": RandomForestSurrogateRegressor,
-        "GradientBoosting": GradientBoostingSurrogateRegressor
     }
 
     def __init__(self, X: np.ndarray, y: np.ndarray, feature_names: List[str]):
         self.X = X
         self.y = y
         self.feature_names = feature_names
+
+    def _kernel_for_model(self, model_name: str):
+        length_scale_bounds = (1e-2, 1e5)
+        noise_bounds = (1e-7, 0.8)
+        noise_init = 1e-4
+        length_scale_ard = np.ones(len(self.feature_names))
+
+        if model_name == "GP_Linear":
+            return (
+                DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-3, 1e3))
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        if model_name in ["GP_RBF", "GP_RBF_NoARD"]:
+            return (
+                RBF(length_scale=1.0, length_scale_bounds=length_scale_bounds)
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        if model_name == "GP_RBF_ARD":
+            return (
+                RBF(length_scale=length_scale_ard, length_scale_bounds=length_scale_bounds)
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        if model_name in ["GP_Matern32", "GP_Matern32_NoARD"]:
+            return (
+                Matern(length_scale=1.0, nu=1.5, length_scale_bounds=length_scale_bounds)
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        if model_name == "GP_Matern32_ARD":
+            return (
+                Matern(length_scale=length_scale_ard, nu=1.5, length_scale_bounds=length_scale_bounds)
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        if model_name in ["GP_Matern52", "GP_Matern52_NoARD"]:
+            return (
+                Matern(length_scale=1.0, nu=2.5, length_scale_bounds=length_scale_bounds)
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        if model_name == "GP_Matern52_ARD":
+            return (
+                Matern(length_scale=length_scale_ard, nu=2.5, length_scale_bounds=length_scale_bounds)
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        if model_name in ["GP_Compuesto", "GP_Compuesto_NoARD"]:
+            return (
+                ConstantKernel(1.0, constant_value_bounds=(1e-3, 1e3))
+                * DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-3, 1e3))
+                + ConstantKernel(1.0, constant_value_bounds=(1e-3, 1e3))
+                * Matern(length_scale=1.0, nu=2.5, length_scale_bounds=length_scale_bounds)
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        if model_name == "GP_Compuesto_ARD":
+            return (
+                ConstantKernel(1.0, constant_value_bounds=(1e-3, 1e3))
+                * DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-3, 1e3))
+                + ConstantKernel(1.0, constant_value_bounds=(1e-3, 1e3))
+                * Matern(length_scale=length_scale_ard, nu=2.5, length_scale_bounds=length_scale_bounds)
+                + WhiteKernel(noise_level=noise_init, noise_level_bounds=noise_bounds)
+            )
+        return None
+
+    @staticmethod
+    def _parse_gp_params_string(params: str) -> Dict:
+        clean_params = {}
+        for key in ["alpha", "n_restarts_optimizer"]:
+            match = re.search(rf"'{key}'\s*:\s*([^,}}]+)", params)
+            if match:
+                raw = match.group(1).strip()
+                try:
+                    clean_params[key] = int(raw) if key == "n_restarts_optimizer" else float(raw)
+                except ValueError:
+                    pass
+
+        match = re.search(r"'normalize_y'\s*:\s*(True|False)", params)
+        if match:
+            clean_params["normalize_y"] = match.group(1) == "True"
+
+        return clean_params
 
     def retrain_model(self, model_name: str, params: Union[Dict, str, None]) -> object:
         if model_name not in self.MODEL_MAP:
@@ -88,13 +173,19 @@ class ModelReconstructor:
         clean_params = {}
         if isinstance(params, dict): clean_params = params.copy()
         elif isinstance(params, str):
-            try: clean_params = ast.literal_eval(params)
-            except: pass
+            try:
+                clean_params = ast.literal_eval(params)
+            except Exception:
+                if model_name.startswith("GP"):
+                    clean_params = self._parse_gp_params_string(params)
 
         # Handle GP Kernel string issue
-        if model_name == "GP" and isinstance(clean_params.get("kernel"), str):
-            warnings.warn(f"Kernel is string in params. Using default kernel for {model_name}.")
+        if model_name.startswith("GP") and isinstance(clean_params.get("kernel"), str):
             del clean_params['kernel']
+
+        kernel = self._kernel_for_model(model_name)
+        if kernel is not None:
+            clean_params["kernel"] = kernel
 
         model = self.MODEL_MAP[model_name](**clean_params)
         model.fit(self.X, self.y)
@@ -112,7 +203,7 @@ class SurrogatePlotter:
     def plot_comparative_metrics_box(self, model_folds_map: Dict[str, pd.DataFrame], metric: str = "mae"):
         """
         Plots model stability using boxplots.
-        Auto-cleans NaNs to avoid 'ghost' plots for deterministic models (Ridge/PLS).
+        Auto-cleans NaNs to avoid ghost plots for metrics without values.
         """
         data_list = []
         for m_name, df in model_folds_map.items():
@@ -124,8 +215,7 @@ class SurrogatePlotter:
             temp["Model"] = m_name
 
             # FILTRO DE SEGURIDAD:
-            # Si el modelo devolvió 'None' para esta métrica (caso Ridge/Coverage),
-            # nos aseguramos de que sea NaN y lo filtramos.
+            # If the model returns None for this metric, coerce it to NaN and filter it.
             temp[metric] = pd.to_numeric(temp[metric], errors='coerce')
             temp = temp.dropna(subset=[metric])
 
@@ -201,11 +291,11 @@ class SurrogatePlotter:
         plt.savefig(self.output_dir / "parity_plot.png")
         plt.close()
 
-    # --- 3. Linear Model Diagnostics (Ridge/PLS) ---
+    # --- 3. Residual Diagnostics ---
     def plot_residuals_vs_predicted(self, y_true: np.ndarray, y_pred: np.ndarray, groups: np.ndarray, model_name: str):
         """
         Diagnostic plot for linear models. Checks homoscedasticity and linearity.
-        Ideal representation for Ridge/PLS fit quality beyond simple lines.
+        Residual diagnostic for point predictions.
         """
         residuals = y_true - y_pred
         plt.figure(figsize=(8, 6))
@@ -222,7 +312,7 @@ class SurrogatePlotter:
         plt.close()
 
     # --- 4. GP Specific Visualizations ---
-    def plot_gp_uncertainty_analysis(self, y_true: np.ndarray, y_pred: np.ndarray, y_std: np.ndarray, groups: np.ndarray):
+    def plot_gp_uncertainty_analysis(self, y_true: np.ndarray, y_pred: np.ndarray, y_std: np.ndarray, groups: np.ndarray, model_name: str = "GP"):
         """
         Classic GP analysis: Sorted predictions with confidence bands & Error Correlation.
         """
@@ -259,11 +349,12 @@ class SurrogatePlotter:
         ax2.get_legend().remove()
 
         plt.tight_layout()
-        plt.savefig(self.output_dir / "gp_uncertainty_deep_dive.png")
+        plt.savefig(self.output_dir / f"gp_uncertainty_deep_dive_{model_name}.png")
         plt.close()
 
     def plot_1d_response_slice(self, model, X: np.ndarray, y_true: np.ndarray,
-                               feature_names: List[str], target_feature: str, groups: np.ndarray):
+                               feature_names: List[str], target_feature: str, groups: np.ndarray,
+                               model_name: str = "model"):
         """
         Partial Dependence Plot with overlay of real experimental points.
         Shows the 'shape' of the learned function and the uncertainty ballooning in unknown areas.
@@ -311,7 +402,7 @@ class SurrogatePlotter:
         plt.ylabel("Target Response")
         plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left')
         plt.tight_layout()
-        plt.savefig(self.output_dir / f"response_profile_{target_feature}.png")
+        plt.savefig(self.output_dir / f"response_profile_{model_name}_{target_feature}.png")
         plt.close()
 
     def plot_feature_relevance(self, model, feature_names: List[str], model_name: str):
@@ -320,18 +411,13 @@ class SurrogatePlotter:
         label = "Importance"
 
         try:
-            if model_name == "GP":
+            if model_name.startswith("GP"):
                 kernel = model.model_.named_steps["model"].kernel_
                 base = kernel.k1 if hasattr(kernel, "k1") else kernel
                 # ARD check
                 if hasattr(base, "length_scale") and np.ndim(base.length_scale) > 0 and len(base.length_scale) == len(feature_names):
                     importance = 1.0 / (base.length_scale + 1e-9) # Avoid div/0
                     label = "ARD Sensitivity (1/LengthScale)"
-            elif model_name in ["Ridge", "PLS"]:
-                reg = model.model_.named_steps["model"]
-                importance = np.abs(reg.coef_).flatten()
-                label = "Absolute Coefficient Magnitude"
-
             if importance is not None:
                 df = pd.DataFrame({"Feature": feature_names, "Value": importance})
                 df = df.sort_values("Value", ascending=False)
@@ -345,6 +431,48 @@ class SurrogatePlotter:
                 plt.close()
         except Exception as e:
             logging.warning(f"Feature relevance plot skipped for {model_name}: {e}")
+
+    def plot_gp_fitted_parameters(self, rows: List[Dict[str, object]]):
+        """Render a compact table with selected and optimized GP parameters."""
+        if not rows:
+            return
+
+        table_rows = []
+        for row in rows:
+            table_rows.append(
+                [
+                    str(row.get("model", "")),
+                    str(row.get("alpha", "")),
+                    textwrap.fill(str(row.get("kernel_optimized", "")), width=90),
+                ]
+            )
+
+        fig_height = max(3.5, 1.1 + 0.75 * len(table_rows))
+        fig, ax = plt.subplots(figsize=(18, fig_height))
+        ax.axis("off")
+        table = ax.table(
+            cellText=table_rows,
+            colLabels=["Model", "Selected alpha", "Optimized kernel_"],
+            cellLoc="left",
+            colLoc="left",
+            loc="center",
+            colWidths=[0.18, 0.12, 0.70],
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(8)
+        table.scale(1, 1.8)
+
+        for (row_idx, _), cell in table.get_celld().items():
+            if row_idx == 0:
+                cell.set_text_props(weight="bold")
+                cell.set_facecolor("#e8eef7")
+            else:
+                cell.set_facecolor("#ffffff" if row_idx % 2 else "#f7f7f7")
+
+        ax.set_title("GP fitted parameters by kernel family", fontweight="bold", pad=14)
+        fig.tight_layout()
+        fig.savefig(self.output_dir / "gp_fitted_parameters.png", bbox_inches="tight")
+        plt.close(fig)
 
     # --- 5. EXPERIMENT COMPARISON (Full vs Reduced) ---
     def plot_experiment_comparison(self, summary_full: Dict, summary_reduced: Dict, target_name: str):
