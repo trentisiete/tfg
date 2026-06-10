@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import logging
 from pathlib import Path
 from typing import Dict, Iterable
-import warnings
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -89,19 +87,6 @@ def save_figure(fig, path: Path, dpi: int = 300, save_svg: bool = False) -> None
 
     png_path = Path(str(base) + ".png")
     fig.savefig(png_path, dpi=dpi, bbox_inches="tight", pad_inches=0.30)
-    eps_path = Path(str(base) + ".eps")
-    ps_logger = logging.getLogger("matplotlib.backends.backend_ps")
-    old_ps_level = ps_logger.level
-    ps_logger.setLevel(logging.ERROR)
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            message=".*PostScript backend does not support transparency.*",
-        )
-        try:
-            fig.savefig(eps_path, format="eps", dpi=dpi, bbox_inches="tight", pad_inches=0.30)
-        finally:
-            ps_logger.setLevel(old_ps_level)
     if save_svg:
         svg_path = Path(str(base) + ".svg")
         fig.savefig(svg_path, dpi=dpi, bbox_inches="tight", pad_inches=0.25)
