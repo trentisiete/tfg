@@ -10,8 +10,6 @@ Models:
     - RidgeSurrogateRegressor: Ridge regression (no native UQ)
     - PLSSurrogateRegressor: Partial Least Squares (no native UQ)
     - DummySurrogateRegressor: Baseline dummy model
-    - RandomForestSurrogateRegressor: Bagging with tree variance UQ
-    - GradientBoostingSurrogateRegressor: Boosting with quantile UQ
 """
 
 from .base import SurrogateRegressor
@@ -19,8 +17,6 @@ from .gp import GPSurrogateRegressor
 from .ridge import RidgeSurrogateRegressor
 from .pls import PLSSurrogateRegressor
 from .dummy import DummySurrogateRegressor
-from .bagging import RandomForestSurrogateRegressor
-from .boosting import GradientBoostingSurrogateRegressor
 
 __all__ = [
     "SurrogateRegressor",
@@ -28,6 +24,4 @@ __all__ = [
     "RidgeSurrogateRegressor",
     "PLSSurrogateRegressor",
     "DummySurrogateRegressor",
-    "RandomForestSurrogateRegressor",
-    "GradientBoostingSurrogateRegressor",
 ]

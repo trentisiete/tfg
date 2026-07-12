@@ -3,16 +3,11 @@
 Analysis module for surrogate model evaluation.
 
 This module provides tools for:
-    - Cross-validation (LODO) evaluation
-    - Nested hyperparameter tuning
+    - Nested hyperparameter tuning with LODO (real case)
     - Comprehensive surrogate metrics
     - Benchmark evaluation
+    - Active learning with Expected Improvement
 """
-
-from .metrics import (
-    make_splits,
-    evaluate_model,
-)
 
 from .tuning import (
     nested_lodo_tuning,
@@ -41,20 +36,16 @@ from .active_learning import (
 )
 
 __all__ = [
-    # Metrics module
-    "make_splits",
-    "evaluate_model",
-    
     # Tuning module
     "nested_lodo_tuning",
-    
+
     # Surrogate metrics
     "SurrogateMetrics",
     "compute_surrogate_metrics",
     "metrics_to_dict",
     "aggregate_metrics",
     "compute_calibration_curve",
-    
+
     # Benchmark runner
     "BenchmarkResult",
     "BenchmarkSuiteResults",

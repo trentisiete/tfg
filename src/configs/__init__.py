@@ -4,7 +4,7 @@ Configuration module for surrogate models project.
 Contains:
     - tuning_specs.py: Tuning specifications for real data evaluation
     - benchmark_grids.py: Hyperparameter grids for benchmark evaluation
-    - evaluation_defaults.py: Default configurations for benchmark evaluation
+    - benchmark_tuning_specs.py: Default configurations for benchmark evaluation
 """
 
 from .benchmark_grids import (

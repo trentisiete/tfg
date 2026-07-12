@@ -1,0 +1,1163 @@
+{
+  "session": "FULL_FEATURES",
+  "target_label": "FCR",
+  "target_column": "FCR",
+  "n_samples": 31,
+  "n_features_input": 10,
+  "n_features_model": 14,
+  "feature_names": [
+    "inclusion_pct",
+    "Prote\u00edna (%)_media",
+    "Grasa (%)_media",
+    "Fibra (%)_media",
+    "Cenizas (%)_media",
+    "Carbohidratos (%)_media",
+    "ratio_P_C",
+    "ratio_P_F",
+    "ratio_Fibra_Grasa",
+    "TPC_dieta_media",
+    "byproduct_control",
+    "byproduct_hoja",
+    "byproduct_orujo",
+    "byproduct_quinoa"
+  ],
+  "models": {
+    "Dummy": {
+      "summary": {
+        "macro": {
+          "mae": {
+            "mean": 0.29077656801983903,
+            "std": 0.14200189480756495,
+            "min": 0.0922482669684462,
+            "max": 0.5613929421735095
+          },
+          "rmse": {
+            "mean": 0.3169790551342296,
+            "std": 0.15894047571226855,
+            "min": 0.09831285296291749,
+            "max": 0.6532919356232891
+          },
+          "r2": {
+            "mean": -86.66528246705269,
+            "std": 254.99688928487677,
+            "min": -892.5443038979545,
+            "max": -0.006701043763798875
+          },
+          "max_error": {
+            "mean": 0.41361181628992116,
+            "std": 0.21306712185900442,
+            "min": 0.13875383530946372,
+            "max": 0.8955011845564149
+          },
+          "nlpd": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          },
+          "coverage_50": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          },
+          "coverage_90": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          },
+          "coverage_95": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          },
+          "mean_interval_width_95": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          },
+          "median_interval_width_95": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          },
+          "calibration_error_95": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          },
+          "sharpness": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          },
+          "coverage95": {
+            "mean": null,
+            "std": null,
+            "min": null,
+            "max": null
+          }
+        },
+        "micro": {
+          "mae": 0.2748443815542941,
+          "rmse": 0.3333514651648242,
+          "r2": -91.53324478257096,
+          "coverage_50": null,
+          "coverage_90": null,
+          "coverage_95": null,
+          "coverage95": null
+        },
+        "n_folds": 11,
+        "total_samples": 31
+      },
+      "chosen_params": [
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "median"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "median"
+        },
+        {
+          "strategy": "median"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "mean"
+        },
+        {
+          "strategy": "median"
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_dummy_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_dummy_folds.csv"
+      }
+    },
+    "GP_Linear": {
+      "summary": {
+        "macro": {
+          "mae": {
+            "mean": 0.31303418754680756,
+            "std": 0.13393909803952184,
+            "min": 0.13161381806971964,
+            "max": 0.5556051227692899
+          },
+          "rmse": {
+            "mean": 0.3543531087222797,
+            "std": 0.15321313361767455,
+            "min": 0.15852275335968216,
+            "max": 0.6158119224734677
+          },
+          "r2": {
+            "mean": -132.75317876485474,
+            "std": 396.4048710879458,
+            "min": -1385.9455128839106,
+            "max": -0.16994278808078755
+          },
+          "max_error": {
+            "mean": 0.48389998369721865,
+            "std": 0.22810640855510678,
+            "min": 0.20247418783089,
+            "max": 0.987649804320887
+          },
+          "nlpd": {
+            "mean": 0.725476119389144,
+            "std": 0.7691168523428112,
+            "min": -0.36618215129751946,
+            "max": 1.956840959737226
+          },
+          "coverage_50": {
+            "mean": 0.2878787878787879,
+            "std": 0.3185423642671006,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_90": {
+            "mean": 0.712121212121212,
+            "std": 0.31854236426710053,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_95": {
+            "mean": 0.7727272727272727,
+            "std": 0.33539308516937355,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "mean_interval_width_95": {
+            "mean": 1.0799266638050247,
+            "std": 0.42035927364699044,
+            "min": 0.5567753538359239,
+            "max": 2.104612100501072
+          },
+          "median_interval_width_95": {
+            "mean": 1.0799266638050247,
+            "std": 0.4203592736469902,
+            "min": 0.5567753538359239,
+            "max": 2.104612100501071
+          },
+          "calibration_error_95": {
+            "mean": 0.24090909090909093,
+            "std": 0.2930476946360383,
+            "min": 0.050000000000000044,
+            "max": 0.95
+          },
+          "sharpness": {
+            "mean": 0.27549149586862876,
+            "std": 0.10723450858341595,
+            "min": 0.1420345290397765,
+            "max": 0.5368908419645592
+          },
+          "coverage95": {
+            "mean": 0.7727272727272727,
+            "std": 0.33539308516937355,
+            "min": 0.0,
+            "max": 1.0
+          }
+        },
+        "micro": {
+          "mae": 0.3104337418519877,
+          "rmse": 0.3828151631368754,
+          "r2": -141.00704856623975,
+          "coverage_50": 0.2903225806451613,
+          "coverage_90": 0.7096774193548387,
+          "coverage_95": 0.7741935483870968,
+          "coverage95": 0.7741935483870968
+        },
+        "n_folds": 11,
+        "total_samples": 31
+      },
+      "chosen_params": [
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1e-10,
+          "kernel": "DotProduct(sigma_0=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_linear_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_linear_folds.csv"
+      }
+    },
+    "GP_RBF_NoARD": {
+      "summary": {
+        "macro": {
+          "mae": {
+            "mean": 0.24819023945574398,
+            "std": 0.12718164105617827,
+            "min": 0.05041922549421388,
+            "max": 0.4748244473296044
+          },
+          "rmse": {
+            "mean": 0.28053214843342367,
+            "std": 0.1470190299959567,
+            "min": 0.05792185343580546,
+            "max": 0.5805915719419793
+          },
+          "r2": {
+            "mean": -72.43874876161934,
+            "std": 222.1263068862573,
+            "min": -774.824726438991,
+            "max": -0.15276592523503396
+          },
+          "max_error": {
+            "mean": 0.38676187483148505,
+            "std": 0.20798410632114886,
+            "min": 0.08755678610758388,
+            "max": 0.8089326897125098
+          },
+          "nlpd": {
+            "mean": 2.537088011328614,
+            "std": 3.1090568081689187,
+            "min": -1.1087017183972885,
+            "max": 9.428824044541619
+          },
+          "coverage_50": {
+            "mean": 0.2121212121212121,
+            "std": 0.25712973861329,
+            "min": 0.0,
+            "max": 0.6666666666666666
+          },
+          "coverage_90": {
+            "mean": 0.4393939393939394,
+            "std": 0.35012787903913156,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_95": {
+            "mean": 0.5757575757575757,
+            "std": 0.3717528529207666,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "mean_interval_width_95": {
+            "mean": 0.45269638293857867,
+            "std": 0.05771175475264622,
+            "min": 0.36988032381122987,
+            "max": 0.5435020446650435
+          },
+          "median_interval_width_95": {
+            "mean": 0.45269638293857867,
+            "std": 0.05771175475264622,
+            "min": 0.3698803238112299,
+            "max": 0.5435020446650435
+          },
+          "calibration_error_95": {
+            "mean": 0.4106060606060607,
+            "std": 0.33114987354844005,
+            "min": 0.050000000000000044,
+            "max": 0.95
+          },
+          "sharpness": {
+            "mean": 0.11548377115780069,
+            "std": 0.014722386416491377,
+            "min": 0.09435722546204846,
+            "max": 0.13864848078189884
+          },
+          "coverage95": {
+            "mean": 0.5757575757575757,
+            "std": 0.3717528529207666,
+            "min": 0.0,
+            "max": 1.0
+          }
+        },
+        "micro": {
+          "mae": 0.23791823147123453,
+          "rmse": 0.30289806354556453,
+          "r2": -76.77049265177604,
+          "coverage_50": 0.22580645161290322,
+          "coverage_90": 0.45161290322580644,
+          "coverage_95": 0.5806451612903226,
+          "coverage95": 0.5806451612903226
+        },
+        "n_folds": 11,
+        "total_samples": 31
+      },
+      "chosen_params": [
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "RBF(length_scale=1) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_rbf_noard_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_rbf_noard_folds.csv"
+      }
+    },
+    "GP_Matern32_NoARD": {
+      "summary": {
+        "macro": {
+          "mae": {
+            "mean": 0.26067467908690056,
+            "std": 0.14178736564176506,
+            "min": 0.042086739818234443,
+            "max": 0.479105036212673
+          },
+          "rmse": {
+            "mean": 0.2927668758068259,
+            "std": 0.1573503460655629,
+            "min": 0.05083440247047566,
+            "max": 0.5840975546537932
+          },
+          "r2": {
+            "mean": -75.97343768179667,
+            "std": 231.03098415026267,
+            "min": -806.4202463158355,
+            "max": -0.15014929358722617
+          },
+          "max_error": {
+            "mean": 0.3996318970704851,
+            "std": 0.2123850431282575,
+            "min": 0.07922430043160444,
+            "max": 0.8132132785955783
+          },
+          "nlpd": {
+            "mean": 2.100036365853536,
+            "std": 2.965263985922851,
+            "min": -1.0986362394809108,
+            "max": 9.440351979031501
+          },
+          "coverage_50": {
+            "mean": 0.2727272727272727,
+            "std": 0.34283965148438666,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_90": {
+            "mean": 0.5606060606060607,
+            "std": 0.3778776943436341,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_95": {
+            "mean": 0.6212121212121212,
+            "std": 0.3898387978869275,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "mean_interval_width_95": {
+            "mean": 0.5663125947782077,
+            "std": 0.30091714790881235,
+            "min": 0.39537214129693093,
+            "max": 1.5015866167672174
+          },
+          "median_interval_width_95": {
+            "mean": 0.5663125947782077,
+            "std": 0.30091714790881235,
+            "min": 0.395372141296931,
+            "max": 1.5015866167672174
+          },
+          "calibration_error_95": {
+            "mean": 0.37424242424242427,
+            "std": 0.34643666877643153,
+            "min": 0.050000000000000044,
+            "max": 0.95
+          },
+          "sharpness": {
+            "mean": 0.14446749866791014,
+            "std": 0.0767645785481664,
+            "min": 0.10086024012676813,
+            "max": 0.38305781039980036
+          },
+          "coverage95": {
+            "mean": 0.6212121212121212,
+            "std": 0.3898387978869275,
+            "min": 0.0,
+            "max": 1.0
+          }
+        },
+        "micro": {
+          "mae": 0.24677260768295842,
+          "rmse": 0.3145392719222404,
+          "r2": -80.272839835134,
+          "coverage_50": 0.2903225806451613,
+          "coverage_90": 0.5483870967741935,
+          "coverage_95": 0.6129032258064516,
+          "coverage95": 0.6129032258064516
+        },
+        "n_folds": 11,
+        "total_samples": 31
+      },
+      "chosen_params": [
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1e-10,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=1.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_matern32_noard_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_matern32_noard_folds.csv"
+      }
+    },
+    "GP_Matern52_NoARD": {
+      "summary": {
+        "macro": {
+          "mae": {
+            "mean": 0.25205475266059163,
+            "std": 0.12197794141404872,
+            "min": 0.07891131150182844,
+            "max": 0.47718874059023686
+          },
+          "rmse": {
+            "mean": 0.28410506567476673,
+            "std": 0.14190895562877495,
+            "min": 0.09278739916978311,
+            "max": 0.5825267476900015
+          },
+          "r2": {
+            "mean": -74.3633325678446,
+            "std": 226.18254671593877,
+            "min": -789.5461331642072,
+            "max": -0.17000695531749632
+          },
+          "max_error": {
+            "mean": 0.3904433921459964,
+            "std": 0.20142698158803457,
+            "min": 0.12046399192613966,
+            "max": 0.8112969829731422
+          },
+          "nlpd": {
+            "mean": 2.3621911967295173,
+            "std": 3.0230332972367475,
+            "min": -0.8289560081139902,
+            "max": 9.633425399042219
+          },
+          "coverage_50": {
+            "mean": 0.2727272727272727,
+            "std": 0.34283965148438666,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_90": {
+            "mean": 0.5303030303030304,
+            "std": 0.3540400438044825,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_95": {
+            "mean": 0.6212121212121212,
+            "std": 0.3898387978869275,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "mean_interval_width_95": {
+            "mean": 0.6235495627515731,
+            "std": 0.3772580564945246,
+            "min": 0.3847774133858963,
+            "max": 1.6173382136437866
+          },
+          "median_interval_width_95": {
+            "mean": 0.6235495627515731,
+            "std": 0.3772580564945246,
+            "min": 0.3847774133858963,
+            "max": 1.6173382136437866
+          },
+          "calibration_error_95": {
+            "mean": 0.37424242424242427,
+            "std": 0.34643666877643153,
+            "min": 0.050000000000000044,
+            "max": 0.95
+          },
+          "sharpness": {
+            "mean": 0.15906876600805436,
+            "std": 0.09623930012615424,
+            "min": 0.09815750341476948,
+            "max": 0.4125862789907619
+          },
+          "coverage95": {
+            "mean": 0.6212121212121212,
+            "std": 0.3898387978869275,
+            "min": 0.0,
+            "max": 1.0
+          }
+        },
+        "micro": {
+          "mae": 0.24199889595517227,
+          "rmse": 0.30377579655783643,
+          "r2": -78.8207619735115,
+          "coverage_50": 0.2903225806451613,
+          "coverage_90": 0.5161290322580645,
+          "coverage_95": 0.6129032258064516,
+          "coverage95": 0.6129032258064516
+        },
+        "n_folds": 11,
+        "total_samples": 31
+      },
+      "chosen_params": [
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1e-10,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 0.01,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_matern52_noard_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_matern52_noard_folds.csv"
+      }
+    },
+    "GP_Compuesto_NoARD": {
+      "summary": {
+        "macro": {
+          "mae": {
+            "mean": 0.24474114217488377,
+            "std": 0.1213454493088881,
+            "min": 0.06659290211091366,
+            "max": 0.4606832228153095
+          },
+          "rmse": {
+            "mean": 0.2781876481407464,
+            "std": 0.1413028683483166,
+            "min": 0.07243933612034464,
+            "max": 0.5690846592658199
+          },
+          "r2": {
+            "mean": -74.123425466171,
+            "std": 227.17631494948847,
+            "min": -792.4843950900614,
+            "max": -0.004266765438179387
+          },
+          "max_error": {
+            "mean": 0.3819737773033646,
+            "std": 0.20381761246485378,
+            "min": 0.10373046272428366,
+            "max": 0.7947914651982149
+          },
+          "nlpd": {
+            "mean": 3.868994744228304,
+            "std": 4.435215997250155,
+            "min": -1.1144103421203806,
+            "max": 13.694627841561319
+          },
+          "coverage_50": {
+            "mean": 0.2121212121212121,
+            "std": 0.25712973861329,
+            "min": 0.0,
+            "max": 0.6666666666666666
+          },
+          "coverage_90": {
+            "mean": 0.4242424242424242,
+            "std": 0.3435086075380192,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_95": {
+            "mean": 0.45454545454545453,
+            "std": 0.3185423642671006,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "mean_interval_width_95": {
+            "mean": 0.39022580196389894,
+            "std": 0.07592637494541862,
+            "min": 0.2639385063005472,
+            "max": 0.5003173579194407
+          },
+          "median_interval_width_95": {
+            "mean": 0.39022580196389894,
+            "std": 0.07592637494541862,
+            "min": 0.2639385063005472,
+            "max": 0.5003173579194407
+          },
+          "calibration_error_95": {
+            "mean": 0.5136363636363637,
+            "std": 0.28830908829736474,
+            "min": 0.050000000000000044,
+            "max": 0.95
+          },
+          "sharpness": {
+            "mean": 0.09954739846017832,
+            "std": 0.0193689732003619,
+            "min": 0.06733125160728246,
+            "max": 0.1276319790610818
+          },
+          "coverage95": {
+            "mean": 0.45454545454545453,
+            "std": 0.3185423642671006,
+            "min": 0.0,
+            "max": 1.0
+          }
+        },
+        "micro": {
+          "mae": 0.23571976509699916,
+          "rmse": 0.2994738669723701,
+          "r2": -78.61659499902795,
+          "coverage_50": 0.22580645161290322,
+          "coverage_90": 0.41935483870967744,
+          "coverage_95": 0.45161290322580644,
+          "coverage95": 0.45161290322580644
+        },
+        "n_folds": 11,
+        "total_samples": 31
+      },
+      "chosen_params": [
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_compuesto_noard_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_compuesto_noard_folds.csv"
+      }
+    },
+    "GP_Matern52_ARD": {
+      "summary": {
+        "macro": {
+          "mae": {
+            "mean": 0.2707201958272573,
+            "std": 0.12387009279528606,
+            "min": 0.04079065409806818,
+            "max": 0.4654621454794805
+          },
+          "rmse": {
+            "mean": 0.3019677267010654,
+            "std": 0.1456151651438995,
+            "min": 0.04976665819352131,
+            "max": 0.5729601439040549
+          },
+          "r2": {
+            "mean": -73.27006761130544,
+            "std": 222.2859030159935,
+            "min": -776.1371011045554,
+            "max": -0.17387867391196998
+          },
+          "max_error": {
+            "mean": 0.41337020984632306,
+            "std": 0.2125503946815128,
+            "min": 0.072955956120619,
+            "max": 0.7995703878623859
+          },
+          "nlpd": {
+            "mean": 5.147884899209114,
+            "std": 10.090153601794018,
+            "min": -1.1986281481130965,
+            "max": 35.268194437033046
+          },
+          "coverage_50": {
+            "mean": 0.2727272727272727,
+            "std": 0.3974205166243637,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_90": {
+            "mean": 0.6363636363636364,
+            "std": 0.41327823324199564,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "coverage_95": {
+            "mean": 0.6666666666666666,
+            "std": 0.4264014327112209,
+            "min": 0.0,
+            "max": 1.0
+          },
+          "mean_interval_width_95": {
+            "mean": 0.7268584686447214,
+            "std": 0.3657761143170419,
+            "min": 0.26088462789526967,
+            "max": 1.3072686362026171
+          },
+          "median_interval_width_95": {
+            "mean": 0.7268584686447214,
+            "std": 0.3657761143170419,
+            "min": 0.26088462789526967,
+            "max": 1.3072686362026171
+          },
+          "calibration_error_95": {
+            "mean": 0.3378787878787879,
+            "std": 0.38462174184193054,
+            "min": 0.050000000000000044,
+            "max": 0.95
+          },
+          "sharpness": {
+            "mean": 0.18542307873589833,
+            "std": 0.09331023324414334,
+            "min": 0.06655220099369125,
+            "max": 0.3334868969904636
+          },
+          "coverage95": {
+            "mean": 0.6666666666666666,
+            "std": 0.4264014327112209,
+            "min": 0.0,
+            "max": 1.0
+          }
+        },
+        "micro": {
+          "mae": 0.2612905090553198,
+          "rmse": 0.3228604063445502,
+          "r2": -77.61001199298232,
+          "coverage_50": 0.2903225806451613,
+          "coverage_90": 0.6451612903225806,
+          "coverage_95": 0.6774193548387096,
+          "coverage95": 0.6774193548387096
+        },
+        "n_folds": 11,
+        "total_samples": 31
+      },
+      "chosen_params": [
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 0.01,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1e-05,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 0.01,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 0.01,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 1.0,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        },
+        {
+          "alpha": 0.01,
+          "kernel": "Matern(length_scale=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], nu=2.5) + WhiteKernel(noise_level=0.0001)",
+          "n_restarts_optimizer": 15,
+          "normalize_y": true
+        }
+      ],
+      "files": {
+        "json": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_matern52_ard_tuning.json",
+        "folds_csv": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr_gp_matern52_ard_folds.csv"
+      }
+    }
+  },
+  "log_file": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models\\outputs\\logs\\tuning\\productivity_hermetia_gp_ard_kernels_no_tpc_v1\\FULL_FEATURES\\fcr\\fcr.log"
+}

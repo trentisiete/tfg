@@ -101,10 +101,6 @@ def _write_index(
             "- [Overview final](figures/overview_final/)",
             "- [GP predictions](figures/gp_predictions/)",
             "",
-            "## Migracion legacy -> nuevo",
-            "- `benchmark_visual_reporter.py` ahora delega al pipeline active v2.",
-            "- `benchmark_visual_reporter_multimode.py` ahora delega al pipeline active v2.",
-            "",
         ]
     )
     if warnings:

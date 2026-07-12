@@ -1,103 +1,85 @@
-# Surrogate Lab: Gaussian Process Surrogates for Experimental Optimization
+# Surrogate Models: Gaussian Process Surrogates for Experimental Optimization
 
-**A reproducible demo for learning from few evaluations, modelling uncertainty and prioritizing future experiments.**
+Código experimental y resultados del TFG:
 
-This repository contains the experimental code and outputs for the TFG:
+> Modelos sustitutos para la búsqueda de entradas óptimas
 
-> Modelos sustitutos para la busqueda de entradas optimas
+El proyecto estudia modelos sustitutos probabilísticos, en especial Procesos
+Gaussianos (GP), para aproximar funciones objetivo caras o desconocidas cuando
+el número de evaluaciones disponibles es limitado, y prioriza nuevos
+experimentos mediante Expected Improvement (EI).
 
-The project studies probabilistic surrogate models, especially Gaussian Processes, for approximating expensive or unknown objective functions when the number of available evaluations is limited.
-
-## Demo
-
-The Streamlit app in `app/streamlit_app.py` turns the work into a tangible portfolio demo:
-
-- Home: short conceptual presentation of surrogate modelling.
-- GP + EI 1D: live Forrester demo with GP mean, 95% interval, Expected Improvement and infill evolution.
-- Synthetic benchmarks: reads generated benchmark tables and figures from `outputs/`.
-- Entomotive real case: shows Hermetia diet data, Leave-One-Diet-Out validation, GP vs Dummy, uncertainty plots and EI candidates.
-- Limitations: explains what can and cannot be concluded responsibly.
-
-Screenshot placeholder:
-
-```text
-Run the app and capture the GP + EI 1D page or the Entomotive page for portfolio use.
-```
-
-## Installation
+## Instalación
 
 ```bash
 python -m venv .venv
 .venv\Scripts\activate  # Windows
 pip install -r requirements.txt
-streamlit run app/streamlit_app.py
 ```
 
-Open the local URL printed by Streamlit, usually:
+## Mapa del repositorio
 
 ```text
-http://localhost:8501
-```
-
-## Repository Map
-
-```text
-app/
-  streamlit_app.py                  # Interactive Surrogate Lab demo
 src/
-  benchmarks/                       # Synthetic benchmark functions
-  models/                           # Surrogate model wrappers, including GP
-  analysis/                         # Metrics, active learning and tuning logic
-  evaluation/                       # Report and visualization utilities
+  benchmarks/                  # Funciones benchmark sintéticas, sampling y ruido
+  models/                      # Wrappers de modelos sustitutos (GP, Ridge, PLS, Dummy)
+  analysis/                    # Tuning LODO anidado, métricas y aprendizaje activo con EI
+  configs/                     # Especificaciones de tuning (caso real) y de benchmarks
+  evaluation/
+    benchmark_report_active/   # Pipeline de informes de benchmarks (report_v2)
+  utils/                       # Rutas del proyecto y utilidades
 data/
-  entomotive_datasets/              # Real Entomotive-derived datasets
+  entomotive_datasets/         # Datasets reales derivados de Entomotive (no en git)
 outputs/
-  logs/benchmarks/                  # Synthetic benchmark logs and reports
-  plots/TFG_MAIN_real_case...       # Final real-case figures and CSVs
-  reports/TFG_MAIN_real_case...     # Real-case audit tables
-notebooks/
-  *.ipynb                           # Exploration and tutorial notebooks
+  logs/tuning/                 # Logs del tuning LODO del caso real
+  logs/benchmarks/             # Logs y reports de benchmarks (no en git, pesados)
+  plots/TFG_MAIN_real_case...  # Figuras finales del caso real
+  reports/TFG_MAIN_real_case...# Tablas de auditoría del caso real
+notebooks/                     # Exploración de datos y tutorial de benchmarks
+tests/                         # Test de infill + generadores de figuras teóricas del TFG
+TFG_José/                      # Memoria del TFG en LaTeX
+presentacion/                  # Defensa: animaciones Manim y PowerPoint
 ```
 
-## Reused Components
+## Puntos de entrada
 
-The app intentionally reuses the existing project instead of duplicating the methodology:
-
-- `src.benchmarks.functions.get_benchmark("forrester")`
-- `src.models.gp.GPSurrogateRegressor`
-- `src.analysis.active_learning.ei_values_from_model`
-- Generated CSV/PNG results in `outputs/`
-
-## Real Case Reproducibility
-
-The main real case uses the Hermetia dataset, excludes TPC as a target, and compares Dummy and GP models.
-
-To regenerate the audit, tables, final figures and copied TFG assets:
+Caso real (Hermetia, sin TPC, Dummy vs familias de GP):
 
 ```powershell
-python reproduce_tfg_outputs.py
+python reproduce_tfg_outputs.py                 # auditoría + figuras + assets LaTeX
+python reproduce_tfg_outputs.py --rerun-tuning  # recalcula además el tuning LODO
+python run_exhaustive_tuning.py                 # solo el tuning LODO anidado
+python audit_entomotive_real_case.py            # solo auditoría y tablas
+python generate_entomotive_pov_figures.py       # solo figuras finales (POV EI)
+python tuning_visual_report.py                  # informe gráfico completo de kernels GP
 ```
 
-This command reuses the LODO tuning logs in:
-
-```text
-outputs/logs/tuning/TFG_MAIN_real_case_hermetia_no_tpc_tuning
-```
-
-To rerun the complete tuning before regenerating figures:
+Benchmarks sintéticos (diseño inicial + infill con EI):
 
 ```powershell
-python reproduce_tfg_outputs.py --rerun-tuning
+python run_benchmark_evaluation.py --help       # evaluación configurable de benchmarks
+python run_forrester_active_sweep.py            # barrido activo sobre Forrester + report_v2
+python -m src.evaluation.benchmark_report_active --help  # regenerar informes report_v2
 ```
 
-The reproducibility manifest is written to:
+Figuras teóricas del TFG (capítulo de marco teórico):
 
-```text
-outputs/reproducibility_real_case_manifest.json
+```powershell
+python tests/fig_gp_prior_posterior.py
+python tests/fig_ei_demo.py
+python tests/fig_kernel_comparison.py
 ```
 
-## Methodological Note
+## Reproducibilidad del caso real
 
-The Entomotive section is prospective. Expected Improvement candidates are not confirmed optimal diets. They are candidate formulations that the model would prioritize for future experimental evaluation under uncertainty.
+`reproduce_tfg_outputs.py` reutiliza los logs LODO en
+`outputs/logs/tuning/TFG_MAIN_real_case_hermetia_no_tpc_tuning`, regenera la
+auditoría y las figuras finales, y copia los assets a `TFG_José/assets`.
+El manifiesto queda en `outputs/reproducibility_real_case_manifest.json`.
 
-The model does not replace the real experiment. Its role is to decide what to evaluate next.
+## Nota metodológica
+
+La sección de Entomotive es prospectiva. Los candidatos de Expected Improvement
+no son dietas óptimas confirmadas: son formulaciones candidatas que el modelo
+prioriza para futura evaluación experimental bajo incertidumbre. El modelo no
+sustituye al experimento real; su papel es decidir qué evaluar a continuación.

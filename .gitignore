@@ -3,7 +3,8 @@
 *.pyc
 .pytest_cache/
 data/
-logs/
+# Logs de benchmarks: demasiado pesados para git (los de tuning si se trackean)
+outputs/logs/benchmarks/
 *.log
 tmp/
 media/

@@ -1,0 +1,506 @@
+{
+  "folds": [
+    {
+      "fold": 0,
+      "diet": "Control",
+      "inner_best_score": 0.2636965390952156,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.10030112169961096,
+        "rmse": 0.12171510847628877,
+        "r2": -0.004266765438179387,
+        "max_error": 0.15885531282978316,
+        "nlpd": -0.6849500563047223,
+        "coverage_50": 0.3333333333333333,
+        "coverage_90": 1.0,
+        "coverage_95": 1.0,
+        "mean_interval_width_95": 0.5003173579194407,
+        "median_interval_width_95": 0.5003173579194407,
+        "calibration_error_95": 0.050000000000000044,
+        "sharpness": 0.1276319790610818,
+        "_inside_50": 1,
+        "_inside_90": 3,
+        "_inside_95": 3,
+        "coverage95": 1.0,
+        "_inside95": 3
+      }
+    },
+    {
+      "fold": 1,
+      "diet": "Hoja15",
+      "inner_best_score": 0.25149130677752113,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.2773904505384062,
+        "rmse": 0.2992424213523858,
+        "r2": -0.5843397372947412,
+        "max_error": 0.4181886911816315,
+        "nlpd": 4.55657410697967,
+        "coverage_50": 0.0,
+        "coverage_90": 0.0,
+        "coverage_95": 0.3333333333333333,
+        "mean_interval_width_95": 0.33599198939321934,
+        "median_interval_width_95": 0.33599198939321934,
+        "calibration_error_95": 0.6166666666666667,
+        "sharpness": 0.08571224219214779,
+        "_inside_50": 0,
+        "_inside_90": 0,
+        "_inside_95": 1,
+        "coverage95": 0.3333333333333333,
+        "_inside95": 1
+      }
+    },
+    {
+      "fold": 2,
+      "diet": "Hoja30",
+      "inner_best_score": 0.25446095289098547,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.15107944888080901,
+        "rmse": 0.17451229760387593,
+        "r2": -2.9916605023917917,
+        "max_error": 0.2303307312943783,
+        "nlpd": 0.2613511023104851,
+        "coverage_50": 0.3333333333333333,
+        "coverage_90": 0.3333333333333333,
+        "coverage_95": 0.3333333333333333,
+        "mean_interval_width_95": 0.370989590780717,
+        "median_interval_width_95": 0.370989590780717,
+        "calibration_error_95": 0.6166666666666667,
+        "sharpness": 0.09464020172977476,
+        "_inside_50": 1,
+        "_inside_90": 1,
+        "_inside_95": 1,
+        "coverage95": 0.3333333333333333,
+        "_inside95": 1
+      }
+    },
+    {
+      "fold": 3,
+      "diet": "Hoja50",
+      "inner_best_score": 0.22985178830521816,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 2,
+        "mae": 0.4606832228153095,
+        "rmse": 0.5690846592658199,
+        "r2": -1.9012114156408,
+        "max_error": 0.7947914651982149,
+        "nlpd": 9.172048361695518,
+        "coverage_50": 0.0,
+        "coverage_90": 0.5,
+        "coverage_95": 0.5,
+        "mean_interval_width_95": 0.4907689971751014,
+        "median_interval_width_95": 0.4907689971751014,
+        "calibration_error_95": 0.44999999999999996,
+        "sharpness": 0.12519617274875036,
+        "_inside_50": 0,
+        "_inside_90": 1,
+        "_inside_95": 1,
+        "coverage95": 0.5,
+        "_inside95": 1
+      }
+    },
+    {
+      "fold": 4,
+      "diet": "Orujo30",
+      "inner_best_score": 0.2398920989444532,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.31892754731461476,
+        "rmse": 0.40522742265350964,
+        "r2": -0.1870131135534876,
+        "max_error": 0.6576931258015404,
+        "nlpd": 6.462389039335172,
+        "coverage_50": 0.3333333333333333,
+        "coverage_90": 0.3333333333333333,
+        "coverage_95": 0.3333333333333333,
+        "mean_interval_width_95": 0.40162144148531315,
+        "median_interval_width_95": 0.40162144148531315,
+        "calibration_error_95": 0.6166666666666667,
+        "sharpness": 0.10245444935849825,
+        "_inside_50": 1,
+        "_inside_90": 1,
+        "_inside_95": 1,
+        "coverage95": 0.3333333333333333,
+        "_inside95": 1
+      }
+    },
+    {
+      "fold": 5,
+      "diet": "Orujo50",
+      "inner_best_score": 0.23273326239249523,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.3609231482589302,
+        "rmse": 0.37456781452183757,
+        "r2": -0.39555834971583326,
+        "max_error": 0.4872810873242839,
+        "nlpd": 13.694627841561319,
+        "coverage_50": 0.0,
+        "coverage_90": 0.0,
+        "coverage_95": 0.0,
+        "mean_interval_width_95": 0.2639385063005472,
+        "median_interval_width_95": 0.2639385063005472,
+        "calibration_error_95": 0.95,
+        "sharpness": 0.06733125160728246,
+        "_inside_50": 0,
+        "_inside_90": 0,
+        "_inside_95": 0,
+        "coverage95": 0.0,
+        "_inside95": 0
+      }
+    },
+    {
+      "fold": 6,
+      "diet": "Orujo70",
+      "inner_best_score": 0.2638027526239274,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.06659290211091366,
+        "rmse": 0.07243933612034464,
+        "r2": -5.4556853782868675,
+        "max_error": 0.10373046272428366,
+        "nlpd": -1.1144103421203806,
+        "coverage_50": 0.6666666666666666,
+        "coverage_90": 1.0,
+        "coverage_95": 1.0,
+        "mean_interval_width_95": 0.39761416040804587,
+        "median_interval_width_95": 0.39761416040804587,
+        "calibration_error_95": 0.050000000000000044,
+        "sharpness": 0.1014321837775627,
+        "_inside_50": 2,
+        "_inside_90": 3,
+        "_inside_95": 3,
+        "coverage95": 1.0,
+        "_inside95": 3
+      }
+    },
+    {
+      "fold": 7,
+      "diet": "Orujo90",
+      "inner_best_score": 0.24136216360747625,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 2,
+        "mae": 0.3084617509488834,
+        "rmse": 0.3295918591200991,
+        "r2": -7.057383998135734,
+        "max_error": 0.42457437644582185,
+        "nlpd": 2.1953611690154595,
+        "coverage_50": 0.0,
+        "coverage_90": 0.5,
+        "coverage_95": 0.5,
+        "mean_interval_width_95": 0.5002527200831425,
+        "median_interval_width_95": 0.5002527200831425,
+        "calibration_error_95": 0.44999999999999996,
+        "sharpness": 0.1276154898171282,
+        "_inside_50": 0,
+        "_inside_90": 1,
+        "_inside_95": 1,
+        "coverage95": 0.5,
+        "_inside95": 1
+      }
+    },
+    {
+      "fold": 8,
+      "diet": "Quinoa15",
+      "inner_best_score": 0.2685672120672961,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.08185238484294215,
+        "rmse": 0.1113324981794236,
+        "r2": -0.815914844303401,
+        "max_error": 0.18635510503961705,
+        "nlpd": -0.6825037397726345,
+        "coverage_50": 0.6666666666666666,
+        "coverage_90": 0.6666666666666666,
+        "coverage_95": 0.6666666666666666,
+        "mean_interval_width_95": 0.3305243155184178,
+        "median_interval_width_95": 0.3305243155184178,
+        "calibration_error_95": 0.2833333333333333,
+        "sharpness": 0.0843174274281678,
+        "_inside_50": 2,
+        "_inside_90": 2,
+        "_inside_95": 2,
+        "coverage95": 0.6666666666666666,
+        "_inside95": 2
+      }
+    },
+    {
+      "fold": 9,
+      "diet": "Quinoa30",
+      "inner_best_score": 0.23552134933952665,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.29684168465214733,
+        "rmse": 0.29702891111538876,
+        "r2": -792.4843950900614,
+        "max_error": 0.3085149561303666,
+        "nlpd": 5.337250865005092,
+        "coverage_50": 0.0,
+        "coverage_90": 0.0,
+        "coverage_95": 0.0,
+        "mean_interval_width_95": 0.3123478967802639,
+        "median_interval_width_95": 0.31234789678026387,
+        "calibration_error_95": 0.95,
+        "sharpness": 0.07968058591333262,
+        "_inside_50": 0,
+        "_inside_90": 0,
+        "_inside_95": 0,
+        "coverage95": 0.0,
+        "_inside95": 0
+      }
+    },
+    {
+      "fold": 10,
+      "diet": "Quinoa50",
+      "inner_best_score": 0.2470749362974365,
+      "params": {
+        "alpha": 1.0,
+        "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+        "n_restarts_optimizer": 15,
+        "normalize_y": true
+      },
+      "metrics": {
+        "n_samples": 3,
+        "mae": 0.26909890186115476,
+        "rmse": 0.3053218011392375,
+        "r2": -3.4802509330586604,
+        "max_error": 0.4313962363670898,
+        "nlpd": 3.361203838806371,
+        "coverage_50": 0.0,
+        "coverage_90": 0.3333333333333333,
+        "coverage_95": 0.3333333333333333,
+        "mean_interval_width_95": 0.3881168457586805,
+        "median_interval_width_95": 0.3881168457586805,
+        "calibration_error_95": 0.6166666666666667,
+        "sharpness": 0.09900939942823482,
+        "_inside_50": 0,
+        "_inside_90": 1,
+        "_inside_95": 1,
+        "coverage95": 0.3333333333333333,
+        "_inside95": 1
+      }
+    }
+  ],
+  "summary": {
+    "macro": {
+      "mae": {
+        "mean": 0.24474114217488377,
+        "std": 0.1213454493088881,
+        "min": 0.06659290211091366,
+        "max": 0.4606832228153095
+      },
+      "rmse": {
+        "mean": 0.2781876481407464,
+        "std": 0.1413028683483166,
+        "min": 0.07243933612034464,
+        "max": 0.5690846592658199
+      },
+      "r2": {
+        "mean": -74.123425466171,
+        "std": 227.17631494948847,
+        "min": -792.4843950900614,
+        "max": -0.004266765438179387
+      },
+      "max_error": {
+        "mean": 0.3819737773033646,
+        "std": 0.20381761246485378,
+        "min": 0.10373046272428366,
+        "max": 0.7947914651982149
+      },
+      "nlpd": {
+        "mean": 3.868994744228304,
+        "std": 4.435215997250155,
+        "min": -1.1144103421203806,
+        "max": 13.694627841561319
+      },
+      "coverage_50": {
+        "mean": 0.2121212121212121,
+        "std": 0.25712973861329,
+        "min": 0.0,
+        "max": 0.6666666666666666
+      },
+      "coverage_90": {
+        "mean": 0.4242424242424242,
+        "std": 0.3435086075380192,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "coverage_95": {
+        "mean": 0.45454545454545453,
+        "std": 0.3185423642671006,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "mean_interval_width_95": {
+        "mean": 0.39022580196389894,
+        "std": 0.07592637494541862,
+        "min": 0.2639385063005472,
+        "max": 0.5003173579194407
+      },
+      "median_interval_width_95": {
+        "mean": 0.39022580196389894,
+        "std": 0.07592637494541862,
+        "min": 0.2639385063005472,
+        "max": 0.5003173579194407
+      },
+      "calibration_error_95": {
+        "mean": 0.5136363636363637,
+        "std": 0.28830908829736474,
+        "min": 0.050000000000000044,
+        "max": 0.95
+      },
+      "sharpness": {
+        "mean": 0.09954739846017832,
+        "std": 0.0193689732003619,
+        "min": 0.06733125160728246,
+        "max": 0.1276319790610818
+      },
+      "coverage95": {
+        "mean": 0.45454545454545453,
+        "std": 0.3185423642671006,
+        "min": 0.0,
+        "max": 1.0
+      }
+    },
+    "micro": {
+      "mae": 0.23571976509699916,
+      "rmse": 0.2994738669723701,
+      "r2": -78.61659499902795,
+      "coverage_50": 0.22580645161290322,
+      "coverage_90": 0.41935483870967744,
+      "coverage_95": 0.45161290322580644,
+      "coverage95": 0.45161290322580644
+    },
+    "n_folds": 11,
+    "total_samples": 31
+  },
+  "chosen_params": [
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    },
+    {
+      "alpha": 1.0,
+      "kernel": "1**2 * DotProduct(sigma_0=1) + 1**2 * Matern(length_scale=1, nu=2.5) + WhiteKernel(noise_level=0.0001)",
+      "n_restarts_optimizer": 15,
+      "normalize_y": true
+    }
+  ]
+}
