@@ -1,0 +1,252 @@
+{
+  "figures_px": {
+    "layer_00_axes": [
+      1920,
+      1305
+    ],
+    "layer_01a_prior_una_funcion": [
+      1920,
+      1305
+    ],
+    "layer_01b_prior_resto_muestras": [
+      1920,
+      1305
+    ],
+    "layer_02_prior_samples_faint": [
+      1920,
+      1305
+    ],
+    "layer_03_prior_mean": [
+      1920,
+      1305
+    ],
+    "layer_04_prior_band": [
+      1920,
+      1305
+    ],
+    "layer_05_prior_band_faint": [
+      1920,
+      1305
+    ],
+    "layer_06a_lineas_x_xprime": [
+      1920,
+      1305
+    ],
+    "layer_06b_valores_x_xprime": [
+      1920,
+      1305
+    ],
+    "layer_07a_ubicaciones_finitas": [
+      1920,
+      1305
+    ],
+    "layer_07b_punto_xstar": [
+      1920,
+      1305
+    ],
+    "layer_08_real_function": [
+      1920,
+      1305
+    ],
+    "layer_09_observed_points": [
+      1920,
+      1305
+    ],
+    "layer_10_posterior_mean": [
+      1920,
+      1305
+    ],
+    "layer_11_posterior_band": [
+      1920,
+      1305
+    ],
+    "layer_12_posterior_samples": [
+      1920,
+      1305
+    ],
+    "layer_13a_annot_mu": [
+      1920,
+      1305
+    ],
+    "layer_13b_annot_sigma": [
+      1920,
+      1305
+    ],
+    "layer_14_xnext": [
+      1920,
+      1305
+    ],
+    "layer_20_puntos_sbo": [
+      1920,
+      1305
+    ],
+    "layer_21_media_sbo": [
+      1920,
+      1305
+    ],
+    "layer_22_banda_sbo": [
+      1920,
+      1305
+    ],
+    "layer_23_explotacion_sbo": [
+      1920,
+      1305
+    ],
+    "layer_24_exploracion_sbo": [
+      1920,
+      1305
+    ],
+    "layer_25_fmin_sbo": [
+      1920,
+      1305
+    ],
+    "layer_26_xnext_sbo": [
+      1920,
+      1305
+    ],
+    "panel_ei_sbo": [
+      1920,
+      345
+    ],
+    "panel_rbf": [
+      960,
+      615
+    ],
+    "panel_matern32": [
+      960,
+      615
+    ],
+    "panel_matern52": [
+      960,
+      615
+    ],
+    "panel_linear": [
+      960,
+      615
+    ]
+  },
+  "equations_px": {
+    "eq_weights": [
+      2658,
+      262
+    ],
+    "eq_cov_kernel": [
+      3162,
+      251
+    ],
+    "eq_gp": [
+      1855,
+      222
+    ],
+    "eq_data": [
+      1152,
+      221
+    ],
+    "eq_posterior": [
+      2505,
+      239
+    ],
+    "eq_mu": [
+      2110,
+      251
+    ],
+    "eq_sigma": [
+      2697,
+      251
+    ],
+    "eq_kernel_cov": [
+      2028,
+      251
+    ],
+    "eq_mu_small": [
+      369,
+      221
+    ],
+    "eq_sigma_small": [
+      350,
+      216
+    ],
+    "eq_explotacion": [
+      1515,
+      268
+    ],
+    "eq_exploracion": [
+      1540,
+      269
+    ],
+    "eq_incumbent": [
+      1243,
+      316
+    ],
+    "eq_improvement": [
+      1979,
+      212
+    ],
+    "eq_ei": [
+      2765,
+      205
+    ],
+    "eq_joint": [
+      2931,
+      784
+    ]
+  },
+  "x_obs": [
+    0.08,
+    0.26,
+    0.5,
+    0.73,
+    0.94
+  ],
+  "y_obs": [
+    0.5484,
+    0.1372,
+    -0.7064,
+    0.5372,
+    -0.367
+  ],
+  "x_next": 0.4486,
+  "sbo_sin_punto_central": {
+    "x_obs": [
+      0.08,
+      0.26,
+      0.73,
+      0.94,
+      1.0
+    ],
+    "y_obs": [
+      0.5484,
+      0.1372,
+      0.5372,
+      -0.367,
+      -0.0924
+    ],
+    "ell": 0.12,
+    "sigma_f": 0.6,
+    "sigma_n": 0.03,
+    "f_min": -0.367,
+    "x_explotacion_argmin_mu": 0.9123,
+    "x_exploracion_argmax_sigma_interior": 0.4962,
+    "x_next_argmax_ei": 0.4461,
+    "nota": "ancla en x=1.0 para evitar extrapolacion de la media en el borde; ell reajustado al conjunto"
+  },
+  "kernel_principal": {
+    "tipo": "RBF",
+    "ell": 0.16,
+    "sigma_f": 0.6,
+    "sigma_n": 0.03
+  },
+  "paneles": {
+    "estacionarios": {
+      "ell": 0.15,
+      "sigma_f": 0.6,
+      "sigma_n": 0.015
+    },
+    "lineal": {
+      "sigma_b": 0.6,
+      "sigma_v": 1.2,
+      "sigma_n": 0.3,
+      "ajuste": "fijado a mano (ML colapsa a senal nula)"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+% Fragmento propuesto para insertar despues de la Figura~\ref{fig:app_evolution_relative_mae_best_model}.
+
+\subsection*{Lectura de la evolución relativa del MAE}
+
+La Figura~\ref{fig:app_evolution_relative_mae_best_model} muestra la evolución del MAE relativo durante el proceso de \emph{infill} para el mejor modelo predictivo de cada benchmark. La línea discontinua en \(1\) representa el error del modelo entrenado solo con el diseño inicial; por tanto, valores inferiores a \(1\) indican una reducción del MAE y valores superiores reflejan un empeoramiento temporal.
+
+El patrón más claro aparece en Borehole, donde GP\_RBF\_ARD reduce el error de forma sostenida, sobre todo cuando el diseño inicial es pequeño. En Hartmann6 también se observa una mejora rápida, especialmente para \(n_{\mathrm{train}}=6\), donde GP\_Linear alcanza una reducción marcada del MAE. En cambio, Branin y Forrester presentan trayectorias menos monótonas: algunas configuraciones empeoran al inicio antes de estabilizarse o mejorar. Esto indica que añadir puntos mediante EI no siempre reduce el error global de forma inmediata.
+
+En conjunto, la figura muestra que el \emph{infill} puede mejorar la calidad predictiva del surrogate, pero que esta mejora depende del benchmark, del tamaño inicial y del modelo. Además, el MAE relativo no debe confundirse con el éxito de optimización: EI selecciona puntos para mejorar la búsqueda del óptimo, no necesariamente para minimizar de forma monótona el error predictivo en todo el dominio.

@@ -16,30 +16,30 @@
       "incumbent_diet": "Quinoa30",
       "incumbent_value": 1.5432158751887648,
       "candidate_name": "Quinoa16",
-      "candidate_mu": 1.726450161469723,
-      "candidate_sigma": 0.06492298686183413,
-      "candidate_ei": 2.6964571586994622e-05,
-      "candidate_predicted_improvement": -0.18323428628095817
+      "candidate_mu": 1.726601585679338,
+      "candidate_sigma": 0.06474874426720173,
+      "candidate_ei": 2.5931311730725793e-05,
+      "candidate_predicted_improvement": -0.18338571049057317
     },
     {
       "target": "Quitina",
       "incumbent_diet": "Orujo70",
       "incumbent_value": 15.31837764643533,
       "candidate_name": "Orujo89",
-      "candidate_mu": 12.657517499399999,
-      "candidate_sigma": 1.0611526957410589,
-      "candidate_ei": 0.0020176878463152408,
-      "candidate_predicted_improvement": -2.660860147035331
+      "candidate_mu": 12.657519110865591,
+      "candidate_sigma": 1.061153268054219,
+      "candidate_ei": 0.0020177069987785713,
+      "candidate_predicted_improvement": -2.660858535569739
     },
     {
       "target": "Proteina",
       "incumbent_diet": "Orujo50",
       "incumbent_value": 32.14739293244424,
       "candidate_name": "Orujo31",
-      "candidate_mu": 30.937625749814792,
-      "candidate_sigma": 0.9121905688645988,
-      "candidate_ei": 0.03835309842728589,
-      "candidate_predicted_improvement": -1.2097671826294487
+      "candidate_mu": 30.937596053306923,
+      "candidate_sigma": 0.9121736681151416,
+      "candidate_ei": 0.03834765105128875,
+      "candidate_predicted_improvement": -1.2097968791373184
     }
   ],
   "best_cases": [

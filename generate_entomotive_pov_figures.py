@@ -243,14 +243,25 @@ def plot_kernel_family_mae(metrics: pd.DataFrame):
     )
     block.to_csv(OUTPUT_DIR / "fig_04_kernel_family_mae_data.csv", index=False)
 
+    palette = {
+        "Dummy": "#8C8C8C",
+        "Lineal": "#9ECAE1",
+        "RBF": "#6BAED6",
+        "Matern 3/2": "#4292C6",
+        "Matern 5/2": "#2171B5",
+        "Compuesto": "#2A9D8F",
+    }
+
     g = sns.catplot(
         data=block,
         kind="bar",
         x="model_label",
         y="mae_macro_mean",
+        hue="model_label",
         col="target",
         col_order=TARGET_ORDER,
-        palette=["#8C8C8C", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#2A9D8F"],
+        palette=palette,
+        legend=False,
         sharey=False,
         height=4.1,
         aspect=0.95,
@@ -456,6 +467,7 @@ def plot_uncertainty_vs_error(pred_df: pd.DataFrame):
             x="y_std",
             y="abs_error",
             scatter=False,
+            ci=None,
             color="#333333",
             line_kws={"linestyle": "--", "linewidth": 1},
             ax=ax,

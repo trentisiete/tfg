@@ -1,0 +1,14 @@
+Slide 08 v2 formula and visual assets
+
+Renderer: matplotlib mathtext with STIX fontset
+Text color: #1F2933
+
+- kernel_def.png / kernel_def.svg: $k(x,x')=\mathrm{Cov}\!\left(f(x),f(x')\right)$
+- similarity_chain.png / similarity_chain.svg: $x\approx x'\;\Rightarrow\; k(x,x')\uparrow\;\Rightarrow\;\mathrm{Corr}\!\left(f(x),f(x')\right)\uparrow$
+- rbf_formula.png / rbf_formula.svg: $k_{\mathrm{RBF}}(x,x')=\sigma_f^2\exp\!\left(-\frac{\|x-x'\|^2}{2\ell^2}\right)$
+- sigma_f.png / sigma_f.svg: $\sigma_f^2$
+- ell.png / ell.svg: $\ell$
+- sigma_n.png / sigma_n.svg: $\sigma_n^2$
+- ard_lengths.png / ard_lengths.svg: $\ell_1,\ldots,\ell_d$
+- k_symbol.png / k_symbol.svg: $k$
+- rbf_distance_plot.png / rbf_distance_plot.svg: normalized RBF covariance against input distance for two length-scales

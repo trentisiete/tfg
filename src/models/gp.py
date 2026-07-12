@@ -17,7 +17,16 @@ warnings.filterwarnings("ignore", category=ConvergenceWarning, module="sklearn.g
 class GPSurrogateRegressor(SurrogateRegressor):
     name = "GPSurrogateRegressor"
 
-    def __init__(self, kernel=None, alpha: float = 1e-10, normalize_y: bool = True, n_restarts_optimizer: int = 0, noise_level: float = 1e-05, **kwargs):
+    def __init__(
+        self,
+        kernel=None,
+        alpha: float = 1e-10,
+        normalize_y: bool = True,
+        n_restarts_optimizer: int = 0,
+        noise_level: float = 1e-05,
+        random_state: int | None = 0,
+        **kwargs,
+    ):
         """
         initialize Gaussian Process model with the parameters passed as arguments using a pipeline
         Args:
@@ -34,13 +43,24 @@ class GPSurrogateRegressor(SurrogateRegressor):
         self.normalize_y = normalize_y
         self.n_restarts_optimizer = n_restarts_optimizer
         self.noise_level = noise_level
+        self.random_state = random_state
         self.kwargs = kwargs
 
     def fit(self, X:np.ndarray, y:np.ndarray) -> "SurrogateRegressor":
 
         self.model_ = Pipeline([
             ("scaler",StandardScaler()),
-            ("model", SKLearnGPR(kernel=self.kernel, alpha=self.alpha, normalize_y=self.normalize_y, n_restarts_optimizer=self.n_restarts_optimizer, **self.kwargs))
+            (
+                "model",
+                SKLearnGPR(
+                    kernel=self.kernel,
+                    alpha=self.alpha,
+                    normalize_y=self.normalize_y,
+                    n_restarts_optimizer=self.n_restarts_optimizer,
+                    random_state=self.random_state,
+                    **self.kwargs,
+                ),
+            )
             ])
 
         y = np.asarray(y).ravel()

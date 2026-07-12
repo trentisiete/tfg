@@ -1,0 +1,9 @@
+Slide 14 v2 LaTeX asset manifest
+
+- n_train_set: $n_{\mathrm{train}}\in\{1,d,4d\}$
+- sigma_set: $\sigma\in\{0,0.5,1.0\}$
+- xi_value: $\xi=0.01$
+- neg_ei: $-EI(x)$
+- ei_equiv: $\min_x[-EI(x)]\equiv\max_x EI(x)$
+- candidate_budget: $\max(2000,500d)$
+- r2_metric: $R^2$

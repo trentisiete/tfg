@@ -1,0 +1,7 @@
+% Fragmento propuesto para insertar despues de la Figura~\ref{fig:app_final_relative_incumbent_improvement}.
+
+\subsection*{Lectura de la mejora final del mínimo encontrado}
+
+La Figura~\ref{fig:app_final_relative_incumbent_improvement} resume el éxito de optimización del proceso de \emph{infill}, no la calidad predictiva global del surrogate. En Branin se obtiene la mayor reducción media del \emph{gap} al óptimo, con GP\_Matern52\_ARD, seguida de Forrester con GP\_Matern52. Borehole también muestra una mejora fuerte, aunque en este caso se mide la reducción del mejor valor limpio porque no se dispone de un óptimo de referencia en la implementación. Hartmann6 presenta una mejora más moderada y con mayor variabilidad.
+
+En conjunto, la figura confirma que EI permite encontrar mejores valores de la función objetivo en todos los benchmarks, pero también muestra que la magnitud de la mejora depende mucho del problema. Por ello, el \emph{incumbent} debe interpretarse como la métrica central del éxito de búsqueda, complementaria al MAE y al resto de métricas predictivas.

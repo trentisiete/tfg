@@ -1,0 +1,22 @@
+{
+  "figures_px": {
+    "kernel_lineal": [
+      870,
+      516
+    ],
+    "kernel_matern52": [
+      870,
+      516
+    ],
+    "kernel_white": [
+      870,
+      516
+    ]
+  },
+  "equations_px": {
+    "eq_compuesto": [
+      3000,
+      171
+    ]
+  }
+}

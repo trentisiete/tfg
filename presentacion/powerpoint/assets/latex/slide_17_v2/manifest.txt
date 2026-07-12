@@ -1,0 +1,4 @@
+Slide 17 v2 asset manifest
+
+- incumbent_bar: matplotlib horizontal bar chart from TFG benchmark summary values.
+- mae_neq_opt: $\mathrm{mejor\ MAE}\neq\mathrm{mejor\ optimizaci\acute{o}n}$

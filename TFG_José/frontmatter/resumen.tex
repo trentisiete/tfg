@@ -1,14 +1,18 @@
-% frontmatter/resumen.tex
+% frontmatter/resumen.tex 
 \chapter*{Resumen}
-\addcontentsline{toc}{chapter}{Resumen}
+\addcontentsline{toc}{chapter}{Resumen} 
+En numerosos contextos experimentales, la principal dificultad no reside únicamente en analizar los resultados obtenidos, sino en decidir qué experimentos realizar a continuación cuando cada evaluación supone un coste elevado. 
+En este contexto, el Grupo de Ingredientes Alimentarios Saludables de la UAM nos planteó un problema orientado a optimizar la selección de nuevas configuraciones experimentales en la alimentación de larvas \textit{Hermetia illucens}. 
 
-% (Máximo 1 página)
-% Que debería decir??
-% - Problema?
-% - Enfoque con sustitutos?
-% - Qué aporto?
-% - Cómo evalúo?
-% -  resultados aqui?
+La herramienta idónea para estos problemas son los modelos sustitutos, que consisten en construir un modelo de aprendizaje automático que aproxime la relación entre las características de una dieta y los resultados que cabría esperar de ella.
+De este modo, antes de realizar un nuevo ensayo, el modelo puede ayudar a estimar qué combinaciones de alimentos parecen más prometedoras y con qué grado de confianza se realizan tales predicciones. En particular, los modelos sustitutos estarán basados en procesos gaussianos, ya que permiten combinar predicción e incertidumbre en un mismo marco. 
 
-% kEYWORDS AQUI?
+El TFG se desarrolla en tres etapas. En primer lugar, se establece el marco teórico necesario para entender los modelos sustitutos, los procesos gaussianos y el modo en que la incertidumbre puede utilizarse para proponer nuevas evaluaciones.
+En segundo lugar, se realizan experimentos sintéticos sobre funciones conocidas, lo que permite estudiar de forma controlada el comportamiento de estas herramientas: partir de pocos datos iniciales, ajustar un modelo, seleccionar nuevos puntos mediante \textit{Expected Improvement} y comprobar si el proceso mejora el mejor resultado encontrado.
+Estos experimentos muestran que el procedimiento propuesto mejora el diseño inicial en todos los benchmarks analizados, aunque su rendimiento depende de diversos factores.
+
+Finalmente, la metodología se aplica al caso real de dietas para \textit{Hermetia illucens}. En este escenario, el modelo se evalúa dejando fuera dietas completas durante el entrenamiento y comprobando si es capaz de predecir sus resultados. Esta forma de evaluación se eligió porque se aproxima al uso real que se busca: estimar el comportamiento de una dieta todavía no ensayada y escoger el modelo que mejor generaliza a nuevas propuestas. Los resultados indican que, en los tres objetivos finalmente analizados, el proceso gaussiano mejora al modelo base, aunque la incertidumbre predictiva aparece parcialmente calibrada.
+
+En conjunto, el trabajo muestra que los modelos sustitutos no reemplazan la validación experimental, pero sí pueden reducir el espacio de búsqueda, cuantificar incertidumbre y priorizar nuevas configuraciones candidatas cuando el presupuesto experimental es limitado. 
+
 \keywords{modelos sustitutos, optimización global, procesos gaussianos, incertidumbre, búsqueda de entradas óptimas}

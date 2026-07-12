@@ -1,0 +1,70 @@
+{
+  "project_root": "C:\\Users\\maria\\Downloads\\Jose_lenovo\\TFG\\surrogate_models",
+  "tuning_dir": "outputs\\logs\\tuning\\TFG_MAIN_real_case_hermetia_no_tpc_tuning",
+  "tuning_counts": {
+    "summaries": 6,
+    "folds": 42
+  },
+  "assets_synced": [
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc\\fig_01_lodo_generalization_vs_dummy.png",
+      "dest": "TFG_Jos\u00e9\\assets\\fig_01_lodo_generalization_vs_dummy.png",
+      "bytes": 92860
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc\\fig_02_error_by_left_out_diet.png",
+      "dest": "TFG_Jos\u00e9\\assets\\fig_02_error_by_left_out_diet.png",
+      "bytes": 167182
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc\\fig_04_kernel_family_mae.png",
+      "dest": "TFG_Jos\u00e9\\assets\\fig_04_kernel_family_mae.png",
+      "bytes": 92052
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc\\fig_05_uncertainty_vs_error.png",
+      "dest": "TFG_Jos\u00e9\\assets\\fig_05_uncertainty_vs_error.png",
+      "bytes": 210746
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc\\fig_06_prediction_intervals_by_diet.png",
+      "dest": "TFG_Jos\u00e9\\assets\\fig_06_prediction_intervals_by_diet.png",
+      "bytes": 242410
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc\\fig_07_ei_pre_infill_candidates.png",
+      "dest": "TFG_Jos\u00e9\\assets\\fig_07_ei_pre_infill_candidates.png",
+      "bytes": 234519
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc\\fig_08_ei_candidate_landscape.png",
+      "dest": "TFG_Jos\u00e9\\assets\\fig_08_ei_candidate_landscape.png",
+      "bytes": 206622
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_audit_no_tpc\\dataset_targets_by_diet.png",
+      "dest": "TFG_Jos\u00e9\\assets\\app_real_dataset_targets_by_diet.png",
+      "bytes": 67188
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_audit_no_tpc\\observed_equal_weight_ranking.png",
+      "dest": "TFG_Jos\u00e9\\assets\\app_real_observed_equal_weight_ranking.png",
+      "bytes": 56634
+    },
+    {
+      "source": "outputs\\plots\\TFG_MAIN_real_case_results_pov_ei_no_tpc\\fig_03_best_gp_parity_by_target.png",
+      "dest": "TFG_Jos\u00e9\\assets\\app_real_best_gp_parity_by_target.png",
+      "bytes": 232503
+    },
+    {
+      "source": "outputs\\logs\\benchmarks\\forrester_active_sweep_20260219_004822\\ntrain_0_ninfill_10\\report_v2\\figures\\gp_predictions\\forrester\\matrix_por_ruido_forrester_NoNoise.png",
+      "dest": "TFG_Jos\u00e9\\assets\\app_forrester_gp_evolution_no_noise.png",
+      "bytes": 493839
+    },
+    {
+      "source": "outputs\\logs\\benchmarks\\infill_4bench\\report_v2\\figures\\space_understanding\\forrester_ei_decision_synthesis_step5.png",
+      "dest": "TFG_Jos\u00e9\\assets\\app_forrester_ei_decision_synthesis_step5.png",
+      "bytes": 446152
+    }
+  ]
+}

@@ -1,6 +1,6 @@
-% chapters/02_estado_arte.tex
-\chapter{Estado del arte y fundamentos de la optimización basada en modelos sustitutos}
-\label{chap:estado_arte}
+% chapters/02_marco_teorico.tex
+\chapter{Fundamentos teóricos de la optimización basada en modelos sustitutos}
+\label{chap:marco_teorico}
 
 Muchos problemas reales de optimización en ingeniería y ciencia de datos pueden formularse mediante una función objetivo $f : X \to \mathbb{R}$ cuyo valor solo puede obtenerse evaluando un procedimiento externo, como una simulación numérica compleja o un experimento físico. En este contexto, se dice que la función es de \textit{caja negra} cuando, a efectos prácticos, no se dispone de una expresión analítica manejable de $f$, ni de derivadas, ni de propiedades estructurales que permitan aplicar directamente métodos clásicos de optimización. En otras palabras, la función solo puede consultarse en puntos concretos del dominio y devolver una salida asociada a cada entrada.
 
@@ -12,7 +12,6 @@ Con el fin de formalizar este problema, introducimos un espacio de búsqueda con
 \[
 \bm{x}^{\star} \in \arg\min_{\bm{x}\in\mathcal{X}} f(\bm{x}).
 \]
-
 Nuestra hipótesis de trabajo es que el coste $c(\bm{x})$ de evaluar la función objetivo es elevado. En consecuencia, el número de evaluaciones que pueden realizarse queda limitado por un presupuesto máximo $B$, de modo que solo se dispone de un conjunto reducido de observaciones:
 \[
 \mathcal{D}_n = \{(\bm{x}_i, y_i)\}_{i=1}^{n}, \qquad n \leq B,
@@ -22,7 +21,7 @@ donde $y_i$ representa el valor observado al evaluar la función en el punto $\b
 Incluso en aquellos casos en los que el coste individual de evaluación fuera asumible, la búsqueda exhaustiva seguiría siendo inviable cuando la dimensión del espacio $\mathcal{X}$ es elevada. En efecto, el número de puntos necesarios para explorar el dominio con una densidad comparable crece exponencialmente con la dimensión, fenómeno conocido como \emph{maldición de la dimensionalidad}. Por tanto, la dificultad del problema no proviene únicamente del coste por evaluación, sino también del tamaño efectivo del espacio de búsqueda. 
 
 Además del coste, en muchos problemas las evaluaciones están afectadas por \emph{ruido}. En experimentos físicos, el ruido proviene de errores de medida, variabilidad del entorno o diferencias entre réplicas. En simulaciones complejas, puede aparecer \emph{ruido numérico} debido a múltiples causas como fenómenos estocásticos internos. Una forma estándar de modelar esta situación es asumir que la observación es una perturbación de la función subyacente:
-% QUIZAS MERECE LABEL. PUEDE QUE LA USEMOS EN EXPERIMENTOS.
+
 \[
 y_i = f(\bm{x}_i) + \varepsilon_i, 
 \qquad 
@@ -30,7 +29,6 @@ y_i = f(\bm{x}_i) + \varepsilon_i,
 \qquad 
 \mathrm{Var}(\varepsilon_i)=\sigma_\varepsilon^2.
 \]
-
 Estas dos restricciones (presupuesto limitado y/o ruido) hacen que muchos optimizadores clásicos resulten poco adecuados: los métodos basados en gradientes requieren derivadas (normalmente no disponibles en caja negra) y pueden ser inestables bajo ruido. En consecuencia, el problema se transforma en una búsqueda bajo escasez de datos: con pocas evaluaciones debemos (i) aproximar $f$ lo suficiente como para guiar la búsqueda y (ii) decidir adaptativamente dónde invertir las siguientes evaluaciones para mejorar la solución global.
 
 Esta motivación conduce de forma natural al enfoque de \emph{optimización basada en modelos sustitutos} (SBO) que consiste en construir un modelo estadístico $\hat{f}$ a partir de $\mathcal{D}_n$ y emplearlo para proponer nuevas evaluaciones, reduciendo de manera drástica el número de consultas directas a la función costosa \cite{forrester2008engineering,jiang2020surrogate}. En las siguientes secciones se introducen estos modelos y cómo se integran.
@@ -54,7 +52,7 @@ Un modelo sustituto puede emplearse con dos fines principales:
   \item \textbf{Optimización con presupuesto limitado.} En SBO,
   el sustituto se utiliza para guiar la selección de nuevas evaluaciones del sistema real,
   reduciendo el número de ejecuciones costosas necesarias para aproximarse a la solución
-  óptima. \cite{jiang2020surrogate}
+  óptima \cite{jiang2020surrogate}.
 \end{enumerate}
 
 \medskip
@@ -65,7 +63,7 @@ Un modelo sustituto puede emplearse con dos fines principales:
     \item [Deterministas] Producen una predicción puntual $\hat{f}(\bm{x})$.
     \item [Probabilísticos] Cuantifican incertidumbre (p.\,ej. mediante una
     distribución predictiva). Esta distinción es relevante cuando se quieren criterios de
-    muestreo adaptativo basados en exploración/explotación. \cite{forrester2008engineering,jiang2020surrogate}
+    muestreo adaptativo basados en exploración/explotación \cite{forrester2008engineering,jiang2020surrogate}.
   \end{description}
 
   \item \textbf{Según la flexibilidad del modelo:}
@@ -74,7 +72,7 @@ Un modelo sustituto puede emplearse con dos fines principales:
     potencialmente rígidos si la respuesta presenta multimodalidad o alta no linealidad.
     \item [No paramétricos o de alta flexibilidad] (p.\,ej. métodos kernel, árboles, \emph{ensembles}).
     Capaces de capturar respuestas complejas, a costa de más parámetros y riesgo de sobreajuste
-    con pocos datos. \cite{forrester2008engineering}
+    con pocos datos \cite{forrester2008engineering}.
   \end{description}
 
   \item \textbf{Según cómo se integra con la optimización:}
@@ -83,7 +81,7 @@ Un modelo sustituto puede emplearse con dos fines principales:
     candidatos (útil cuando obtener nuevas evaluaciones es inviable en el corto plazo).
     \item[Secuencial/online] El sustituto se actualiza iterativamente añadiendo nuevas
     evaluaciones seleccionadas de forma informada (infill/adaptive sampling), hasta agotar presupuesto
-    o alcanzar un criterio de parada. \cite{forrester2008engineering,jiang2020surrogate}
+    o alcanzar un criterio de parada \cite{forrester2008engineering,jiang2020surrogate}.
   \end{description}
 \end{itemize}
 
@@ -95,19 +93,19 @@ estándar:
   y sus rangos, fijando el dominio $\mathcal{X}$.
   \item \textbf{Muestreo inicial (DoE).} Se selecciona un conjunto inicial de puntos
   $\{\bm{x}_i\}_{i=1}^n$ que cubra el espacio de forma razonablemente uniforme. En problemas
-  continuos es habitual usar muestreos \emph{space-filling}, como Latin Hypercube Sampling (LHS) o SOBOL.
-  \cite{forrester2008engineering}
+  continuos es habitual usar muestreos \emph{space-filling}, como Latin Hypercube Sampling (LHS) o SOBOL
+  \cite{forrester2008engineering}.
   \item \textbf{Evaluación del sistema real.} Se calculan las salidas $y_i$ con el sistema real
   y se construye el dataset inicial $\mathcal{D}_n$.
   \item \textbf{Ajuste y validación del sustituto.} Se elige una familia de modelos, se estiman sus
   parámetros y se evalúa su calidad predictiva con prácticas estándar (p.\,ej. validación cruzada),
-  teniendo presente compromisos entre complejidad y robustez. \cite{forrester2008engineering}
+  teniendo presente compromisos entre complejidad y robustez \cite{forrester2008engineering}.
   \item \textbf{Refinamiento secuencial: muestreo adaptativo o proceso de \emph{infill}}.
   Cuando el presupuesto lo permite, se añaden nuevos puntos (\emph{infill points}) seleccionados
   por un criterio que prioriza:
   (i) regiones donde el modelo es probablemente inexacto (exploración), y/o
   (ii) regiones prometedoras respecto al óptimo (explotación). Este ciclo se repite hasta alcanzar
-  un criterio de parada (en base a presupuesto máximo, mejora marginal, o precisión objetivo). \cite{forrester2008engineering,jiang2020surrogate}
+  un criterio de parada (en base a presupuesto máximo, mejora marginal, o precisión objetivo) \cite{forrester2008engineering,jiang2020surrogate}.
 \end{enumerate}
 
 \medskip
@@ -139,7 +137,7 @@ prior sobre funciones a una distribución posterior tras observar datos.
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.8\textwidth]{assets/fig_gp_prior_posterior.eps}
-    \caption{(a) Muestras de funciones generadas por el prior del GP. (b) Distribución posterior tras condicionar en dos observaciones; la línea negra representa la media predictiva y la banda sombreada el intervalo predictivo del 95 \%.}
+    \caption[Prior y posterior de un GP]{(a) Muestras de funciones generadas por el prior del GP. (b) Distribución posterior tras condicionar en dos observaciones; la línea negra representa la media predictiva y la banda sombreada el intervalo predictivo del 95 \%.}
     \label{fig:prior_vs_posterior}
 \end{figure}
 
@@ -195,8 +193,7 @@ w\sim\mathcal{N}(0,\Sigma_p),
 \]
 entonces la media inducida sobre la función satisface
 \[
-\mathbb{E}[f(x)] = \phi(x)^\top,
-\qquad \mathbb{E}[w] = 0.
+\mathbb{E}[f(x)] = \phi(x)^\top\mathbb{E}[w] = 0.
 \]
 Si existiera una tendencia conocida o relevante,
 podría incorporarse mediante una función de media no nula o mediante funciones base
@@ -233,7 +230,6 @@ Sea
 \end{bmatrix}
 \right),
 \]
-
 donde $\mathbf{f}_A$ y $\mathbf{f}_B$ son dos subvectores del vector gaussiano conjunto.
 Entonces, la distribución marginal de $\mathbf{f}_A$ viene dada por
 
@@ -241,7 +237,6 @@ Entonces, la distribución marginal de $\mathbf{f}_A$ viene dada por
 \mathbf{f}_A \sim \mathcal{N}(\boldsymbol{\mu}_A,\Sigma_{AA}).
 \]
 \end{proposition}
-
 En esta partición por bloques, $\Sigma_{AA}$ es la submatriz de covarianza asociada
 exclusivamente a las componentes de $\mathbf{f}_A$, mientras que $\Sigma_{AB}$ y
 $\Sigma_{BA}$ recogen las covarianzas cruzadas entre $\mathbf{f}_A$ y $\mathbf{f}_B$.
@@ -261,7 +256,6 @@ interpretarse el aprendizaje del modelo. Para ello, resulta útil volver a una c
 familiar: la regresión lineal bayesiana en un espacio de características, desde la cual el GP
 aparece al marginalizar los pesos.
 
-% Comentario indicaba que esta sección se podía resumir.
 \subsection{Del espacio de pesos al espacio de funciones}
 
 Para comprender con mayor precisión el origen del kernel y el significado del aprendizaje en
@@ -373,7 +367,6 @@ y, para dos puntos arbitrarios \(\bm{x}\) y \(\bm{x}'\),
 =
 \bm{\phi}(\bm{x})^\top \bm{\Sigma}_p \bm{\phi}(\bm{x}').
 \]
-
 La dependencia respecto a los pesos y a su covarianza puede agruparse en una única función definida sobre pares de
 entradas:
 $
@@ -381,7 +374,6 @@ k(\bm{x},\bm{x}')
 =
 \bm{\phi}(\bm{x})^\top \bm{\Sigma}_p \bm{\phi}(\bm{x}').
 $
-
 Así, la incertidumbre originalmente modelada sobre los parámetros \(\bm{w}\) se traslada a la
 estructura de covarianza entre valores de la función.
 
@@ -409,7 +401,6 @@ Por tanto,
 \[
 \bm{f}_X \sim \mathcal{N}(\bm{0}_X,\bm{K}_X).
 \]
-
 Es decir, al marginalizar los pesos se obtiene directamente una distribución gaussiana sobre
 los valores de la función en cualquier conjunto finito de entradas. Esta es precisamente la
 formulación del GP en el espacio de funciones: el modelo deja de expresarse
@@ -487,7 +478,6 @@ Además, el propio kernel verifica
 k(\bm{x},\bm{x}')=
 \langle k(\cdot,\bm{x}),\,k(\cdot,\bm{x}')\rangle_{\mathcal{H}_k}.
 \]
-
 Esta propiedad permite interpretar el kernel como un producto interno en un espacio de
 características posiblemente de dimensión muy alta o infinita. En el espacio original
 \(\mathcal{X}\), la relación entre las entradas y la salida puede ser no lineal; sin embargo,
@@ -604,7 +594,7 @@ simétrico y semidefinido positivo. En este trabajo se consideran los siguientes
     \end{equation}
     En esta expresión, \(\Gamma(\nu)\) es la función Gamma, que generaliza el factorial a
     valores reales positivos, y \(K_\nu(\cdot)\) es la función de Bessel modificada de segunda
-    especie. Al igual que en el kernel SE, \(\sigma_f^2\) controla la amplitud de la función y
+    especie \cite{dlmf_bessel}. Al igual que en el kernel SE, \(\sigma_f^2\) controla la amplitud de la función y
     \(\ell\) determina la escala espacial de correlación. Estos parámetros no se calculan mediante
     una fórmula cerrada única, sino que se tratan como parámetros del kernel y se ajustan
     a partir de los datos, por ejemplo maximizando la log-verosimilitud marginal (LML).
@@ -753,7 +743,6 @@ La ecuación~\eqref{eq:gp_mean} proporciona la media posterior predictiva, es de
 estimación promedio del valor latente de la función en \(\bm{x}_*\) bajo el modelo. Por su
 parte, la ecuación~\eqref{eq:gp_var} cuantifica la incertidumbre posterior sobre ese valor
 latente.
-
 Es importante distinguir esta incertidumbre posterior sobre \(f_*\) de la varianza del ruido
 \(\sigma_n^2\). La primera refleja incertidumbre del modelo sobre la función
 latente y puede reducirse al incorporar observaciones informativas. Sin embargo, cuando las
@@ -774,18 +763,9 @@ esos parámetros, una opción posible es el estimador MAP. No obstante, en regre
 procesos gaussianos es habitual marginalizar los pesos o valores latentes y ajustar los
 parámetros mediante la maximización de la verosimilitud marginal.
 
-En el caso de los procesos gaussianos, esta idea adopta una forma particular. Como se ha
-visto en la Sección~\ref{subsec:truco_del_kernel}, los pesos \(\bm{w}\) de la representación en
-espacio de características quedan marginalizados y su efecto pasa a estar codificado en el
-kernel. Por tanto, el entrenamiento de un GP no consiste en ajustar directamente un vector
-de pesos \(\bm{w}\), sino en seleccionar los parámetros \(\bm{\theta}\) que definen la función
-de covarianza y el modelo de ruido. Entre ellos se encuentran, por ejemplo, la longitud
-característica \(\ell\), la varianza de señal \(\sigma_f^2\) y la varianza del ruido
-\(\sigma_n^2\).
-
 En el caso de los procesos gaussianos, el entrenamiento adopta una forma distinta a la
 de los modelos paramétricos clásicos. Como se ha visto en la
-Sección~\ref{subsec:truco_del_kerneld}, los pesos \(\bm{w}\) de la representación en
+Sección~\ref{subsec:truco_del_kernel}, los pesos \(\bm{w}\) de la representación en
 espacio de características quedan marginalizados y su efecto pasa a estar codificado en el
 kernel. Por tanto, entrenar un GP no consiste  en fijar una familia de covarianza y estimar los hiperparámetros que la definen, junto
 con el nivel de ruido del modelo \cite{rasmussen2006gpml}. En la práctica, una estrategia habitual consiste en maximizar la
@@ -812,7 +792,6 @@ MAP sobre \(\bm{\theta}\):
 \]
 En este trabajo se presenta la formulación estándar basada en la LML,
 sin incluir un prior adicional sobre \(\bm{\theta}\).
-
 La LML mide la probabilidad de observar los datos de entrenamiento
 bajo el modelo definido por los parámetros \(\bm{\theta}\). En regresión con GP y ruido
 gaussiano, se obtiene marginalizando los valores latentes de la función:
@@ -978,13 +957,13 @@ El diseño de la función de adquisición define el comportamiento del algoritmo
 \end{itemize}
 
 \subsection{Optimización Bayesiana y funciones de adquisición}
+\label{sec:optimizacion_bayesiana_adquisicion}
 
 En BO, la selección de nuevas evaluaciones se realiza mediante
 funciones de adquisición, que utilizan la distribución predictiva del modelo sustituto para
 decidir qué punto conviene evaluar a continuación \cite{jones1998efficient}. Aunque existen
-diversos criterios, como \textit{Probability of Improvement} (PI), \textit{Expected Improvement}
-(EI) o \textit{Lower Confidence Bound} (LCB), en este trabajo nos centraremos en el
-\textit{Expected Improvement}, uno de los criterios más utilizados en BO
+diversos criterios, como \textit{Probability of Improvement} (PI), \textit{EI} o \textit{Lower Confidence Bound} (LCB), en este trabajo nos centraremos en el
+\textit{EI}, uno de los criterios más utilizados en BO
 por su capacidad para combinar de forma explícita explotación e incertidumbre.
 
 \vspace{0.3cm}
@@ -1020,7 +999,7 @@ de mejora frente a la mejor observación actual \(f_{\min}\) como:
 \[
 I(\bm{x})
 =
-\max(0, f_{\min}-Y(\bm{x}))).
+\max(0, f_{\min}-Y(\bm{x})).
 \]
 De forma equivalente, puede escribirse la función a trozos:
 \[
@@ -1122,18 +1101,19 @@ En los puntos de diseño ya observados del conjunto de datos (asumiendo observac
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.9\textwidth]{assets/fig_ei_demo.eps}
-    \caption{(a) Media predictiva del GP condicionada a las observaciones disponibles. 
+    \caption[Ciclo de Expected Improvement]{(a) Media predictiva del GP condicionada a las observaciones disponibles. 
 (b) Valores de EI asociados al modelo del panel (a). 
 (c) Media predictiva del GP tras incorporar una nueva observación mediante \textit{infill}. 
 (d) Valores de EI actualizados para la siguiente iteración.}
     \label{fig:infill_process}
 \end{figure}
-\FloatBarrier
+%\FloatBarrier
 
-En conjunto, estas propiedades hacen que EI sea adecuada como criterio de selección dentro del proceso de \textit{infill}: permite proponer nuevas evaluaciones combinando la búsqueda en regiones prometedoras con la exploración de zonas donde el modelo todavía presenta incertidumbre. Este mecanismo secuencial será utilizado en la parte experimental del trabajo y se resume esquemáticamente en la Figura~\ref{fig:proceso_infill}.
+En conjunto, estas propiedades hacen que EI sea adecuada como criterio de selección dentro del proceso de \textit{infill}: permite proponer nuevas evaluaciones combinando la búsqueda en regiones prometedoras con la exploración de zonas donde el modelo todavía presenta incertidumbre. Este mecanismo secuencial será utilizado en la parte experimental del trabajo y se resume esquemáticamente en la Figura~\ref{fig:infill_process}.
 
 Una vez agotado el presupuesto máximo de evaluaciones (B), o alcanzado un criterio de convergencia predefinido, el proceso de enriquecimiento se da por terminado.
 \section{Métricas de evaluación}
+\label{metricas_marco_teorico}
 
 Para validar el rendimiento de los modelos sustitutos, no es suficiente evaluar la precisión de sus predicciones puntuales. En el caso de modelos probabilísticos como los Procesos Gaussianos, resulta fundamental cuantificar la calidad de su incertidumbre predictiva. Por ello, las métricas de evaluación se dividen en dos categorías: métricas predictivas clásicas y métricas probabilísticas.
 
@@ -1152,7 +1132,7 @@ Estas métricas evalúan la divergencia entre la observación real $y_i$ y la me
     
 \end{itemize}
 
-\subsection{Métricas probabilísticas (NLL, NLPD)} %  y cobertura del 95 \% SI LA ACABO PONIENDO
+\subsection{Métricas probabilísticas (NLL, NLPD)}
 
 Mientras que métricas como RMSE, MAE o \(R^2\) evalúan únicamente la calidad de la
 predicción puntual, las métricas probabilísticas tienen en cuenta la distribución predictiva
@@ -1229,45 +1209,3 @@ expresión~\eqref{eq:nlpd} penaliza notablemente dos situaciones indeseables:
 
 Por tanto, la NLPD no mide únicamente el error de la media, sino el equilibrio entre
 precisión y calibración de la incertidumbre.
-
-%\paragraph{Cobertura de intervalos del 95 \%.}
-
-%La cobertura de intervalos es una métrica empírica sencilla para comprobar si los intervalos
-%predictivos del modelo tienen una frecuencia de acierto coherente con su nivel nominal. Para
-%una distribución normal, aproximadamente el 95 \% de la masa de probabilidad se encuentra
-%dentro de \(1.96\) desviaciones típicas respecto a la media. Por ello, se define el intervalo
-%predictivo
-%\[
-%I_i^{95}
-%=
-%[\mu_i-1.96s_i,\ \mu_i+1.96s_i].
-%\]
-%La cobertura empírica al 95 \% se calcula como
-%\begin{equation}
-%\mathrm{Cov}_{95}
-%=
-%\frac{1}{N}
-%\sum_{i=1}^{N}
-%\mathbb{I}(y_i\in I_i^{95}),
-%\label{eq:coverage95}
-%\end{equation}
-%donde \(\mathbb{I}(\cdot)\) es la función indicatriz, que vale \(1\) si la condición se cumple
-%y \(0\) en caso contrario.
-
-%Un modelo bien calibrado debería obtener una cobertura cercana a \(0.95\). Si
-%\(\mathrm{Cov}_{95}\) es considerablemente menor que \(0.95\), las observaciones reales caen
-%fuera de los intervalos más a menudo de lo esperado, lo que indica sobreconfianza. En ese
-%caso, podría ser necesario revisar la estimación del ruido \(\sigma_n^2\), probar kernels menos
-%restrictivos, ajustar mejor los parámetros o aumentar la cantidad de datos en regiones
-%donde el modelo falla.
-
-%Si, por el contrario, \(\mathrm{Cov}_{95}\) es cercana a \(1\), el modelo contiene prácticamente
-%todas las observaciones dentro de sus intervalos. Esto puede parecer positivo, pero suele
-%indicar subconfianza si los intervalos son demasiado anchos. En ese caso, conviene revisar si
-%la varianza predictiva está siendo sobreestimada, si el término de ruido es excesivo o si el
-%kernel elegido está generando un modelo demasiado conservador.
-
-%La cobertura, por sí sola, no mide la precisión de las predicciones ni la anchura de los
-%intervalos. Por esta razón, debe interpretarse junto con métricas como NLPD, RMSE o MAE:
-%un buen modelo probabilístico debe producir predicciones precisas, intervalos razonablemente
-%estrechos y una cobertura coherente con el nivel nominal.

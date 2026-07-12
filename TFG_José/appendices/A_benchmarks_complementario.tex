@@ -1,7 +1,7 @@
 \chapter{Material complementario del experimento de benchmarks}
 \label{app:benchmarks_complementario}
 
-Este anexo recoge el material metodológico y gráfico del experimento de benchmarks que se ha retirado del cuerpo principal para mantener la memoria dentro del límite de extensión. En el Capítulo~\ref{chap:diseno_experimental} se conservan los elementos principales del análisis: la tabla de benchmarks, la configuración general del experimento, el resumen del \emph{incumbent}, la evolución del \emph{incumbent}, el resumen predictivo y la jerarquía de factores experimentales.
+Este anexo recoge el material metodológico y gráfico del experimento de benchmarks que se ha retirado del cuerpo principal para mantener la memoria dentro del límite de extensión. En el Capítulo~\ref{chap:diseno_experimental} se conservan los elementos principales del análisis: el cuadro de benchmarks, la configuración general del experimento, el resumen del \emph{incumbent}, la evolución del \emph{incumbent}, el resumen predictivo y la jerarquía de factores experimentales.
 
 \section{Dominio detallado del benchmark Borehole}
 \label{app:dominio_borehole}
@@ -152,7 +152,7 @@ inner ysep=1pt
 
 \end{tikzpicture}%
 }
-\caption{Flujo del proceso de \emph{infill} empleado en los benchmarks sintéticos. En cada iteración se entrena una configuración GP con las observaciones disponibles, se calcula EI, se selecciona el siguiente punto maximizando dicho criterio, se evalúa la función benchmark y se actualiza el conjunto de entrenamiento.}
+\caption[Flujo del proceso de infill]{Flujo del proceso de \emph{infill} empleado en los benchmarks sintéticos. En cada iteración se entrena una configuración GP con las observaciones disponibles, se calcula EI, se selecciona el siguiente punto maximizando dicho criterio, se evalúa la función benchmark y se actualiza el conjunto de entrenamiento.}
 \label{fig:app_flujo_infill}
 
 \end{figure}
@@ -167,7 +167,7 @@ En cada iteración, el GP se ajusta con el conjunto de observaciones disponible 
 \[
 \bm{x}_{\mathrm{next}}
 =
-\operatorname*{arg\,max}_{\bm{x}\in\mathcal{X}} EI(\bm{x}).
+\operatorname*{arg\,max}_{\bm{x}\in\mathcal{X}} (EI(\bm{x})).
 \]
 
 La maximización de EI se realiza mediante \emph{Differential Evolution}, al tratarse de una estrategia robusta para funciones de adquisición potencialmente multimodales y sin necesidad de gradientes. Además, se emplea \texttt{polish=True}, aplicando un refinamiento local con L-BFGS-B tras la búsqueda global. Dado que los optimizadores de SciPy están formulados como problemas de minimización, en la implementación se optimiza $-EI(\bm{x})$, lo que equivale a maximizar $EI(\bm{x})$.
@@ -175,25 +175,27 @@ La maximización de EI se realiza mediante \emph{Differential Evolution}, al tra
 \section{Configuración de semillas y reproducibilidad}
 \label{app:semillas_benchmarks}
 
+Esta sección recoge únicamente la asignación de semillas utilizada en las trayectorias de benchmarks. La configuración computacional completa y el procedimiento de reproducción se documentan en el Anexo~\ref{app:configuracion_reproducibilidad}.
+
 \begin{table}[htbp]
 \centering
-\caption{Configuración de semillas empleada en el experimento benchmark.}
+\caption[Semillas del experimento de benchmarks]{Configuración de semillas empleada en el experimento de benchmarks.}
 \label{tab:app_semillas_benchmarks}
 \begin{tabular}{p{4.2cm} p{10.8cm}}
 \toprule
 \textbf{Elemento} & \textbf{Semilla utilizada} \\
 \midrule
 Entrenamiento inicial
-& 42. \\
+& 42 \\
 
     Conjunto de test 
-    & 1042. \\
+    & 1042 \\
 
     Ruido en entrenamiento y test 
-    & 42. \\
+    & 42 \\
 
     Ruido durante \emph{infill} 
-    & 42. \\
+    & 42 \\
 
     EI, Differential Evolution y respaldo aleatorio 
     & En cada iteración se utiliza una semilla dependiente del paso, \(S + \text{step} \times 1009\), donde \(S\) es la semilla base de la configuración. \\
@@ -204,49 +206,63 @@ Entrenamiento inicial
 \end{tabular}
 
 \end{table}
-\FloatBarrier
-\newpage
-\section{Mejora final del \emph{incumbent} por benchmark}
+\section{Mejora final del mínimo encontrado por benchmark}
 \label{app:mejora_final_incumbent}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{assets/final_relative_incumbent_improvement_by_benchmark.eps}
-\caption{Mejora relativa final del mínimo encontrado durante el proceso de \emph{infill}. En Forrester, Branin y Hartmann6 se representa la reducción relativa del \emph{gap} al óptimo. En Borehole, al no disponer de óptimo definido en la implementación, se muestra la reducción relativa del mejor valor limpio respecto al diseño inicial. Las barras indican la media y las líneas verticales la desviación típica sobre las trayectorias agregadas.}
+\caption[Mejora final del mínimo encontrado]{Mejora relativa final del mínimo encontrado durante el proceso de \emph{infill}. En Forrester, Branin y Hartmann6 se representa la reducción relativa del \emph{gap} al óptimo. En Borehole, al no disponer de óptimo definido en la implementación, se muestra la reducción relativa del mejor valor limpio respecto al diseño inicial. Las barras indican la media y las líneas verticales la desviación típica sobre las trayectorias agregadas.}
 \label{fig:app_final_relative_incumbent_improvement}
 \end{figure}
-\FloatBarrier
 
-\newpage
+La Figura~\ref{fig:app_final_relative_incumbent_improvement} resume el éxito de optimización del proceso de \emph{infill}, no la calidad predictiva global del modelo sustituto. En Branin se obtiene la mayor reducción media del \emph{gap} al óptimo, con GP\_Matern52\_ARD, seguida de Forrester con GP\_Matern52. Borehole también muestra una mejora fuerte, aunque en este caso se mide la reducción del mejor valor limpio porque no se dispone de un óptimo de referencia en la implementación. Hartmann6 presenta una mejora más moderada y con mayor variabilidad.
+
+En conjunto, la figura confirma que EI permite encontrar mejores valores de la función objetivo en todos los benchmarks, pero también muestra que la magnitud de la mejora depende mucho del problema. Por ello, el \emph{incumbent} debe interpretarse como la métrica central del éxito de búsqueda, complementaria al MAE y al resto de métricas predictivas.
+
+
 \section{Evolución relativa del MAE}
 \label{app:evolucion_relativa_mae}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{assets/evolution_relative_mae_best_model_by_benchmark.png}
-\caption{Evolución relativa del MAE para el mejor modelo predictivo de cada benchmark. La línea discontinua marca el valor inicial. Valores inferiores a 1 indican una reducción del error respecto al modelo entrenado únicamente con el diseño inicial.}
+\caption[Evolución relativa del MAE]{Evolución relativa del MAE para el mejor modelo predictivo de cada benchmark. La línea discontinua marca el valor inicial. Valores inferiores a 1 indican una reducción del error respecto al modelo entrenado únicamente con el diseño inicial.}
 \label{fig:app_evolution_relative_mae_best_model}
 \end{figure}
-\FloatBarrier
-\newpage
+
+La Figura~\ref{fig:app_evolution_relative_mae_best_model} muestra la evolución del MAE relativo durante el proceso de \emph{infill} para el mejor modelo predictivo de cada benchmark. La línea discontinua en \(1\) representa el error del modelo entrenado solo con el diseño inicial; por tanto, valores inferiores a \(1\) indican una reducción del MAE y valores superiores reflejan un empeoramiento temporal.
+
+El patrón más claro aparece en Borehole, donde GP\_RBF\_ARD reduce el error de forma sostenida, sobre todo cuando el diseño inicial es pequeño. En Hartmann6 también se observa una mejora rápida, especialmente para \(n_{\mathrm{train}}=6\), donde GP\_Linear alcanza una reducción marcada del MAE. En cambio, Branin y Forrester presentan trayectorias menos monótonas: algunas configuraciones empeoran al inicio antes de estabilizarse o mejorar. Esto indica que añadir puntos mediante EI no siempre reduce el error global de forma inmediata.
+
+En conjunto, la figura muestra que el \emph{infill} puede mejorar la calidad predictiva del modelo sustituto, pero que esta mejora depende del benchmark, del tamaño inicial y del modelo. Además, el MAE relativo no debe confundirse con el éxito de optimización: EI selecciona puntos para mejorar la búsqueda del óptimo, no necesariamente para minimizar de forma monótona el error predictivo en todo el dominio.
+
+
 \section{Diagnóstico predictivo y probabilístico}
 \label{app:diagnostico_predictivo_probabilistico}
-
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{assets/mae_vs_probabilistic_diagnostics_by_step.png}
-\caption{Relación entre precisión puntual y diagnóstico probabilístico durante el proceso de \emph{infill}. El eje horizontal representa el MAE relativo respecto al inicio y el eje vertical el NLPD relativo. El cuadrante inferior izquierdo corresponde al caso deseable, con mejora simultánea en error puntual y diagnóstico probabilístico. El color indica el error de calibración de la cobertura al 95 \%, definido como \(\left|\mathrm{coverage}_{95}-0.95\right|\).}
+\caption[Diagnóstico predictivo y probabilístico]{Relación entre precisión puntual y diagnóstico probabilístico durante el proceso de \emph{infill}. El eje horizontal representa el MAE relativo respecto al inicio y el eje vertical el NLPD relativo. El cuadrante inferior izquierdo corresponde al caso deseable, con mejora simultánea en error puntual y diagnóstico probabilístico. El color indica el error de calibración de la cobertura al 95 \%, definido como \(\left|\mathrm{coverage}_{95}-0.95\right|\).}
 \label{fig:app_mae_vs_probabilistic_diagnostics}
 \end{figure}
-\FloatBarrier
-\newpage
+
+La Figura~\ref{fig:app_mae_vs_probabilistic_diagnostics} relaciona la mejora en error puntual con la mejora del diagnóstico probabilístico durante el \emph{infill}. El eje horizontal muestra el MAE relativo y el eje vertical el NLPD relativo, ambos respecto al inicio. Por tanto, el cuadrante inferior izquierdo representa el caso deseable: menor error medio y mejor calidad probabilística que en el diseño inicial. El color añade una tercera lectura, el error de calibración de la cobertura al \(95\,\%\), donde tonos más oscuros indican intervalos mejor calibrados.
+
+Los cuatro benchmarks terminan en la zona de mejora simultánea, aunque con matices. Borehole muestra la mejora más clara en MAE y NLPD, con un punto final cercano a \(0.47\) en MAE relativo y \(0.05\) en NLPD relativo; sin embargo, mantiene subcobertura, por lo que la incertidumbre no queda plenamente calibrada. Forrester también mejora de forma marcada en NLPD y de manera moderada en MAE. Branin presenta una mejora más suave y una trayectoria menos directa. Hartmann6 ofrece el comportamiento más equilibrado: reduce el MAE y mantiene una calibración cercana al \(95\,\%\).
+
+La conclusión principal es que la mejora predictiva no debe evaluarse solo con MAE. Un modelo puede reducir el error medio y seguir proporcionando intervalos de incertidumbre mal calibrados. Por ello, esta figura complementa la evolución del MAE y justifica analizar conjuntamente precisión puntual, NLPD y cobertura predictiva.
+
+
 \section{Efecto de las condiciones experimentales}
 \label{app:efecto_condiciones_experimentales}
-
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\textwidth]{assets/factor_effects_paired_for_tfg.png}
-\caption{Efectos emparejados de distintas condiciones experimentales sobre la mejora del \emph{incumbent} y la mejora relativa del MAE. Un delta positivo indica que la primera condición de la comparación obtiene mayor mejora media. Las barras horizontales representan la desviación típica de los deltas emparejados.}
+\caption[Efecto de las condiciones experimentales]{Efectos emparejados de distintas condiciones experimentales sobre la mejora del mínimo encontrado y la mejora relativa del MAE. Un delta positivo indica que la primera condición de la comparación obtiene mayor mejora media. Las barras horizontales representan la desviación típica de los deltas emparejados.}
 \label{fig:app_factor_effects_paired}
 \end{figure}
-\FloatBarrier
+
+La Figura~\ref{fig:app_factor_effects_paired} compara el efecto medio de distintas condiciones experimentales manteniendo emparejadas el resto de configuraciones. Los deltas son, en general, pequeños respecto a su variabilidad, lo que indica que ningún factor aislado domina de forma estable el resultado. En mejora del \emph{incumbent}, la ausencia de ruido muestra un efecto positivo moderado frente a ruido gaussiano, mientras que Sobol frente a aleatorio y ARD frente a kernel base presentan efectos débiles.
+
+En MAE, ARD tiende a mejorar ligeramente el resultado medio, pero con alta dispersión. El muestreo Sobol no muestra una ventaja clara frente al aleatorio y el efecto del ruido sobre el MAE es pequeño. Por tanto, la figura sugiere que el comportamiento final depende más del benchmark y de la interacción entre condiciones que de una única decisión experimental aislada.

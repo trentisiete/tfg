@@ -1,0 +1,3 @@
+slide_21_v2 assets
+lodo_difficulty_heatmap.png: compact heatmap generated from fig_02_error_by_left_out_diet_data.csv.
+kernel_compuesto.png: generated earlier but intentionally not used in slide_21_v2 after the results-only redesign.

@@ -1,5 +1,5 @@
 @book{rasmussen2006gpml,
-  author    = {Carl Edward Rasmussen and Christopher K. I. Williams},
+  author    = {Rasmussen, Carl Edward and Williams, Christopher K. I.},
   title     = {Gaussian Processes for Machine Learning},
   publisher = {MIT Press},
   series    = {Adaptive Computation and Machine Learning},
@@ -9,24 +9,27 @@
 }
 
 @book{forrester2008engineering,
-  author    = {Alexander Forrester and Andras Sobester and Andy Keane},
+  author    = {Forrester, Alexander I. J. and S{\'o}bester, Andr{\'a}s and Keane, Andy J.},
   title     = {Engineering Design via Surrogate Modelling: A Practical Guide},
   publisher = {Wiley},
   year      = {2008},
-  isbn      = {978-0470029459}
+  isbn      = {978-0-470-06068-1},
+  doi       = {10.1002/9780470770801}
 }
 
-@article{jiang2020surrogate,
-  author    = {Ping Jiang and Qi Zhou and Jiexiang Shao},
+@book{jiang2020surrogate,
+  author    = {Jiang, Ping and Zhou, Qi and Shao, Xinyu},
   title     = {Surrogate Model-Based Engineering Design and Optimization},
-  journal   = {Springer Nature},
+  publisher = {Springer Singapore},
+  series    = {Springer Tracts in Mechanical Engineering},
   year      = {2020},
   doi       = {10.1007/978-981-15-0731-1},
-  note      = {ISBN: 978-981-15-0730-4}
+  isbn      = {978-981-15-0730-4},
+  note      = {eBook ISBN: 978-981-15-0731-1}
 }
 
 @article{jones1998efficient,
-  author    = {Donald R. Jones and Matthias Schonlau and William J. Welch},
+  author    = {Jones, Donald R. and Schonlau, Matthias and Welch, William J.},
   title     = {Efficient Global Optimization of Expensive Black-Box Functions},
   journal   = {Journal of Global Optimization},
   volume    = {13},
@@ -37,16 +40,12 @@
   doi       = {10.1023/A:1008306431147}
 }
 
-@book{jiang2020,
-    crossref = {jiang2020surrogate}
-}
-
-@misc{sklearn_gp,
-  author       = {{Scikit-learn Developers}},
-  title        = {Gaussian Processes --- scikit-learn documentation},
-  year         = {2024},
-  url          = {https://scikit-learn.org/stable/modules/gaussian_process.html},
-  note         = {Accessed: 2024-04-05}
+@online{sklearn_gp,
+  author  = {{scikit-learn developers}},
+  title   = {Gaussian Processes --- scikit-learn documentation},
+  year    = {2026},
+  url     = {https://scikit-learn.org/stable/modules/gaussian_process.html},
+  urldate = {2026-06-18}
 }
 
 @book{bishop2006prml,
@@ -110,14 +109,62 @@
   volume    = {80},
   pages     = {2796--2804},
   year      = {2018},
-  publisher = {PMLR}
+  publisher = {PMLR},
+  url       = {https://proceedings.mlr.press/v80/kuleshov18a.html}
 }
 
-@article{scholkopf2001generalized,
-  author  = {Sch{\"o}lkopf, Bernhard and Herbrich, Ralf and Smola, Alexander J.},
-  title   = {A Generalized Representer Theorem},
-  journal = {Computational Learning Theory},
-  pages   = {416--426},
-  year    = {2001},
-  publisher = {Springer}
+@inproceedings{scholkopf2001generalized,
+  author    = {Sch{\"o}lkopf, Bernhard and Herbrich, Ralf and Smola, Alexander J.},
+  title     = {A Generalized Representer Theorem},
+  booktitle = {Computational Learning Theory},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {2111},
+  pages     = {416--426},
+  publisher = {Springer},
+  year      = {2001},
+  doi       = {10.1007/3-540-44581-1_27}
+}
+
+@online{dlmf_bessel,
+  author  = {{NIST Digital Library of Mathematical Functions}},
+  title   = {Chapter 10: Bessel Functions},
+  editor  = {Olver, Frank W. J. and Lozier, Daniel W. and Boisvert, Ronald F. and Clark, Charles W.},
+  year    = {2010},
+  url     = {https://dlmf.nist.gov/10},
+  urldate = {2026-06-18},
+  note    = {Sección sobre funciones de Bessel modificadas}
+}
+
+@online{surjanovic_bingham_testfunctions,
+  author  = {Surjanovic, Sonja and Bingham, Derek},
+  title   = {Virtual Library of Simulation Experiments: Test Functions and Datasets},
+  year    = {2013},
+  url     = {https://www.sfu.ca/~ssurjano/optimization.html},
+  urldate = {2026-06-18}
+}
+
+@incollection{dixon1978global,
+  author    = {Dixon, L. C. W. and Szeg{\"o}, G. P.},
+  title     = {The Global Optimization Problem: An Introduction},
+  booktitle = {Towards Global Optimisation 2},
+  editor    = {Dixon, L. C. W. and Szeg{\"o}, G. P.},
+  pages     = {1--15},
+  publisher = {North-Holland},
+  address   = {Amsterdam},
+  year      = {1978}
+}
+
+@article{morris1993bayesian,
+  author  = {Morris, Max D. and Mitchell, Toby J. and Ylvisaker, Donald},
+  title   = {Bayesian Design and Analysis of Computer Experiments: Use of Derivatives in Surface Prediction},
+  journal = {Technometrics},
+  volume  = {35},
+  number  = {3},
+  pages   = {243--255},
+  year    = {1993},
+  doi     = {10.1080/00401706.1993.10485320}
+}
+
+@book{jiang2020,
+    crossref = {jiang2020surrogate}
 }

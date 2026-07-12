@@ -2,6 +2,18 @@
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-% Creo que es asi
+In many experimental contexts, the main difficulty does not lie only in analysing the results obtained, but also in deciding which experiments should be carried out next when each evaluation involves a high cost.
+In this context, the Healthy Food Ingredients Group at UAM proposed a problem aimed at optimizing the selection of new experimental configurations for feeding \textit{Hermetia illucens} larvae.
 
-\keywordsEN{surrogate models, global optimization, Gaussian processes, uncertainty, optimal input search}
+A suitable tool for these problems is provided by surrogate models, which consist of building a machine learning model that approximates the relationship between the characteristics of a diet and the results that could be expected from it.
+Thus, before carrying out a new trial, the model can help estimate which food combinations appear to be more promising and with what degree of confidence such predictions are made. In particular, the surrogate models considered in this work are based on Gaussian processes, since they allow prediction and uncertainty to be combined within the same framework.
+
+The Bachelor's Thesis is developed in three stages. First, the theoretical framework required to understand surrogate models, Gaussian processes and the way in which uncertainty can be used to propose new evaluations is established.
+Second, synthetic experiments are carried out on known functions, which makes it possible to study the behaviour of these tools in a controlled setting: starting from a small amount of initial data, fitting a model, selecting new points through \textit{Expected Improvement} and checking whether the process improves the best result found.
+These experiments show that the proposed procedure improves the initial design in all the benchmarks analysed, although its performance depends on several factors.
+
+Finally, the methodology is applied to the real case of diets for \textit{Hermetia illucens}. In this scenario, the model is evaluated by leaving complete diets out during training and checking whether it is able to predict their results. This evaluation strategy was chosen because it approximates the intended real use: estimating the behaviour of a diet that has not yet been tested and selecting the model that best generalizes to new proposals. The results indicate that, for the three final objectives analysed, the Gaussian process outperforms the baseline model, although the predictive uncertainty appears to be only partially calibrated.
+
+Overall, this work shows that surrogate models do not replace experimental validation, but they can help reduce the search space, quantify uncertainty and prioritize new candidate configurations when the experimental budget is limited.
+
+\keywordsEN{surrogate models, global optimization, Gaussian processes, uncertainty, search for optimal inputs}

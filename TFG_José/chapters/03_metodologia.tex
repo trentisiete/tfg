@@ -2,7 +2,7 @@
 \chapter{Experimentación y resultados}
 \label{chap:diseno_experimental}
 
-Este capítulo traslada el marco teórico anterior al diseño experimental del trabajo. El objetivo es evaluar el uso de procesos gaussianos como modelos sustitutos probabilísticos para aproximar una relación entre configuraciones de entrada y una respuesta de interés, especialmente en escenarios donde las evaluaciones son limitadas o costosas.
+Este capítulo traslada el marco teórico anterior al diseño experimental del trabajo. El objetivo es evaluar el uso de GPs como modelos sustitutos probabilísticos para aproximar una relación entre configuraciones de entrada y una respuesta de interés, especialmente en escenarios donde las evaluaciones son limitadas o costosas.
 
 La experimentación se organiza en dos escenarios. En primer lugar, se utilizan funciones benchmark sintéticas, donde la función objetivo es conocida y puede evaluarse en nuevos puntos. Este escenario permite estudiar el ciclo completo de optimización basada en modelos sustitutos: diseño inicial, ajuste del GP, selección secuencial de puntos mediante un criterio de \emph{infill} y actualización del conjunto observado. En segundo lugar, se plantea un caso real basado en datos experimentales de dietas para insectos. En este caso, las observaciones proceden de ensayos ya realizados y se encuentran agrupadas por dieta, por lo que el objetivo principal no es ejecutar nuevas evaluaciones físicas, sino validar si el modelo generaliza a dietas no vistas.
 
@@ -15,73 +15,87 @@ En ambos escenarios se parte de un conjunto finito de observaciones
 \[
     \mathcal{D}_n = \{(\bm{x}_i, y_i)\}_{i=1}^{n},
 \]
-donde \(\bm{x}_i \in \mathcal{X}\) representa una configuración de entrada e \(y_i\) la respuesta observada. A partir de estos datos se entrena un modelo sustituto cuyo objetivo es aproximar la relación entre entradas y salidas, proporcionando predicciones en configuraciones no observadas y, en el caso de los procesos gaussianos, una estimación de incertidumbre.
+donde \(\bm{x}_i \in \mathcal{X}\) representa un conjunto de datos de entrada e \(y_i\) la respuesta observada. A partir de estos datos se entrena un modelo sustituto cuyo objetivo es aproximar la relación entre entradas y salidas, proporcionando predicciones para entradas no incluidas en el conjunto de observaciones y, en el caso de los procesos gaussianos, una estimación de incertidumbre.
 
 \subsection{Datos, modelos y preprocesamiento}
 \label{subsubsec:representacion_datos}
 
 Las entradas se organizan en una matriz de diseño \(X \in \mathbb{R}^{n \times d}\), donde \(n\) es el número de observaciones y \(d\) la dimensión del espacio de entrada. Las respuestas se recogen en un vector \(\bm{y} \in \mathbb{R}^{n}\). En los benchmarks, cada observación corresponde a una evaluación controlada de una función sintética. En el caso real, cada observación corresponde a una medición experimental asociada a una dieta, por lo que las particiones de entrenamiento y evaluación deben respetar dicha agrupación para evitar fuga de información entre réplicas de una misma dieta.
 
-El diseño experimental considera dos modelos. El modelo Dummy se utiliza como línea base mínima para comprobar si el GP aporta capacidad predictiva frente a una predicción trivial. El proceso gaussiano constituye el modelo sustituto principal y se implementa mediante la clase \texttt{GPSurrogateRegressor}, construida a partir de un \texttt{Pipeline} que integra el escalado de variables y el ajuste de un \texttt{GaussianProcessRegressor}.
+El diseño experimental compara una línea base constante y varias configuraciones de GP. Antes del ajuste, las variables de entrada se estandarizan mediante \emph{z-score}: cada columna se centra con la media del conjunto de entrenamiento y se divide por su desviación típica. Esta transformación se estima de nuevo dentro de cada partición o iteración experimental y después se aplica al conjunto de evaluación correspondiente, evitando así utilizar información de test durante el ajuste. En el caso real, las transformaciones adicionales necesarias para representar las dietas se describen en la Sección~\ref{subsec:experimento_caso_real}.
 
-El preprocesamiento se realiza siempre dentro del \texttt{Pipeline}, de modo que el escalado se ajusta únicamente con los datos de entrenamiento de cada partición o iteración experimental. Esto evita utilizar información del conjunto de evaluación durante el ajuste. En el caso real, las transformaciones adicionales necesarias para representar las dietas se describen en el apartado específico correspondiente.
-
-\subsection{Predicción probabilística e incertidumbre}
-\label{subsubsec:prediccion_incertidumbre}
-
-Para una nueva configuración \(\bm{x}\), el GP devuelve una media predictiva \(\mu(\bm{x})\) y una desviación típica \(\sigma(\bm{x})\). La media se utiliza como predicción puntual y la desviación típica como medida de incertidumbre. En los benchmarks, esta incertidumbre se usa de forma activa dentro de Expected Improvement (EI) para seleccionar nuevas evaluaciones. En el caso real, se emplea como indicador de fiabilidad de las predicciones, sin ejecutar todavía una fase física de \emph{infill}.
-
-\subsection{Métricas comunes}
-\label{subsubsec:metricas_comunes}
-
-La evaluación reutiliza las métricas predictivas y probabilísticas introducidas en el estado del arte, junto con una métrica específica para analizar el éxito del proceso de optimización en los benchmarks. Las primeras evalúan la calidad del GP como modelo predictivo; la última mide si el proceso de \emph{infill} permite encontrar mejores valores de la función objetivo.
+El diseño compara una línea base constante y varias familias de GP. El Cuadro~\ref{tab:modelos_capitulo} resume qué modelos se usan en cada experimento y qué papel cumplen dentro del análisis. La línea base se interpreta como referencia mínima; los GP constituyen los modelos sustitutos probabilísticos analizados. Esta descripción define el protocolo experimental; las clases y paquetes concretos empleados para ejecutarlo se describen por separado.
 
 \begin{table}[htbp]
     \centering
-    \caption{Familias de métricas utilizadas en la evaluación experimental.}
-    \label{tab:metricas_experimentales}
-    \begin{tabular}{p{3.4cm} p{4.5cm} p{5.7cm}}
+    \small
+    \caption[Familias de modelos por experimento]{Familias de modelos consideradas por experimento.}
+    \label{tab:modelos_capitulo}
+    \renewcommand{\arraystretch}{1.12}
+    \begin{tabular}{p{0.20\textwidth}p{0.22\textwidth}p{0.48\textwidth}}
         \toprule
-        \textbf{Familia} & \textbf{Métricas} & \textbf{Interpretación} \\
+        \textbf{Familia} & \textbf{Uso} & \textbf{Papel en el análisis} \\
         \midrule
-        Predictivas 
-        & MAE, RMSE, \(R^2\) 
-        & Evalúan el error de la predicción puntual. \\
+        Dummy &
+        Benchmarks y caso real &
+        Predicción constante calculada a partir de las respuestas del conjunto de entrenamiento. Sirve como referencia mínima frente a modelos que sí utilizan las variables de entrada. \\
 
-        Probabilísticas 
-        & NLPD, cobertura del 95\%
-        & Evalúan la calidad de la incertidumbre predictiva. \\
+        GP lineal &
+        Benchmarks y caso real &
+        GP con kernel lineal y término de ruido blanco. Representa una hipótesis de relación aproximadamente lineal entre entradas y respuesta. \\
 
-        Optimización 
-        & \textit{clean best found}, reducción relativa del \textit{gap}
-        & Evalúan si el proceso de \emph{infill} mejora el mínimo encontrado. \\
+        GP RBF &
+        Benchmarks y caso real &
+        GP con kernel RBF y término de ruido blanco. Introduce una hipótesis suave y no lineal con una escala de longitud común. \\
+
+        GP Matérn \(3/2\) &
+        Benchmarks y caso real &
+        GP con kernel Matérn \(3/2\) y término de ruido blanco. Permite funciones menos suaves que RBF. \\
+
+        GP Matérn \(5/2\) &
+        Benchmarks y caso real &
+        GP con kernel Matérn \(5/2\) y término de ruido blanco. Supone una respuesta más suave que Matérn \(3/2\), pero menos restrictiva que RBF. \\
+
+        GP compuesto &
+        Caso real &
+        GP con kernel aditivo lineal + Matérn \(5/2\) + ruido blanco. Se usa para combinar una tendencia global con una componente no lineal suave en el conjunto experimental de dietas. \\
+
+        Variante ARD &
+        Según protocolo &
+        Variante con una escala de longitud por variable. En benchmarks se aplica a RBF y Matérn \(5/2\) cuando la dimensión lo permite; en el caso real se prueba solo sobre el mejor kernel previo de cada combinación de objetivo y representación de entrada. \\
         \bottomrule
     \end{tabular}
 \end{table}
 \FloatBarrier
 
-En los benchmarks, la métrica principal de optimización se define como
-\[
-    I_t = \frac{g_0 - g_t}{g_0},
-\]
-donde \(g_0\) es la distancia inicial al óptimo y \(g_t\) la distancia al óptimo tras \(t\) iteraciones de \emph{infill}. Valores cercanos a cero indican poca mejora respecto al diseño inicial, mientras que valores cercanos a uno indican una reducción casi completa de la distancia inicial al óptimo. En Borehole, al no disponer de un valor óptimo definido en la implementación, se emplea la reducción relativa del mejor valor limpio encontrado respecto al diseño inicial.
+\subsection{Predicción probabilística e incertidumbre}
+\label{subsubsec:prediccion_incertidumbre}
 
-En consecuencia, los benchmarks se analizan desde una doble perspectiva: la evolución del mínimo encontrado y la calidad predictiva del GP durante el proceso secuencial. En el caso real, donde no se ejecutan nuevas evaluaciones físicas, el análisis se centra en la generalización a dietas no vistas mediante agregaciones por partición de validación.
+Para una nueva configuración \(\bm{x}\), el GP devuelve una media predictiva \(\mu(\bm{x})\) y una desviación típica \(\sigma(\bm{x})\). La media se utiliza como predicción puntual y la desviación típica como medida de incertidumbre. En los benchmarks, esta incertidumbre se usa de forma activa dentro de EI para seleccionar nuevas evaluaciones. En el caso real, se emplea como indicador de fiabilidad de las predicciones, sin ejecutar todavía una fase física de \emph{infill}.
+
+\subsection{Entorno de implementación}
+\label{subsubsec:entorno_implementacion}
+
+Los experimentos se implementaron en Python, usando \texttt{pandas} y \texttt{numpy} para la manipulación de datos, \texttt{scikit-learn} para el ajuste y validación de modelos, \texttt{scipy} y \texttt{scikit-optimize} para utilidades numéricas y optimización, y \texttt{matplotlib}, \texttt{seaborn} y \texttt{plotly} para la generación de figuras. 
+
+En la implementación, los modelos se encapsularon en las clases \texttt{DummySurrogateRegressor} y \texttt{GPSurrogateRegressor}, esta última construida sobre un \texttt{Pipeline} con \texttt{StandardScaler} y \texttt{GaussianProcessRegressor}.
+
+Las ejecuciones se realizaron en un equipo con Windows 10.0.26200 de 64 bits, procesador Intel(R) Core(TM) Ultra 7 155H, 22 hilos lógicos y 32 GB de RAM.
 
 \section{Experimento 1: benchmarks sintéticos}
 \label{subsec:experimento_benchmarks}
 
-El primer experimento se desarrolla sobre funciones benchmark sintéticas, donde la función objetivo puede evaluarse en nuevos puntos del dominio. Esto permite analizar el ciclo completo de optimización basada en modelos sustitutos: partir de un diseño inicial, ajustar un GP, seleccionar nuevas evaluaciones mediante Expected Improvement (EI) y actualizar secuencialmente el conjunto observado. El objetivo no es solo medir el error final del modelo, sino estudiar cómo evolucionan el mejor valor encontrado, la capacidad predictiva y la incertidumbre a medida que se incorporan nuevas observaciones.
+Como se ha adelantado, el primer experimento utiliza funciones benchmark sintéticas, en las que la función objetivo puede evaluarse en nuevos puntos del dominio. Esto permite estudiar el ciclo completo de optimización basada en modelos sustitutos: diseño inicial, ajuste del GP, selección de nuevas evaluaciones mediante EI y actualización secuencial del conjunto observado. La lectura se centra en la evolución del mejor valor encontrado, la capacidad predictiva y la incertidumbre conforme se incorporan nuevas observaciones.
 
 \subsection{Benchmarks seleccionados}
 \label{subsubsec:benchmarks_seleccionados}
 
-Se consideran cuatro benchmarks con una progresión razonable de dificultad, desde problemas de baja dimensión e interpretación visual hasta funciones de mayor dimensión que deben analizarse principalmente mediante métricas. Los dominios de búsqueda se definen en la implementación y se utilizan de forma común para el muestreo inicial, el conjunto de test y la optimización del criterio de adquisición.
+Se consideran cuatro benchmarks en optimización global y modelado sustituto \cite{surjanovic_bingham_testfunctions,forrester2008engineering,dixon1978global,morris1993bayesian}, con una progresión razonable de dificultad, desde problemas de baja dimensión e interpretación visual hasta funciones de mayor dimensión que deben analizarse principalmente mediante métricas. Los dominios de búsqueda se definen en la implementación y se utilizan de forma común para el muestreo inicial, el conjunto de test y la optimización del criterio de adquisición. Toda esta información se resume en el Cuadro~\ref{tab:benchmarks_seleccionados}.
 
 \begin{table}[htbp]
     \centering
     \small
-    \caption{Benchmarks seleccionados para el experimento sintético.}
+    \caption[Benchmarks del experimento sintético]{Benchmarks seleccionados para el experimento sintético.}
     \label{tab:benchmarks_seleccionados}
     \renewcommand{\arraystretch}{1.15}
     \setlength{\tabcolsep}{5pt}
@@ -124,11 +138,13 @@ Para cada benchmark se genera un diseño inicial dentro del dominio de búsqueda
 \]
 donde \(d\) es la dimensión del benchmark. El caso \(n_{\text{train}}=1\) permite observar el comportamiento del sistema desde una situación extrema con una única observación inicial, mientras que \(1 \times d\) y \(4 \times d\) representan diseños escalados con la dimensión del problema.
 
-A partir del diseño inicial, el proceso de \emph{infill} añade \(5 \times d\) nuevos puntos, sujeto a un máximo de 50 observaciones durante la trayectoria. También se consideran tres condiciones de ruido: evaluación sin ruido y ruido gaussiano con niveles \(0.5\) y \(1.0\).
+A partir del diseño inicial, el proceso de \emph{infill} añade \(5 \times d\) nuevos puntos, sujeto a un máximo de 50 observaciones durante la trayectoria. También se consideran tres condiciones de ruido: evaluación sin ruido y ruido gaussiano con niveles \(0.5\) y \(1.0\). La configuración general se resume en el Cuadro~\ref{tab:configuracion_benchmarks}, que fija las condiciones comunes empleadas después para agregar y comparar los resultados.
+
+El dominio detallado de Borehole, el flujo completo del proceso de \emph{infill} y la configuración específica de semillas se incluyen como material complementario en el Anexo~\ref{app:benchmarks_complementario}. En particular, el dominio de Borehole se recoge en el Cuadro~\ref{tab:app_dominio_borehole}, el esquema del proceso secuencial en la Figura~\ref{fig:app_flujo_infill} y las semillas empleadas en el Cuadro~\ref{tab:app_semillas_benchmarks}.
 
 \begin{table}[htbp]
     \centering
-    \caption{Configuración general del experimento de benchmarks.}
+    \caption[Configuración del experimento benchmark]{Configuración general del experimento de benchmarks.}
     \label{tab:configuracion_benchmarks}
     \begin{tabular}{p{4.1cm} p{11.1cm}}
         \toprule
@@ -150,7 +166,7 @@ A partir del diseño inicial, el proceso de \emph{infill} añade \(5 \times d\) 
         & Sin ruido y ruido gaussiano con niveles \(0.5\) y \(1.0\). \\
 
         Modelos GP 
-        & Kernels Matérn \(3/2\), Matérn \(5/2\), RBF y lineal; en dimensión mayor que uno se evalúan versiones isotrópicas y con ARD. \\
+        & Familias lineal, RBF, Matérn \(3/2\) y Matérn \(5/2\), descritas en el Cuadro~\ref{tab:modelos_capitulo}; en dimensión mayor que uno se evalúan además variantes ARD para RBF y Matérn \(5/2\). \\
 
         Conjunto de test 
         & Conjunto independiente generado dentro del dominio de cada benchmark. \\
@@ -162,40 +178,63 @@ A partir del diseño inicial, el proceso de \emph{infill} añade \(5 \times d\) 
 \end{table}
 \FloatBarrier
 
-El dominio detallado de Borehole, el flujo completo del proceso de \emph{infill} y la configuración específica de semillas se incluyen como material complementario en el Anexo~\ref{app:benchmarks_complementario}. En particular, el dominio de Borehole se recoge en la Tabla~\ref{tab:app_dominio_borehole}, el esquema del proceso secuencial en la Figura~\ref{fig:app_flujo_infill} y las semillas empleadas en la Tabla~\ref{tab:app_semillas_benchmarks}.
-
-
 En cada iteración, el GP se ajusta con el conjunto de observaciones disponible \(\mathcal{D}_n\). A continuación, se calcula EI sobre el dominio de búsqueda y se selecciona el siguiente punto como
 \[
     \bm{x}_{\mathrm{next}}
     =
-    \operatorname*{arg\,max}_{\bm{x}\in\mathcal{X}} EI(\bm{x}).
+    \operatorname*{arg\,max}_{\bm{x}\in\mathcal{X}} (EI(\bm{x})).
 \]
 Aunque la función objetivo se plantea como un problema de minimización, EI se maximiza porque representa la mejora esperada respecto al mejor valor observado hasta el momento. En la implementación, la maximización de EI se aproxima mediante Differential Evolution; los detalles del procedimiento de optimización de la función de adquisición se recogen en el Anexo~\ref{app:flujo_infill}.
 
+La configuración computacional completa de este experimento, incluyendo el tamaño del conjunto de test, el parámetro
+  de exploración de EI, el presupuesto del optimizador y las semillas empleadas, se documenta en el
+  Anexo~\ref{app:configuracion_computacional_benchmarks}.
+  
+\subsection{Métricas del experimento benchmark}
+\label{subsubsec:metricas_benchmarks}
 
-\paragraph{Criterios de lectura del experimento.}
-\label{subsec:criterios_analisis_benchmarks}
-Antes de presentar los resultados, conviene fijar la lectura del experimento. El análisis se centra en tres bloques: la evolución del mejor valor encontrado durante el proceso de \emph{infill}, la evolución de la capacidad predictiva del GP, incluyendo el diagnóstico de incertidumbre, y el efecto de factores como el tamaño inicial, el ruido, la dimensionalidad, el kernel y el uso de ARD.
+Las métricas predictivas y probabilísticas empleadas para evaluar el GP, como MAE, RMSE, \(R^2\), NLPD y cobertura del intervalo predictivo, siguen las definiciones introducidas en la Sección~\ref{metricas_marco_teorico}. En este experimento se utilizan para analizar si el proceso de \emph{infill} mejora la capacidad predictiva del modelo, pero la lectura principal no es solo predictiva: también interesa comprobar si EI permite encontrar valores menores de la función objetivo.
+
+Desde el punto de vista de la optimización, la magnitud principal es la mejora relativa del mínimo encontrado durante el proceso de \emph{infill}. El mejor valor disponible hasta una iteración \(t\) se denomina \emph{incumbent}. Cuando el óptimo global \(f^\star\) es conocido, esta mejora se expresa como reducción relativa del \emph{gap} al óptimo. Para ello, se define
+\(
+    g_t = f_{\mathrm{best},t}^{\mathrm{clean}} - f^\star,
+\)
+donde \(f_{\mathrm{best},t}^{\mathrm{clean}}\) es el mejor valor limpio encontrado hasta la iteración \(t\). A partir de esta distancia se calcula
+\[
+    I_t = \frac{g_0 - g_t}{g_0},
+\]
+donde \(g_0\) corresponde al \emph{gap} inicial del diseño de partida. Valores próximos a cero indican poca mejora respecto al diseño inicial, mientras que valores próximos a uno indican una reducción casi completa de la distancia inicial al óptimo.
+
+En Borehole, al no disponer de un óptimo global definido en la implementación, no se calcula un \emph{gap} al óptimo. En este caso, la misma lectura se aproxima mediante la reducción relativa del mejor valor limpio encontrado respecto al diseño inicial. Por tanto, en el texto se usa ``mejora relativa del mínimo encontrado'' como denominación general, y ``reducción del \emph{gap}'' únicamente cuando existe un óptimo de referencia.
+
+Además de la mejora final, se considera la mejora acumulada durante la trayectoria. Esta magnitud resume la evolución de la mejora relativa a lo largo del proceso de \emph{infill} y permite distinguir entre configuraciones que encuentran buenas soluciones pronto y configuraciones que solo mejoran al final del presupuesto disponible. Por ello, la mejora final mide el resultado alcanzado al terminar el proceso, mientras que la mejora acumulada aporta una lectura temporal de la búsqueda.
+
+La capacidad predictiva se analiza mediante el MAE relativo respecto al estado inicial y mediante la comparación frente al modelo Dummy. El MAE relativo permite comprobar si las observaciones añadidas reducen el error del GP sobre un conjunto de test independiente. 
+
+Las métricas probabilísticas, en particular NLPD y cobertura del 95\,\%, se interpretan como diagnóstico complementario de incertidumbre. Valores bajos de NLPD y coberturas próximas al nivel nominal indican distribuciones predictivas más coherentes, aunque no garantizan por sí solas una mejor búsqueda del óptimo.
+
 
 \subsection{Resultados del experimento benchmark}
 \label{subsec:resultados_benchmarks}
 
-Los resultados se organizan en tres niveles. Primero se analiza si el proceso de \emph{infill} basado en EI mejora el mejor valor encontrado de la función objetivo. Después se estudia si las nuevas observaciones también mejoran la capacidad predictiva del GP. Finalmente, se resumen los factores experimentales que más condicionan el rendimiento observado.
+Los resultados se organizan en tres niveles. Primero se analiza si el proceso de \emph{infill} basado en EI mejora el mejor valor encontrado de la función objetivo. Después se estudia si las nuevas observaciones también mejoran la capacidad predictiva del GP. Finalmente, se resumen los factores experimentales, como el tamaño inicial, el ruido, la
+dimensionalidad, el kernel y el uso de ARD, que más condicionan el rendimiento observado.
 
 \subsubsection{Evolución del mínimo encontrado durante el proceso de infill}
 \label{subsubsec:resultados_incumbent_benchmarks}
 
-La métrica principal desde el punto de vista de la optimización es la mejora relativa del \emph{incumbent}, definida en la Sección~\ref{subsubsec:metricas_comunes}. En este análisis, \emph{step}=0 representa el mejor punto disponible en el diseño inicial, antes de añadir nuevas evaluaciones. A partir de ahí, cada iteración incorpora el punto seleccionado por EI y actualiza el mejor valor encontrado.
+La métrica principal desde el punto de vista de la optimización es la mejora relativa del mínimo encontrado, definida en la Sección~\ref{subsubsec:metricas_benchmarks}. En este análisis, \emph{step}=0 representa el mejor punto disponible en el diseño inicial, antes de añadir nuevas evaluaciones. A partir de ahí, cada iteración incorpora el punto seleccionado por EI y actualiza el mejor valor encontrado.
 
-La Tabla~\ref{tab:resumen_incumbent_benchmarks} resume el mejor modelo de cada benchmark según la mejora final del \emph{incumbent}. También se incluye la mejora acumulada, que permite distinguir si la mejora aparece pronto durante la trayectoria o si se concentra al final del presupuesto de \emph{infill}.
+El Cuadro~\ref{tab:resumen_incumbent_benchmarks} resume el mejor modelo de cada benchmark según la mejora final del mínimo encontrado. También se incluye la mejora acumulada, que permite distinguir si la mejora aparece pronto durante la trayectoria o si se concentra al final del presupuesto de \emph{infill}.
 
-La mejora acumulada se calcula a partir del área bajo la trayectoria normalizada de mejora del \emph{incumbent}. Por tanto, no solo mide el resultado final, sino también la rapidez con la que aparece la mejora. Un ratio cercano a uno indica que la mayor parte de la mejora se obtiene pronto, mientras que un ratio menor sugiere una mejora más tardía.
+La mejora acumulada se calcula a partir del área bajo la trayectoria normalizada de mejora relativa. Por tanto, no solo mide el resultado final, sino también la rapidez con la que aparece la mejora. Un ratio cercano a uno indica que la mayor parte de la mejora se obtiene pronto, mientras que un ratio menor sugiere una mejora más tardía.
+
+Los resultados muestran que EI consigue mejoras positivas en los cuatro benchmarks, aunque con distinta intensidad. Branin presenta la mejora final más clara, con una reducción media del \emph{gap} cercana a \(0.90\). Forrester también muestra una mejora elevada, mientras que en Borehole esta lectura corresponde a la reducción relativa del mejor valor limpio respecto al diseño inicial, al no disponer de un óptimo de referencia. Hartmann6 resulta el escenario más exigente: la mejora existe, pero es más moderada y requiere un diseño inicial más informativo, coherente con su mayor dimensionalidad.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Resumen del mejor modelo de optimización por benchmark. La mejora final mide el resultado al terminar el proceso de \emph{infill}; la mejora acumulada resume la evolución durante la trayectoria.}
+\caption[Mejor modelo de optimización por benchmark]{Resumen del mejor modelo de optimización por benchmark. La mejora final corresponde a la mejora relativa del mínimo encontrado al terminar el proceso de \emph{infill}; en los benchmarks con óptimo conocido equivale a la reducción relativa del \emph{gap} al óptimo. La mejora acumulada resume la evolución durante la trayectoria.}
 \label{tab:resumen_incumbent_benchmarks}
 \begin{tabularx}{\textwidth}{@{}p{1.8cm}p{3.1cm}ccccX@{}}
 \toprule
@@ -210,12 +249,10 @@ Hartmann6 & \(GP\_RBF\) & \(0.434\) & \(0.304\) & \(0.701\) & \(24\) & Mejora mo
 \end{table}
 \FloatBarrier
 
-Los resultados muestran que EI consigue mejoras positivas en los cuatro benchmarks, aunque con distinta intensidad. Branin presenta la mejora final más clara, con una reducción media del \emph{gap} cercana a \(0.90\). Forrester y Borehole también muestran mejoras elevadas, mientras que Hartmann6 resulta el escenario más exigente: la mejora existe, pero es más moderada y requiere un diseño inicial más informativo, coherente con su mayor dimensionalidad.
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\textwidth]{assets/evolution_incumbent_best_model_by_benchmark.png}
-    \caption{Evolución de la mejora relativa del mínimo encontrado para el mejor modelo de cada benchmark. El valor \emph{step}=0 corresponde al mejor punto del diseño inicial, antes de añadir puntos mediante EI. Las curvas muestran la media y las bandas sombreadas la desviación típica.}
+    \caption[Evolución del incumbent en benchmarks]{Evolución de la mejora relativa del mínimo encontrado para el mejor modelo de cada benchmark. El valor \emph{step}=0 corresponde al mejor punto del diseño inicial, antes de añadir puntos mediante EI. Las curvas muestran la media y las bandas sombreadas la desviación típica.}
     \label{fig:evolution_incumbent_best_model}
 \end{figure}
 \FloatBarrier
@@ -223,21 +260,21 @@ Los resultados muestran que EI consigue mejoras positivas en los cuatro benchmar
 
 En Borehole, la mejora final y la mejora acumulada son muy próximas, lo que indica que el proceso encuentra regiones favorables desde fases tempranas. En Branin, la mejora final es muy alta, aunque parte del progreso aparece a lo largo de la trayectoria. Forrester presenta una mejora final fuerte, pero menos inmediata. En Hartmann6, el progreso es más gradual, lo que confirma que el presupuesto disponible resulta más restrictivo en problemas de mayor dimensión.
 
-La Figura~\ref{fig:evolution_incumbent_best_model} confirma esta lectura temporal. En Borehole y Branin, gran parte de la mejora aparece durante las primeras iteraciones y después las curvas tienden a estabilizarse. En Forrester, la trayectoria depende más del diseño inicial y la mejora aparece de forma menos inmediata. En Hartmann6, el avance es más progresivo, lo que refuerza la importancia de disponer de más información inicial en problemas de mayor dimensión. Como material complementario, la Figura~\ref{fig:app_final_relative_incumbent_improvement} muestra la mejora relativa final del \emph{incumbent} agregada por benchmark.
+La Figura~\ref{fig:evolution_incumbent_best_model} confirma esta lectura temporal. En Borehole y Branin, gran parte de la mejora aparece durante las primeras iteraciones y después las curvas tienden a estabilizarse. En Forrester, la trayectoria depende más del diseño inicial y la mejora aparece de forma menos inmediata. En Hartmann6, el avance es más progresivo, lo que refuerza la importancia de disponer de más información inicial en problemas de mayor dimensión. Como material complementario, la Figura~\ref{fig:app_final_relative_incumbent_improvement} muestra la mejora relativa final del mínimo encontrado agregada por benchmark.
 
-En conjunto, el análisis del \emph{incumbent} confirma que EI cumple su función principal dentro del ciclo de optimización: seleccionar nuevas evaluaciones que mejoran el mejor valor encontrado respecto al diseño inicial. Sin embargo, la magnitud, estabilidad y rapidez de la mejora dependen del benchmark, del kernel y de la cantidad de información inicial disponible.
+En conjunto, el análisis de la mejora relativa del mínimo encontrado confirma que EI cumple su función principal dentro del ciclo de optimización: seleccionar nuevas evaluaciones que mejoran el mejor valor disponible respecto al diseño inicial.
 
 \subsubsection{Evolución de la capacidad predictiva del GP}
 \label{subsubsec:resultados_mae_benchmarks}
 
-Además del éxito en optimización, se analiza si el proceso de \emph{infill} mejora la capacidad predictiva del GP. Para ello se utiliza principalmente el MAE relativo respecto al estado inicial. Esta lectura debe separarse de la mejora del \emph{incumbent}: una configuración puede predecir mejor en promedio sobre el conjunto de test sin ser necesariamente la más útil para encontrar mínimos.
+Además del éxito en optimización, se analiza si el proceso de \emph{infill} mejora la capacidad predictiva del GP. Para ello se utiliza principalmente el MAE relativo respecto al estado inicial. Esta lectura debe separarse de la mejora relativa del mínimo encontrado: una configuración puede predecir mejor en promedio sobre el conjunto de test sin ser necesariamente la más útil para encontrar mínimos.
 
-La Tabla~\ref{tab:resumen_predictivo_benchmarks} resume el mejor modelo predictivo de cada benchmark y su comparación frente a Dummy. Dummy no participa en el proceso de \emph{infill}, pero sirve como referencia para comprobar si el GP aporta valor frente a una predicción trivial.
+El Cuadro~\ref{tab:resumen_predictivo_benchmarks} resume el mejor modelo predictivo de cada benchmark y su comparación frente a Dummy. Dummy no participa en el proceso de \emph{infill}, pero sirve como referencia para comprobar si el GP aporta valor frente a una predicción trivial.
 
 \begin{table}[h]
 \centering
 \small
-\caption{Resumen de la mejora predictiva del GP y comparación frente a Dummy.}
+\caption[Mejora predictiva del GP frente a Dummy]{Resumen de la mejora predictiva del GP y comparación frente a Dummy.}
 \label{tab:resumen_predictivo_benchmarks}
 \begin{tabular}{llccc}
 \toprule
@@ -252,68 +289,75 @@ Hartmann6 & \(GP\_Linear\) & \(0.466\) & \(0.306\) & \(94.4\%\) \\
 \end{table}
 \FloatBarrier
 
-El GP aporta valor predictivo frente a Dummy en todos los benchmarks, aunque con distinta intensidad. La mejora es especialmente clara en Borehole y Hartmann6, mientras que en Branin y Forrester es más moderada e irregular. Sin embargo, los mejores modelos predictivos no coinciden siempre con los mejores modelos de optimización. Por ejemplo, en Hartmann6 el mejor modelo según MAE es \(GP\_Linear\), pero el mejor modelo para mejorar el \emph{incumbent} es \(GP\_RBF\). De forma similar, \(GP\_RBF\) destaca en MAE para Branin y Forrester, mientras que los mejores modelos de optimización son \(GP\_Matern52\_ARD\) y \(GP\_Matern52\), respectivamente.
+El GP aporta valor predictivo frente a Dummy en todos los benchmarks, aunque con distinta intensidad. La mejora es especialmente clara en Borehole y Hartmann6, mientras que en Branin y Forrester es más moderada e irregular. Sin embargo, los mejores modelos predictivos no coinciden siempre con los mejores modelos de optimización. Por ejemplo, en Hartmann6 el mejor modelo según MAE es \(GP\_Linear\), pero el mejor modelo para mejorar el mínimo encontrado es \(GP\_RBF\). De forma similar, \(GP\_RBF\) destaca en MAE para Branin y Forrester, mientras que los mejores modelos de optimización son \(GP\_Matern52\_ARD\) y \(GP\_Matern52\), respectivamente.
 
 Las métricas probabilísticas se interpretan como diagnóstico complementario. En conjunto, el proceso de \emph{infill} tiende a reducir simultáneamente el MAE y el NLPD respecto al estado inicial, aunque la calibración de la incertidumbre no es uniforme entre benchmarks. En Borehole y Branin se observa subcobertura en todos los modelos, lo que sugiere intervalos predictivos demasiado estrechos. En Forrester y Hartmann6 la cobertura se aproxima más al valor nominal en algunas configuraciones. Por tanto, la incertidumbre del GP resulta útil para guiar EI y diagnosticar la fiabilidad de las predicciones, pero no debe confundirse con una garantía directa de éxito en optimización.
 
-Estos resultados confirman que la precisión global, la calibración probabilística y la utilidad para guiar la búsqueda del óptimo son aspectos relacionados, pero no equivalentes. Por ello, en este experimento se analizan por separado la mejora del mínimo encontrado y la evolución de la capacidad predictiva del modelo. Las figuras complementarias del Anexo~\ref{app:benchmarks_complementario} muestran con más detalle la evolución relativa del MAE y el diagnóstico conjunto entre MAE, NLPD y cobertura predictiva; véanse las Figuras~\ref{fig:app_evolution_relative_mae_best_model} y~\ref{fig:app_mae_vs_probabilistic_diagnostics}.
+Estos resultados confirman que la precisión global, la calibración probabilística y la utilidad para guiar la búsqueda del óptimo son aspectos relacionados, pero no equivalentes. Las figuras complementarias del Anexo~\ref{app:benchmarks_complementario} muestran con más detalle esta separación: RBF y Matérn concentran los comportamientos más estables en varios benchmarks, mientras que el kernel lineal resulta menos robusto y solo destaca en casos concretos; véanse las Figuras~\ref{fig:app_evolution_relative_mae_best_model} y~\ref{fig:app_mae_vs_probabilistic_diagnostics}.
 
 \subsubsection{Influencia de las condiciones experimentales}
 \label{subsubsec:influencia_condiciones_benchmarks}
 
 Finalmente, se resume el efecto agregado de las condiciones experimentales evaluadas. Dado el elevado número de combinaciones, el objetivo no es describir cada configuración de forma aislada, sino identificar qué factores parecen condicionar más el rendimiento del proceso GP + EI.
 
-La Tabla~\ref{tab:jerarquia_factores_benchmark} muestra que el factor más determinante es el propio benchmark. La dificultad de la función, asociada a la dimensionalidad y a la estructura del paisaje objetivo, condiciona más el rendimiento que decisiones aisladas como el sampler o el uso de ARD. El tamaño del diseño inicial también es relevante: en problemas sencillos pueden bastar pocas observaciones para orientar la búsqueda, mientras que en problemas más complejos un diseño inicial mayor ayuda a estabilizar el proceso.
-
-Respecto al kernel, no se observa una configuración universalmente superior. Los kernels Matérn y RBF destacan en distintos benchmarks, mientras que el kernel lineal puede comportarse razonablemente como predictor global en algunos casos, pero no necesariamente como guía de optimización. Por su parte, ARD, el sampler y el ruido muestran efectos más irregulares y dependientes del contexto experimental. 
-
-En conjunto, el rendimiento del proceso GP + EI depende principalmente de tres elementos: la dificultad del benchmark, la cantidad de información inicial disponible y la adecuación del kernel a la estructura de la función. Los demás factores influyen, pero no presentan una ventaja sistemática en el análisis agregado. El análisis gráfico de los efectos emparejados de estas condiciones se recoge como material complementario en la Figura~\ref{fig:app_factor_effects_paired}.
-
 \begin{table}[h]
-\centering
-\small
-\caption{Jerarquía de factores experimentales observada en el experimento benchmark.}
-\label{tab:jerarquia_factores_benchmark}
-\begin{tabularx}{\textwidth}{@{}p{0.9cm}p{2.8cm}XX@{}}
-\toprule
-\textbf{Orden} & \textbf{Factor} & \textbf{Evidencia} & \textbf{Interpretación} \\
-\midrule
+  \centering
+  \small
+  \caption[Factores condicionantes en Benchmark]{Lectura cualitativa de los factores que condicionan el rendimiento en benchmarks.}
+  \label{tab:jerarquia_factores_benchmark}
+  \begin{tabularx}{\textwidth}{@{}p{0.8cm}p{2.7cm}XX@{}}
+  \toprule
+  \textbf{Orden} & \textbf{Factor} & \textbf{Resultado observado} & \textbf{Conclusión} \\
+  \midrule
 
-1 
-& Benchmark/dimensionalidad 
-& Mejor \emph{incumbent} entre \(0.434\) y \(0.898\) según benchmark. 
-& Factor dominante; condiciona la dificultad del problema y el margen de mejora. \\
+  1
+  & Benchmark y dimensionalidad
+  & La mejor mejora final del \emph{incumbent} cambia mucho entre funciones: Branin alcanza \(0.898\), mientras que Hartmann6 queda en \(0.434\).
+  & La dificultad del paisaje objetivo domina el resultado. La dimensionalidad y la estructura de la función condicionan más que cualquier decisión aislada del
+  pipeline. \\
 
-2 
-& \(n_{\text{train}}\) inicial 
-& Rango de mejora: Forrester \(0.457\), Branin \(0.365\). 
-& Muy relevante, aunque debe interpretarse junto al valor final y no solo mediante mejora relativa. \\
+  2
+  & \(n_{\text{train}}\) inicial
+  & El efecto del tamaño inicial es visible dentro de un mismo benchmark: el rango de mejora llega a \(0.457\) en Forrester y \(0.365\) en Branin.
+  & La información inicial condiciona la trayectoria de EI. Con pocos puntos hay más margen de mejora relativa, pero también más inestabilidad; por eso debe leerse
+  junto al valor final alcanzado. \\
 
-3 
-& Kernel 
-& Borehole: \(GP\_Linear\); Branin: \texttt{GP\_Matern52\_ARD}; Forrester: \texttt{GP\_Matern52}; Hartmann6: \texttt{GP\_RBF}. 
-& Importa, pero depende del benchmark; no hay un ganador universal. \\
+  3
+  & Kernel
+  & Las diferencias entre kernels no siempre son concluyentes. En Borehole varios modelos quedan prácticamente empatados, mientras que en Branin, Forrester y Hartmann6 destacan sobre todo variantes RBF y Matérn.
+  & El kernel importa, pero no debe leerse como una competición con un único ganador. RBF y Matérn ofrecen el comportamiento más consistente, aunque la elección final depende de la geometría del benchmark y del criterio analizado. \\
 
-4 
-& ARD 
-& \(\Delta=0.002\), \(46\,\%\) favorable, \(n=108\). 
-& No muestra una ventaja universal en \emph{incumbent}; puede ser más útil en MAE. \\
+  4
+  & ARD
+  & En mejora del \emph{incumbent}, ARD frente al kernel base da \(\Delta=0.002\), con \(46\%\) de pares favorables (\(n=108\)). En MAE el efecto es mayor:
+  \(\Delta=0.109\), \(63\%\) favorable.
+  & ARD no mejora de forma sistemática la optimización, aunque puede ayudar a la calidad predictiva. Su utilidad depende del benchmark y no debe presentarse como
+  ventaja general. \\
 
-5 
-& Sampler 
-& \(\Delta=0.035\), \(38\,\%\) favorable, \(n=186\). 
-& Efecto secundario e irregular frente a benchmark, diseño inicial y kernel. \\
+  5
+  & Sampler
+  & Sobol frente a random da \(\Delta=0.035\) en \emph{incumbent}, pero solo \(38\%\) de pares favorables (\(n=186\)). En MAE, el delta es negativo.
+  & El sampler tiene un efecto secundario e irregular. Puede cambiar trayectorias concretas, pero no aparece como factor dominante frente al benchmark, el tamaño
+  inicial o el kernel. \\
 
-6 
-& Ruido 
-& \(\Delta=0.110\) para \(\sigma=0.5\), \(\Delta=0.125\) para \(\sigma=1.0\). 
-& Afecta a la estabilidad del proceso, aunque su efecto agregado depende del contexto. \\
+  6
+  & Ruido
+  & Comparando sin ruido frente a ruido gaussiano, el \emph{incumbent} mejora en media: \(\Delta=0.110\) para \(\sigma=0.5\) y \(\Delta=0.125\) para \(\sigma=1.0\).
+  Sin embargo, los porcentajes favorables son moderados.
+  & El ruido reduce la estabilidad del proceso y puede degradar la búsqueda, pero su efecto no es uniforme. Depende del benchmark y de si se analiza optimización o
+  calidad predictiva. \\
 
-\bottomrule
-\end{tabularx}
-\end{table}
+  \bottomrule
+  \end{tabularx}
+  \end{table}
 \FloatBarrier
 
+
+El Cuadro~\ref{tab:jerarquia_factores_benchmark} no debe interpretarse como un ranking estadístico estricto, sino como una síntesis empírica de los patrones
+observados. La métrica principal para ordenar los factores es la mejora relativa final del mínimo observado, es decir, cuánto mejora el mejor valor encontrado tras
+el proceso de \emph{infill}. Cuando se indican deltas, estos proceden de comparaciones emparejadas: por ejemplo, \(\Delta>0\) en ``Sobol -- random'' significa que
+Sobol obtiene mayor mejora media que random bajo las mismas condiciones restantes.
+La conclusión principal es que el rendimiento del ciclo GP + EI está condicionado ante todo por el propio benchmark. En una lectura práctica, el foco debe ponerse primero en la dificultad geométrica del problema, el tamaño del diseño inicial y la familia de kernel; ARD, el sampler y el ruido se interpretan como factores secundarios, capaces de modificar trayectorias concretas pero no de compensar por sí solos un problema mal condicionado o con poca información inicial. El análisis de los efectos de estas condiciones se recoge como material complementario en la Figura~\ref{fig:app_factor_effects_paired}.
 
 \section{Experimento 2: caso real con dietas para insectos}
 \label{subsec:experimento_caso_real}
@@ -324,51 +368,48 @@ El diseño experimental parte de una dieta control, compuesta únicamente por sa
 
 Desde el punto de vista del modelado, el objetivo no es únicamente ajustar un modelo a una tabla de datos, sino evaluar si un GP puede capturar relaciones útiles entre la composición de la dieta y la respuesta observada en las larvas. Estas relaciones son relevantes porque los ensayos físicos son limitados y cada nueva formulación requiere una validación experimental. Por tanto, el modelo sustituto se plantea como una herramienta previa para estimar respuestas y cuantificar incertidumbre antes de una posible fase prospectiva de selección de nuevas dietas.
 
-Las respuestas de interés combinan parámetros productivos y variables de composición. En el plano productivo, una variable relevante es \texttt{FCR}, que mide la relación entre la cantidad de alimento consumido y la ganancia de peso obtenida. Valores menores de \texttt{FCR} indican una conversión más eficiente del alimento en biomasa. En el plano composicional, se consideran variables como \texttt{PROTEINA (\%)} y \texttt{QUITINA (\%)}. En las primeras pruebas tambien se consideró \texttt{TPC} que recoge la concentración de compuestos fenólicos totales en las larvas tras la cría y se utiliza como indicador adicional asociado al efecto de la dieta pero no se analizarán sus resultados.
+Las respuestas de interés combinan parámetros productivos y variables de composición. En el plano productivo, una variable relevante es \texttt{FCR}, que mide la relación entre la cantidad de alimento consumido y la ganancia de peso obtenida. Valores menores de \texttt{FCR} indican una conversión más eficiente del alimento en biomasa. En el plano composicional, se consideran variables como \texttt{PROTEINA (\%)} y \texttt{QUITINA (\%)}. En las primeras pruebas también se consideró \texttt{TPC} que recoge la concentración de compuestos fenólicos totales en las larvas tras la cría y se utiliza como indicador adicional asociado al efecto de la dieta pero no se analizarán sus resultados por escasez de muestras.
 
 En consecuencia, el caso real persigue dos objetivos metodológicos. En primer lugar, comprobar si el GP es capaz de generalizar a dietas no vistas a partir de variables de composición, inclusión y tipo de subproducto. En segundo lugar, analizar si la incertidumbre predictiva puede servir como señal de fiabilidad del modelo. A diferencia del experimento con \emph{benchmarks} sintéticos, aquí no se ejecuta un ciclo secuencial de \emph{infill}, ya que las observaciones proceden de ensayos experimentales ya realizados.
 
 \subsection{Alcance del caso real y selección de \textit{Hermetia}}
 \label{subsec:alcance_hermetia_caso_real}
 
-El archivo experimental original contiene información para dos especies: \textit{Hermetia illucens} y \textit{Tenebrio molitor}. Además, recoge varios bloques de información: composición nutricional y TPC de las dietas, parámetros productivos de la cría y composición nutricional y TPC de las larvas obtenidas. Sin embargo, los resultados modelados en este experimento se limitan al dataset \texttt{productivity\_hermetia\_lote.csv}.
+El archivo experimental original contiene información para dos especies: \textit{Hermetia illucens} y \textit{Tenebrio molitor}. Además, recoge varios bloques de información: composición nutricional y TPC de las dietas, parámetros productivos de la cría, y composición nutricional y TPC de las larvas obtenidas. En este experimento se trabaja únicamente con el bloque experimental de \textit{Hermetia illucens}.
 
-Esta decisión no implica que los datos de \textit{Tenebrio} sean inválidos. La razón es de alcance experimental y homogeneidad del caso modelado. El bloque de \textit{Hermetia} utilizado en el pipeline contiene 33 observaciones, organizadas en 11 dietas con 3 réplicas por dieta, todas pertenecientes al mismo bloque de estudio. Además, las covariables necesarias para los dos modos de entrada están completas y los objetivos presentan una disponibilidad suficientemente homogénea: \texttt{FCR} cuenta con 31 valores válidos y \texttt{QUITINA (\%)} y \texttt{PROTEINA (\%)} cuentan con 33 valores.
-
-En cambio, aunque \textit{Tenebrio} también se genera como dataset procesado, mezcla varios bloques experimentales y tipos adicionales de dieta, como los asociados a posos de café y orujillo. Estos datos incorporan diferencias de tratamiento, especialmente en la forma de suministrar agua en algunos controles, y presentan una disponibilidad distinta de objetivos. Por ello, \textit{Tenebrio} se reserva como posible segundo caso o subanálisis posterior, pero no se mezcla con \textit{Hermetia} en los resultados actuales.
+Sin embargo, los datos de \textit{Tenebrio molitor} no se han utilizado porque mezclan varios bloques experimentales, incorporan tipos adicionales de dieta y presentan diferencias de tratamiento, como el suministro de agua en algunos controles. Para mantener un caso cerrado y comparable, el análisis se limita a \textit{Hermetia illucens}: 33 observaciones organizadas en 11 dietas con 3 réplicas por dieta. En este bloque, las variables de entrada están completas y los objetivos tienen disponibilidad suficiente: FCR cuenta con 31 valores válidos, mientras que quitina y proteína cuentan con 33.
 
 \subsection{Diseño experimental y dietas consideradas}
 \label{subsec:diseno_dietas_caso_real}
 
-El dataset modelado contiene una dieta control y varias dietas no convencionales. La dieta \texttt{Control} corresponde al salvado de trigo sin inclusión de subproductos y actúa como referencia experimental. Las dietas no convencionales se nombran combinando el subproducto utilizado y su porcentaje de inclusión. Así, por ejemplo, \texttt{Hoja15}, \texttt{Hoja30} y \texttt{Hoja50} indican dietas con 15 \%, 30 \% y 50 \% de hoja de olivo, respectivamente. La misma lógica se aplica a las dietas con orujo de oliva y cascarilla de quinoa.
+El conjunto analizado contiene una dieta control, basada en salvado de trigo, y varias dietas no convencionales en las que parte de ese salvado se sustituye por hoja de olivo, orujo de oliva o cascarilla de quinoa. Para identificar las formulaciones se usan etiquetas breves que combinan el subproducto y el porcentaje de inclusión: por ejemplo, \texttt{Hoja15} indica una dieta con un 15\,\% de hoja de olivo. La misma regla se aplica a las dietas con orujo y quinoa.
 
-Cada dieta se administra a tres lotes de larvas, por lo que el análisis se realiza a nivel de réplica experimental. Esta decisión conserva la variabilidad entre lotes y evita reducir prematuramente el dataset a medias por dieta. La columna \texttt{diet\_name} identifica la dieta asociada a cada réplica y se utiliza posteriormente como variable de agrupación en la validación.
+Cada formulación se ensayó en tres lotes independientes de larvas. Por ello, cada observación representa una réplica de una dieta, no una media por dieta. En la validación, las tres réplicas de una misma formulación se mantienen juntas: cuando una dieta se deja fuera, ninguna de sus réplicas participa en el entrenamiento. El Cuadro~\ref{tab:dataset_caso_real} resume el alcance del caso real.
 
 \begin{table}[htbp]
     \centering
     \small
-    \caption{Resumen del dataset utilizado en el caso real.}
+    \caption[Datos del caso real]{Resumen de los datos utilizados en el caso real.}
     \label{tab:dataset_caso_real}
     \renewcommand{\arraystretch}{1.12}
     \begin{tabular}{ll}
         \toprule
         \textbf{Elemento} & \textbf{Descripción} \\
         \midrule
-        Dataset modelado & \texttt{productivity\_hermetia\_lote.csv} \\
-        Especie & \textit{Hermetia illucens} \\
+        Bloque analizado & Ensayos de \textit{Hermetia illucens} \\
         Observaciones & 33 réplicas experimentales \\
-        Dietas & 11 dietas \\
-        Réplicas por dieta & 3 \\
-        Dieta de referencia & \texttt{Control}, basada en salvado de trigo \\
+        Dietas evaluadas & 11 formulaciones \\
+        Réplicas por dieta & 3 lotes independientes \\
+        Dieta de referencia & Salvado de trigo sin inclusión de subproductos \\
         Subproductos principales & Hoja de olivo, orujo de oliva y cascarilla de quinoa \\
-        Variable de grupo & \texttt{diet\_name} \\
-        Objetivos & \texttt{FCR}, \texttt{QUITINA (\%)}, \texttt{PROTEINA (\%)} \\
+        Agrupación para validación & Réplicas de una misma dieta \\
+        Objetivos modelados & FCR, quitina y proteína larvaria \\
         Nivel de trabajo & Réplica experimental \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-La representación de entrada combina variables de formulación y composición de la dieta. Se consideran dos conjuntos de variables. El modo reducido, \texttt{REDUCED\_FEATURES}, incluye \texttt{inclusion\_pct}, \texttt{Proteína (\%)\_media}, \texttt{Fibra (\%)\_media}, \texttt{Grasa (\%)\_media} y \texttt{TPC\_dieta\_media}. El modo completo, \texttt{FULL\_FEATURES}, añade \texttt{Cenizas (\%)\_media}, \texttt{Carbohidratos (\%)\_media} y tres ratios nutricionales derivados. En ambos casos se incorporan variables binarias asociadas al tipo de subproducto mediante la codificación de \texttt{byproduct\_type}.
+La representación de entrada describe cada dieta mediante variables de formulación y composición. Se comparan dos conjuntos: uno reducido, con porcentaje de inclusión, proteína, fibra, grasa y TPC medios de la dieta; y otro completo, que añade cenizas, carbohidratos y ratios nutricionales derivados. En ambos casos se incluye el tipo de subproducto, de forma que el modelo distingue entre control, hoja de olivo, orujo de oliva y quinoa sin depender solo del nombre de la dieta.
 
 De este modo, el modelo no utiliza únicamente el nombre de la dieta como identificador, sino una descripción estructurada de cada formulación. Esta representación permite estudiar si las variables disponibles contienen información suficiente para anticipar la respuesta de dietas completas no vistas durante el entrenamiento.
 
@@ -405,19 +446,32 @@ El proceso seguido puede resumirse en los siguientes pasos.
     El escalado de variables se realiza dentro del \texttt{Pipeline} de cada modelo. Por tanto, los parámetros de normalización se estiman únicamente con los datos de entrenamiento de cada partición y se aplican después sobre la dieta retenida en test.
 \end{description}
 
-En el CSV final utilizado, las variables de entrada seleccionadas no presentan valores ausentes. Por tanto, la imputación por mediana incluida en la construcción de \(X\) no modifica los datos en esta versión del experimento. En conjunto, este preprocesamiento transforma los datos experimentales originales en una estructura supervisada y agrupada por dieta. Esta organización permite evaluar el modelo en una situación más exigente que una partición aleatoria por filas: predecir la respuesta de dietas completas no observadas durante el entrenamiento.
+En el CSV final utilizado, las variables de entrada seleccionadas no presentan valores ausentes. En conjunto, este preprocesamiento transforma los datos experimentales originales en una estructura supervisada y agrupada por dieta. Esta organización permite evaluar el modelo en una situación más exigente que una partición aleatoria por filas: predecir la respuesta de dietas completas no observadas durante el entrenamiento.
 
 
 \subsection{Protocolo de evaluación Leave-One-Diet-Out}
 \label{subsec:lodo_caso_real}
 
-La evaluación del caso real se realiza mediante un protocolo \emph{Leave-One-Diet-Out} (LODO), motivado por la estructura agrupada del dataset. Las observaciones no son muestras independientes sin relación entre sí, sino réplicas experimentales asociadas a una misma dieta. Por tanto, una partición aleatoria por filas podría situar réplicas de una misma dieta simultáneamente en entrenamiento y test, generando una estimación demasiado optimista de la capacidad predictiva del modelo. A continuación, se presenta el protocolo LODO en la Figura~\ref{fig:nested_lodo}.
+La evaluación del caso real se realiza mediante un protocolo \emph{Leave-One-Diet-Out} (LODO), motivado por la estructura agrupada del dataset. Las observaciones no son muestras independientes sin relación entre sí, sino réplicas experimentales asociadas a una misma dieta. Por tanto, una partición aleatoria por filas podría situar réplicas de una misma dieta simultáneamente en entrenamiento y test, generando una estimación demasiado optimista de la capacidad predictiva del modelo. 
+
+Sea \(\mathcal{G}=\{g_1,\dots,g_K\}\) el conjunto de dietas disponibles. En el fold externo \(k\), el conjunto de test queda formado por todas las observaciones pertenecientes a la dieta \(g_k\):
+\[
+    \mathcal{D}_{\text{test}}^{(k)}
+    =
+    \{(\bm{x}_i,y_i): g_i = g_k\}.
+\]
+El conjunto de entrenamiento contiene el resto de dietas:
+\[
+    \mathcal{D}_{\text{train}}^{(k)}
+    =
+    \{(\bm{x}_i,y_i): g_i \in \mathcal{G}\setminus\{g_k\}\}.
+\]
+De este modo, todas las réplicas de la dieta retenida quedan excluidas del ajuste. En el dataset de \textit{Hermetia}, al disponer de 11 dietas, el protocolo genera 11 folds externos. A continuación, se presenta el protocolo LODO ilustrado en la Figura~\ref{fig:nested_lodo}.
 
 \begin{figure}[h]
     \centering
     \resizebox{0.98\textwidth}{!}{%
     \begin{tikzpicture}[
-        >=Latex,
         font=\small,
         panel/.style={
             draw,
@@ -463,7 +517,7 @@ La evaluación del caso real se realiza mediante un protocolo \emph{Leave-One-Di
             align=center,
             font=\scriptsize
         },
-        arr/.style={->, thick}
+        arr/.style={-{Latex}, thick}
     ]
 
     % =====================================================
@@ -651,7 +705,7 @@ La evaluación del caso real se realiza mediante un protocolo \emph{Leave-One-Di
     };
     
     \node[box, minimum width=2.95cm, minimum height=0.95cm] at (1.40,-6.58) {
-        Cobertura 95\,\%\\[-1mm]
+        Cobertura 95\%\\[-1mm]
         \scriptsize media y desviación
     };
     
@@ -662,25 +716,10 @@ La evaluación del caso real se realiza mediante un protocolo \emph{Leave-One-Di
     \end{scope}
     \end{tikzpicture}%
     }
-     \caption{Esquema del protocolo de validación anidada \emph{Leave-One-Diet-Out}. En cada fold externo se deja fuera una dieta completa para evaluar el rendimiento final. La selección de hiperparámetros se realiza mediante una validación interna sobre las dietas restantes.}
+     \caption[Protocolo LODO anidado]{Esquema del protocolo de validación anidada \emph{Leave-One-Diet-Out}. En cada fold externo se deja fuera una dieta completa para evaluar el rendimiento final. La selección de hiperparámetros se realiza mediante una validación interna sobre las dietas restantes.}
     \label{fig:nested_lodo}
 \end{figure}
 \FloatBarrier
-
-Sea \(\mathcal{G}=\{g_1,\dots,g_K\}\) el conjunto de dietas disponibles. En el fold externo \(k\), el conjunto de test queda formado por todas las observaciones pertenecientes a la dieta \(g_k\):
-\[
-    \mathcal{D}_{\text{test}}^{(k)}
-    =
-    \{(\bm{x}_i,y_i): g_i = g_k\}.
-\]
-El conjunto de entrenamiento contiene el resto de dietas:
-\[
-    \mathcal{D}_{\text{train}}^{(k)}
-    =
-    \{(\bm{x}_i,y_i): g_i \in \mathcal{G}\setminus\{g_k\}\}.
-\]
-De este modo, todas las réplicas de la dieta retenida quedan excluidas del ajuste. En el dataset de \textit{Hermetia}, al disponer de 11 dietas, el protocolo genera 11 folds externos.
-
 La selección de hiperparámetros se realiza de forma anidada. Para cada fold externo, la dieta retenida se reserva exclusivamente para la evaluación final. Sobre las dietas restantes se ejecuta una validación interna, también basada en grupos, y se selecciona la configuración con menor MAE. A continuación, el modelo se reentrena con todas las observaciones del entrenamiento externo y se evalúa sobre la dieta retenida.
 
 Este diseño evalúa una tarea más exigente que interpolar entre réplicas de dietas ya observadas. El modelo debe predecir la respuesta de una dieta completa que no ha participado ni en el ajuste final ni en la selección de hiperparámetros. Por ello, los resultados obtenidos con LODO se interpretan como una estimación de la capacidad de generalización a dietas no vistas dentro del espacio experimental disponible.
@@ -688,106 +727,11 @@ Este diseño evalúa una tarea más exigente que interpolar entre réplicas de d
 \subsection{Modelos, ajuste y métricas}
 \label{subsec:modelos_metricas_caso_real}
 
-En esta etapa se comparan una línea base simple y varias configuraciones de GP. Todos los modelos se evalúan bajo el protocolo LODO anidado descrito en la Sección~\ref{subsec:lodo_caso_real}, de forma independiente para cada objetivo y para cada modo de representación de entrada: \texttt{REDUCED\_FEATURES} y \texttt{FULL\_FEATURES}.
+En esta etapa se reutilizan las familias del Cuadro~\ref{tab:modelos_capitulo} que corresponden al caso real: Dummy, GP lineal, GP RBF, GP Matérn \(3/2\), GP Matérn \(5/2\) y GP compuesto. Todos los modelos se evalúan bajo el protocolo LODO anidado descrito en la Sección~\ref{subsec:lodo_caso_real}, de forma independiente para cada objetivo y para cada representación de entrada. Para evitar una exploración excesiva de variantes, ARD no se aplica a todas las familias desde el inicio, sino solo al mejor kernel previo de cada combinación de objetivo y representación de entrada; en el protocolo final, esta variante se limita a RBF o Matérn, no al kernel compuesto.
 
-\begin{table}[htbp]
-    \centering
-    \small
-    \caption{Modelos considerados en el caso real.}
-    \label{tab:modelos_caso_real}
-    \renewcommand{\arraystretch}{1.12}
-    \begin{tabular}{p{0.28\textwidth}p{0.62\textwidth}}
-        \toprule
-        \textbf{Modelo} & \textbf{Descripción} \\
-        \midrule
-        \texttt{Dummy} &
-        Línea base constante, basada en media o mediana del conjunto de entrenamiento. Sirve como referencia mínima. \\
+La configuración necesaria para reproducir ambos experimentos se resume de forma conjunta en el Anexo~\ref{app:configuracion_reproducibilidad}.
 
-        \texttt{GP\_Linear} &
-        GP con kernel lineal y término de ruido blanco. Representa una hipótesis de relación aproximadamente lineal entre variables de dieta y respuesta. \\
-
-        \texttt{GP\_RBF\_NoARD} &
-        GP con kernel RBF escalar y ruido blanco. Introduce una hipótesis suave y no lineal con una escala común para las variables de entrada. \\
-
-        \texttt{GP\_Matern32\_NoARD} &
-        GP con kernel Matérn \(\nu=1.5\) y ruido blanco. Permite funciones menos suaves que RBF. \\
-
-        \texttt{GP\_Matern52\_NoARD} &
-        GP con kernel Matérn \(\nu=2.5\) y ruido blanco. Supone una respuesta más suave que Matérn \(3/2\), pero menos restrictiva que RBF. \\
-
-        \texttt{GP\_Compuesto\_NoARD} &
-        GP con kernel aditivo lineal + Matérn \(5/2\) + ruido blanco. Combina una componente lineal con una componente no lineal suave. \\
-
-        Variante ARD selectiva &
-        Versión con escalas por variable aplicada solo al mejor kernel previo de cada combinación de objetivo y modo de variables. \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-El ajuste se organiza en tres niveles:
-
-\begin{description}
-    \item[\textbf{Selección interna.}]
-    En cada fold externo, los parámetros se seleccionan mediante un LODO interno aplicado únicamente sobre las dietas de entrenamiento. La métrica de selección es el MAE, por lo que se elige la configuración con menor error absoluto medio en validación interna.
-
-    \item[\textbf{Evaluación externa.}]
-    Una vez seleccionados los parámetros, el modelo se reentrena con todas las dietas del entrenamiento externo y se evalúa sobre la dieta retenida. Las métricas finales proceden de esta evaluación externa, no del entrenamiento. En los modelos GP se obtiene tanto la media predictiva como la desviación típica. Esta segunda magnitud permite calcular métricas asociadas a incertidumbre. 
-\end{description}
-
-La lectura de métricas se apoya en las definiciones introducidas en la Sección~\ref{subsubsec:metricas_comunes}. En este caso, el MAE se utiliza como métrica principal para seleccionar hiperparámetros y comparar modelos. RMSE y \(R^2\) se emplean como diagnósticos secundarios: RMSE ayuda a detectar errores grandes y \(R^2\) aporta una lectura global del ajuste, aunque debe interpretarse con cautela por el reducido número de réplicas por dieta. Para los GP, NLPD y cobertura del intervalo predictivo al 95 \% se utilizan como diagnósticos de incertidumbre, no como criterios de selección.
-
-Las métricas externas se agregan de dos formas. La agregación macro calcula la media simple de los folds externos, de modo que cada dieta retenida pesa lo mismo. Esta es la lectura principal del caso real, porque el objetivo es evaluar generalización por dieta y no dar más peso a dietas con más réplicas válidas. La agregación micro pondera por el número de muestras de cada fold y se utiliza únicamente como comprobación secundaria. En los resultados se prioriza, por tanto, el MAE macro sobre los folds externos.
-
-\subsection{Resultados del caso real}
-\label{subsec:resultados_caso_real}
-
-Los resultados del caso real se analizan con una lectura distinta a la del experimento de benchmarks. En este escenario solo se dispone de un conjunto limitado de ensayos experimentales ya realizados. Por tanto, el interés principal no es medir únicamente el error medio del modelo, sino comprobar si el GP aprende relaciones que puedan transferirse a dietas completas no observadas durante el entrenamiento.
-
-\subsubsection{Generalización estructural frente a memorización}
-\label{subsubsec:generalizacion_lodo_caso_real}
-
-La primera cuestión es si el modelo sustituto es capaz de extraer una señal general a partir de las variables de formulación y composición, o si su rendimiento depende únicamente de reconocer dietas ya presentes en el entrenamiento. Para responder a esta pregunta se utiliza el protocolo LODO descrito en la Sección~\ref{subsec:lodo_caso_real}. En cada fold externo se deja fuera una dieta completa, de modo que ninguna de sus réplicas participa ni en el ajuste del modelo ni en la selección de hiperparámetros. Así, la evaluación reproduce una situación más exigente que una partición aleatoria por filas: el modelo debe predecir la respuesta de una formulación no vista.
-
-La Figura~\ref{fig:lodo_generalization_vs_dummy} resume el rendimiento relativo frente al modelo Dummy. El eje vertical representa el MAE normalizado respecto al Dummy, por lo que valores inferiores a \(1\) indican mejora frente a la predicción trivial. Bajo esta lectura, el GP compuesto mejora al Dummy en los tres objetivos activos: la reducción relativa del error es del \(15.8\,\%\) en FCR, del \(15.4\,\%\) en quitina y del \(36.6\,\%\) en proteína. Este resultado indica que el modelo no se limita a reproducir una media global, sino que aprovecha información contenida en las variables de entrada para anticipar, al menos parcialmente, la respuesta de dietas no vistas.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{assets/fig_01_lodo_generalization_vs_dummy.png}
-    \caption{Rendimiento relativo de los modelos frente al baseline Dummy en validación LODO. Valores inferiores a \(1\) indican menor MAE que Dummy y, por tanto, mejor capacidad predictiva sobre dietas no vistas.}
-    \label{fig:lodo_generalization_vs_dummy}
-\end{figure}
-\FloatBarrier
-
-No obstante, esta mejora agregada no debe interpretarse como una generalización uniforme. La Figura~\ref{fig:error_by_left_out_diet} descompone el error por dieta retenida y muestra que la dificultad del problema depende de la formulación evaluada. En FCR, los errores son relativamente contenidos en varias dietas, aunque aparecen dietas más difíciles, como \texttt{Hoja50} y algunas formulaciones con orujo o quinoa. En quitina, la dificultad se concentra especialmente en dietas como \texttt{Orujo70}, \texttt{Orujo90} y \texttt{Control}, mientras que en proteína destacan errores elevados en dietas como \texttt{Orujo50} y algunas formulaciones con hoja.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.72\textwidth]{assets/fig_02_error_by_left_out_diet.png}
-    \caption{Dificultad de generalización por dieta retenida en el protocolo LODO. El color representa el error normalizado por el rango del objetivo y el texto muestra el MAE medio en las unidades originales de cada variable.}
-    \label{fig:error_by_left_out_diet}
-\end{figure}
-\FloatBarrier
-
-La lectura conjunta de ambas figuras es importante. La mejora frente al Dummy muestra que existe una señal aprendible en las variables nutricionales y de formulación, pero el mapa de errores evidencia que dicha señal no se transfiere igual a todas las dietas. Esto es coherente con la naturaleza del caso real: las respuestas de las larvas no dependen únicamente de una tendencia global asociada al porcentaje de inclusión o a la composición media, sino también de efectos específicos del subproducto, variabilidad experimental y posibles interacciones no completamente representadas en las variables disponibles.
-
-En consecuencia, el resultado no permite afirmar que el GP resuelva por completo el problema de predicción de nuevas dietas. Sí permite, en cambio, defender que el modelo compuesto captura regularidades útiles más allá de la memorización de réplicas. La validación LODO actúa aquí como una prueba de generalización estructural: si el modelo mejora al Dummy aun cuando se retira una dieta completa, entonces parte de la información aprendida procede de relaciones compartidas entre dietas, y no solo de la repetición de observaciones muy similares dentro de una misma formulación.
-
-\subsubsection{Expresividad geométrica del GP compuesto}
-\label{subsubsec:expresividad_gp_compuesto}
-
-Una vez comprobado que el GP aporta capacidad predictiva frente al baseline, la siguiente cuestión es qué tipo de estructura de covarianza resulta más adecuada para este caso real. Como se explicó en la Sección~\ref{subsec:gp_kernel}, el kernel no es únicamente un componente técnico del GP, sino el elemento que define las hipótesis a priori sobre la forma de la función que se desea aproximar. En este caso, la respuesta biológica de las larvas puede contener una tendencia global asociada a la composición nutricional de la dieta, pero también desviaciones locales debidas al tipo de subproducto, al porcentaje de inclusión y a la variabilidad experimental.
-
-La Figura~\ref{fig:kernel_family_mae} compara distintas familias de kernel utilizando el MAE macro en el protocolo LODO. La comparación muestra que el kernel compuesto es el modelo más competitivo en los tres objetivos considerados. Esta diferencia es especialmente clara en proteína, donde el GP compuesto reduce de forma apreciable el error frente al Dummy y frente a los kernels simples. En quitina también se observa una mejora consistente respecto a las alternativas individuales, mientras que en FCR las diferencias entre varios kernels no lineales son más reducidas, aunque el compuesto se mantiene entre las mejores opciones.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{assets/fig_04_kernel_family_mae.png}
-    \caption{Comparación de familias de kernel en el caso real de \textit{Hermetia}. El eje vertical muestra el MAE macro obtenido mediante validación LODO; valores menores indican mejor generalización a dietas no vistas.}
-    \label{fig:kernel_family_mae}
-\end{figure}
-\FloatBarrier
-
-El kernel compuesto utilizado puede escribirse de forma esquemática como
+En el caso real, el GP compuesto se concreta mediante una suma de kernels:
 \[
 k(\bm{x},\bm{x}')
 =
@@ -795,60 +739,125 @@ C_1\,k_{\text{Lineal}}(\bm{x},\bm{x}')
 +
 C_2\,k_{\text{Matérn }5/2}(\bm{x},\bm{x}')
 +
-k_{\text{White}}(\bm{x},\bm{x}').
+k_{\text{White}}(\bm{x},\bm{x}'),
 \]
-Esta suma permite combinar tres comportamientos complementarios. El término lineal recoge una tendencia global de la respuesta respecto a las variables de entrada, como el porcentaje de inclusión o la composición nutricional media. El término Matérn \(5/2\) introduce variaciones locales suaves, sin imponer la suavidad extrema del kernel RBF. Por último, el término de ruido blanco recoge variabilidad residual o experimental que no queda explicada por las covariables disponibles.
+donde \(C_1\) y \(C_2\) son constantes de escala positivas. La componente lineal recoge una tendencia global de la respuesta respecto a las variables de entrada; la componente Matérn \(5/2\) permite desviaciones locales suaves; y el término de ruido blanco representa variabilidad experimental no explicada por las covariables disponibles.
 
-Esta estructura resulta razonable para el caso Entomotive porque las relaciones entre dieta y respuesta larvaria no tienen por qué ser puramente lineales. Por ejemplo, aumentar el porcentaje de un subproducto puede desplazar la respuesta en una dirección general, pero ese efecto puede variar según el tipo de subproducto y según el objetivo medido. Un kernel exclusivamente lineal puede ser demasiado rígido para capturar estas desviaciones, mientras que un kernel puramente local puede perder parte de la tendencia global común entre dietas. El kernel compuesto actúa como un compromiso: mantiene una componente interpretable de tendencia global y añade flexibilidad local para modelar desviaciones suaves alrededor de esa tendencia.
+El ajuste se organiza en tres niveles:
+
+\begin{description}
+    \item[\textbf{Selección interna.}]
+    En cada fold externo, los parámetros se seleccionan mediante un LODO interno aplicado únicamente sobre las dietas de entrenamiento. La métrica de selección es el MAE, por lo que se elige la configuración con menor MAE en validación interna.
+
+    \item[\textbf{Evaluación externa.}]
+    Una vez seleccionados los parámetros, el modelo se reentrena con todas las dietas del entrenamiento externo y se evalúa sobre la dieta retenida. Las métricas finales proceden de esta evaluación externa, no del entrenamiento. En los modelos GP se obtiene tanto la media predictiva como la desviación típica. Esta segunda magnitud permite calcular métricas asociadas a incertidumbre. 
+\end{description}
+
+La lectura de métricas se apoya en las definiciones predictivas y probabilísticas introducidas en la Sección~\ref{metricas_marco_teorico}, pero en este caso es necesario precisar cómo se agregan bajo validación LODO. El MAE se utiliza como métrica principal para seleccionar hiperparámetros y comparar modelos, porque mantiene las unidades originales de cada objetivo y permite interpretar directamente el error medio.
+
+En LODO, cada fold externo corresponde a una dieta retenida. Por ello, el MAE macro se interpreta como el error medio por dieta: se calcula promediando el MAE de los folds externos, de modo que cada dieta tiene el mismo peso. Esta es la lectura principal del caso real, ya que el objetivo es evaluar la generalización a dietas completas no vistas, no favorecer dietas con más réplicas válidas.
+
+Para comparar modelos frente a la línea base, se utiliza el MAE relativo respecto a Dummy:
+\[
+\rho_{\mathrm{Dummy}} = \frac{\mathrm{MAE}_{\mathrm{modelo}}}{\mathrm{MAE}_{\mathrm{Dummy}}}.
+\]
+Valores de \(\rho_{\mathrm{Dummy}}<1\) indican que el modelo reduce el error frente a la predicción trivial. Además, cuando se analiza la dificultad de cada dieta retenida, el error se normaliza por el rango del objetivo correspondiente. Esta normalización permite comparar visualmente errores de variables con escalas distintas, como FCR, quitina y proteína.
+
+En los modelos GP también se evalúa la incertidumbre predictiva. La cobertura del intervalo aproximado del 95\,\% mide la proporción de observaciones que caen dentro de \(\mu \pm 1.96\sigma\). Además, se compara la desviación estándar predictiva \(\sigma(\bm{x})\) con el error absoluto observado \(|y-\mu(\bm{x})|\), con el fin de comprobar si el modelo asigna más incertidumbre a los casos donde efectivamente comete errores mayores. Estas métricas de incertidumbre no se utilizan para seleccionar parámetros, sino como diagnóstico de fiabilidad del GP.
+
+Finalmente, en la parte prospectiva del caso real, EI se interpreta como una puntuación de adquisición y no como una métrica de validación. El \emph{incumbent} observado representa la mejor dieta ya medida experimentalmente para cada objetivo, mientras que el candidato con mayor EI es una formulación no ensayada que el modelo considera informativa por su combinación de media predictiva e incertidumbre. Esta distinción evita presentar una recomendación prospectiva como si fuera un resultado experimental confirmado.
+
+\subsection{Resultados del caso real}
+\label{subsec:resultados_caso_real}
+
+Los resultados del caso real se analizan con una lectura distinta a la del experimento de benchmarks. En este escenario solo se dispone de un conjunto limitado de ensayos experimentales ya realizados. Por tanto, el interés principal no es medir únicamente el error medio del modelo, sino comprobar si el GP aprende relaciones transferibles a dietas completas no observadas durante el entrenamiento.
+
+\subsubsection{Generalización estructural frente a memorización}
+\label{subsubsec:generalizacion_lodo_caso_real}
+
+La primera cuestión es si el modelo sustituto extrae una señal general de las variables de formulación y composición, o si solo reconoce dietas similares a las observadas. Para ello se utiliza el protocolo LODO descrito en la Sección~\ref{subsec:lodo_caso_real}, que obliga al modelo a predecir una formulación completa no vista.
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{assets/fig_01_lodo_generalization_vs_dummy.png}
+    \caption[Rendimiento relativo frente a Dummy]{Rendimiento relativo de los modelos frente al baseline Dummy en validación LODO. Valores inferiores a \(1\) indican menor MAE que Dummy y, por tanto, mejor capacidad predictiva sobre dietas no vistas.}
+    \label{fig:lodo_generalization_vs_dummy}
+\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.72\textwidth]{assets/fig_02_error_by_left_out_diet.png}
+    \caption[Error por dieta retenida en LODO]{Dificultad de generalización por dieta retenida en el protocolo LODO. El color representa el error normalizado por el rango del objetivo y el texto muestra el MAE medio en las unidades originales de cada variable.}
+    \label{fig:error_by_left_out_diet}
+\end{figure}
+\FloatBarrier
+
+La Figura~\ref{fig:lodo_generalization_vs_dummy} resume el rendimiento relativo frente al modelo Dummy. El eje vertical representa el MAE normalizado respecto al Dummy, por lo que valores inferiores a \(1\) indican mejora frente a la predicción trivial. Bajo esta lectura, el GP compuesto mejora al Dummy en los tres objetivos activos: la reducción relativa del error es del \(15.8\%\) en FCR, del \(15.4\%\) en quitina y del \(36.6\%\) en proteína. Este resultado indica que el modelo no se limita a reproducir una media global, sino que aprovecha información contenida en las variables de entrada para anticipar, al menos parcialmente, la respuesta de dietas no vistas.
+
+No obstante, esta mejora agregada no debe interpretarse como una generalización uniforme. La Figura~\ref{fig:error_by_left_out_diet} descompone el error por dieta retenida y muestra que la dificultad del problema depende de la formulación evaluada. En FCR, los errores son relativamente contenidos en varias dietas, aunque aparecen dietas más difíciles, como \texttt{Hoja50} y algunas formulaciones con orujo o quinoa. En quitina, la dificultad se concentra especialmente en dietas como \texttt{Orujo70}, \texttt{Orujo90} y \texttt{Control}, mientras que en proteína destacan errores elevados en dietas como \texttt{Orujo50} y algunas formulaciones con hoja.
+
+La lectura conjunta de ambas figuras es importante. La mejora frente al Dummy muestra que existe una señal aprendible en las variables nutricionales y de formulación, pero el mapa de errores evidencia que dicha señal no se transfiere igual a todas las dietas. Esto es coherente con la naturaleza del caso real: las respuestas de las larvas no dependen únicamente de una tendencia global asociada al porcentaje de inclusión o a la composición media, sino también de efectos específicos del subproducto, variabilidad experimental y posibles interacciones no completamente representadas en las variables disponibles.
+
+En consecuencia, el resultado no permite afirmar que el GP resuelva por completo el problema de predicción de nuevas dietas. Sí permite, en cambio, defender que el modelo compuesto captura regularidades útiles más allá de la memorización de réplicas. La validación LODO actúa aquí como una prueba de generalización estructural: si el modelo mejora al Dummy cuando se retira una dieta completa, entonces parte de la información aprendida procede de relaciones compartidas entre dietas.
+
+\subsubsection{Expresividad geométrica del GP compuesto}
+\label{subsubsec:expresividad_gp_compuesto}
+
+Una vez comprobado que el GP aporta capacidad predictiva frente al baseline, la siguiente cuestión es qué tipo de estructura de covarianza resulta más adecuada para este caso real. Como se explicó en la Sección~\ref{subsec:gp_kernel}, el kernel no es únicamente un componente técnico del GP, sino el elemento que define las hipótesis a priori sobre la forma de la función que se desea aproximar. En este caso, la respuesta biológica de las larvas puede contener una tendencia global asociada a la composición nutricional de la dieta, pero también desviaciones locales debidas al tipo de subproducto, al porcentaje de inclusión y a la variabilidad experimental.
+
+La Figura~\ref{fig:kernel_family_mae} compara distintas familias de kernel utilizando el MAE medio por dieta, es decir, el MAE macro del protocolo LODO. La comparación muestra que el kernel compuesto es el modelo más competitivo en los tres objetivos considerados. Esta diferencia es especialmente clara en proteína, donde el GP compuesto reduce de forma apreciable el error frente al Dummy y frente a los kernels simples. En quitina también se observa una mejora consistente respecto a las alternativas individuales, mientras que en FCR las diferencias entre varios kernels no lineales son más reducidas, aunque el compuesto se mantiene entre las mejores opciones.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{assets/fig_04_kernel_family_mae.png}
+    \caption[Comparación de kernels en Hermetia]{Comparación de familias de kernel en el caso real de \textit{Hermetia}. El eje vertical muestra el MAE medio por dieta, equivalente al MAE macro obtenido mediante validación LODO; valores menores indican mejor generalización a dietas no vistas.}
+    \label{fig:kernel_family_mae}
+\end{figure}
+\FloatBarrier
+
+Esta lectura es coherente con la definición previa del GP compuesto: una estructura de covarianza que combina una tendencia global, flexibilidad local y ruido experimental. Por ello, la comparación de la Figura~\ref{fig:kernel_family_mae} no enfrenta solo nombres de modelos, sino hipótesis distintas sobre la forma de la relación entre dieta y respuesta.
 
 No obstante, este resultado debe interpretarse con prudencia. La superioridad del GP compuesto en la Figura~\ref{fig:kernel_family_mae} no significa que el modelo capture por completo la dinámica biológica del sistema, ni que pueda extrapolar con seguridad fuera del rango experimental observado. Lo que muestra es que, dentro del espacio cubierto por las dietas disponibles y bajo validación LODO, una estructura de covarianza que combina tendencia global, variación local y ruido experimental describe mejor los datos que las familias simples consideradas por separado.
 
-Por tanto, el GP compuesto se adopta como modelo principal no porque elimine la incertidumbre del caso real, sino porque ofrece la mejor combinación observada entre flexibilidad y robustez. Esta lectura enlaza con el objetivo del TFG: construir un sustituto suficientemente informativo para analizar dietas no vistas y orientar futuras evaluaciones, sin presentar sus predicciones como una sustitución definitiva del ensayo experimental.
+Por tanto, el GP compuesto se adopta como modelo principal no porque elimine la incertidumbre del caso real, sino porque ofrece la mejor combinación observada entre flexibilidad y robustez.
 
 \subsubsection{Calibración práctica de la incertidumbre}
 \label{subsubsec:calibracion_incertidumbre_caso_real}
 
 Además de evaluar la precisión de la media predictiva, en este caso real interesa comprobar si la incertidumbre del GP aporta información útil sobre la fiabilidad de sus predicciones. Esta cuestión es especialmente relevante porque el objetivo no es únicamente interpolar dietas ya ensayadas, sino valorar si el modelo puede orientar decisiones sobre formulaciones no observadas. En este contexto, una predicción puntual con error puede seguir siendo útil si el modelo expresa una incertidumbre elevada en las regiones donde es probable que falle. Por el contrario, un modelo que comete errores grandes con intervalos demasiado estrechos resultaría poco fiable como herramienta prospectiva.
 
-La Figura~\ref{fig:uncertainty_vs_error} compara, para cada objetivo, la desviación estándar predictiva del GP con el error absoluto cometido en las dietas retenidas por LODO. Esta representación permite analizar de forma práctica si las zonas donde el modelo declara mayor incertidumbre coinciden con aquellas donde el error real es mayor. La relación es más clara en quitina, donde se obtiene una correlación positiva entre incertidumbre y error. En este caso, el GP tiende a asignar mayor desviación estándar a observaciones que efectivamente resultan más difíciles de predecir, por lo que la incertidumbre actúa como una señal útil de cautela.
+La Figura~\ref{fig:uncertainty_vs_error} compara, para cada objetivo, la desviación estándar predictiva del GP con el MAE cometido en las dietas retenidas por LODO. Esta representación permite analizar de forma práctica si las zonas donde el modelo declara mayor incertidumbre coinciden con aquellas donde el error real es mayor. La relación es más clara en quitina, donde se obtiene una correlación positiva entre incertidumbre y error. En este caso, el GP tiende a asignar mayor desviación estándar a observaciones que efectivamente resultan más difíciles de predecir, por lo que la incertidumbre actúa como una señal útil de cautela.
+
+En FCR y proteína, sin embargo, la calibración es más débil. En FCR la relación entre desviación estándar y error es prácticamente nula, lo que indica que el modelo no ordena bien los casos fáciles y difíciles según su incertidumbre. En proteína la relación también es limitada, e incluso aparecen errores relevantes en zonas donde el modelo no siempre asigna una incertidumbre proporcionalmente alta. 
+Por tanto, la incertidumbre del GP no debe interpretarse como una medida perfectamente calibrada en todos los objetivos. En conjunto, la Figura~\ref{fig:uncertainty_vs_error} muestra que la incertidumbre predictiva aporta información útil, pero no uniforme, sobre la fiabilidad del modelo. Una visualización complementaria de los intervalos predictivos por dieta se recoge en el Anexo~\ref{app:intervalos_prediccion_dieta}.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.95\textwidth]{assets/fig_05_uncertainty_vs_error.png}
-    \caption{Relación entre la desviación estándar predictiva del GP y el error absoluto observado en validación LODO. Cada punto corresponde a una observación evaluada en una dieta retenida; el color indica el tipo de subproducto.}
+    \caption[Incertidumbre predictiva y error absoluto]{Relación entre la desviación estándar predictiva del GP y el error absoluto observado en validación LODO. Cada punto corresponde a una observación evaluada en una dieta retenida; el color indica el tipo de subproducto.}
     \label{fig:uncertainty_vs_error}
 \end{figure}
 \FloatBarrier
 
-En FCR y proteína, sin embargo, la calibración es más débil. En FCR la relación entre desviación estándar y error es prácticamente nula, lo que indica que el modelo no ordena bien los casos fáciles y difíciles según su incertidumbre. En proteína la relación también es limitada, e incluso aparecen errores relevantes en zonas donde el modelo no siempre asigna una incertidumbre proporcionalmente alta. Por tanto, la incertidumbre del GP no debe interpretarse como una medida perfectamente calibrada en todos los objetivos.
 
-La Figura~\ref{fig:prediction_intervals_by_diet} muestra esta misma idea desde una perspectiva más aplicada, representando para cada dieta la media predictiva LODO junto con intervalos aproximados del \(95\,\%\). En varios casos, los intervalos proporcionan una lectura razonable del rango plausible de valores, pero también aparecen fallos relevantes en dietas concretas. Esto confirma que la incertidumbre es informativa como herramienta de diagnóstico, aunque no suficiente para garantizar por sí sola la validez de una predicción individual.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{assets/fig_06_prediction_intervals_by_diet.png}
-    \caption{Predicción prospectiva por dieta bajo validación LODO. Los puntos negros representan la media predictiva del GP y las barras muestran intervalos aproximados del \(95\,\%\) construidos como \(\mu \pm 1.96\sigma\). Los puntos coloreados corresponden a los valores observados por tipo de subproducto.}
-    \label{fig:prediction_intervals_by_diet}
-\end{figure}
-\FloatBarrier
-
-La lectura conjunta de ambas figuras es que el GP aporta un valor diferencial respecto a modelos puramente puntuales, porque no solo devuelve una predicción media, sino también una estimación de incertidumbre. No obstante, esa incertidumbre está solo parcialmente calibrada. En quitina, la desviación estándar predictiva se relaciona mejor con el error real y permite identificar zonas de mayor riesgo. En FCR y proteína, la señal de incertidumbre es más débil.
 
 En consecuencia, la incertidumbre del GP se interpreta en este trabajo como una señal de apoyo para la toma de decisiones, no como una garantía absoluta de fiabilidad. Su papel es especialmente útil para priorizar ensayos futuros y detectar regiones donde el modelo reconoce mayor desconocimiento. Sin embargo, cualquier candidato propuesto a partir del sustituto debe entenderse como una hipótesis experimental pendiente de validación, no como una conclusión cerrada sobre el rendimiento real de una nueva dieta.
 
-\subsubsection{Viabilidad prospectiva y propuesta de pre-\emph{infill}}
+\subsubsection{Cribado prospectivo mediante EI}
 \label{subsubsec:preinfill_caso_real}
 
-El último paso del análisis consiste en estudiar si el modelo sustituto es suficientemente informativo como para orientar una posible fase futura de experimentación. A diferencia del experimento de benchmarks, en el caso real no se ejecuta todavía un ciclo físico de \emph{infill}: no se ensayan nuevas dietas ni se actualiza el dataset con observaciones adicionales. Lo que se plantea es una fase previa, o pre-\emph{infill}, en la que el GP entrenado se utiliza para recorrer un espacio factible de formulaciones y priorizar candidatos que podrían ser evaluados posteriormente.
+Como cierre del caso real, se analiza si el GP entrenado puede utilizarse como herramienta de cribado para una posible fase futura de experimentación. A diferencia del experimento de benchmarks, aquí no se ejecuta un ciclo físico de \emph{infill}: no se ensayan nuevas dietas ni se actualiza el conjunto de datos. El objetivo es únicamente comprobar si el modelo permite priorizar formulaciones candidatas dentro de un espacio factible.
 
-Para ello se emplea el criterio de Expected Improvement introducido en la Sección~\ref{sec:muestreo_inicial} y formulado en la Ecuación~\eqref{eq:ei}, adaptando la orientación de cada objetivo. En FCR se busca minimizar el valor observado, mientras que en quitina y proteína se busca maximizarlo. El espacio de búsqueda prospectivo se define a partir de los subproductos considerados en el caso real, esto es, hoja, orujo y quinoa, y de porcentajes de inclusión dentro del rango observado. Sobre este dominio se construye una rejilla densa con incrementos del \(1\,\%\), excluyendo las formulaciones ya ensayadas para que el candidato propuesto corresponda a un punto nuevo.
+Para ello se emplea EI, introducido en la Sección~\ref{sec:optimizacion_bayesiana_adquisicion} y formulado en la Ecuación~\eqref{eq:ei}, adaptando la orientación de cada objetivo: FCR se minimiza, mientras que quitina y proteína se maximizan. El espacio prospectivo se construye a partir de los subproductos considerados en el caso real, hoja, orujo y quinoa, y de porcentajes de inclusión dentro del rango observado. Sobre este dominio se genera una rejilla con incrementos del \(1\%\), excluyendo las formulaciones ya ensayadas.
 
-La Tabla~\ref{tab:incumbents_candidatos_ei} resume la diferencia entre el mejor punto ya observado y el candidato priorizado por EI. El \emph{incumbent} observado corresponde a la mejor dieta medida experimentalmente para cada objetivo individual. En cambio, el candidato EI no es una dieta validada, sino una formulación no ensayada que el modelo considera informativa bajo el equilibrio entre explotación e incertidumbre.
+El Cuadro~\ref{tab:incumbents_candidatos_ei} compara, para cada objetivo, el mejor punto observado experimentalmente con el candidato no ensayado priorizado por EI.
 
 \begin{table}[htbp]
     \centering
     \small
-    \caption{Incumbents observados y candidatos prospectivos priorizados por EI.}
+    \caption[Incumbents y candidatos por EI]{Incumbents observados y candidatos prospectivos priorizados por EI.}
     \label{tab:incumbents_candidatos_ei}
     \renewcommand{\arraystretch}{1.15}
     \setlength{\tabcolsep}{4pt}
@@ -870,34 +879,27 @@ La Tabla~\ref{tab:incumbents_candidatos_ei} resume la diferencia entre el mejor 
         & La media predicha no mejora al incumbent, por lo que el candidato debe interpretarse como exploratorio. \\
 
         Quitina
-        & \texttt{Orujo70}: \(15.318\,\%\)
+        & \texttt{Orujo70}: \(15.318\%\)
         & \texttt{Orujo89}
-        & \(12.658 \pm 1.061\,\%\)
+        & \(12.658 \pm 1.061\%\)
         & \(0.002\)
-        & La propuesta se sitúa en una región de orujo con alta inclusión, pero no supera en media al mejor valor observado. \\
+        & EI prioriza una región de orujo con alta inclusión, aunque sin superar en media al mejor valor observado. \\
 
         Proteína
-        & \texttt{Orujo50}: \(32.147\,\%\)
+        & \texttt{Orujo50}: \(32.147\%\)
         & \texttt{Orujo31}
-        & \(30.938 \pm 0.912\,\%\)
+        & \(30.938 \pm 0.912\%\)
         & \(0.038\)
-        & EI prioriza un punto nuevo de orujo, aunque la media predicha sigue por debajo del incumbent observado. \\
+        & El candidato se sitúa en una zona no ensayada de orujo, pero la media predicha sigue por debajo del incumbent. \\
 
         \bottomrule
     \end{tabularx}
 \end{table}
 \FloatBarrier
 
-La Tabla~\ref{tab:incumbents_candidatos_ei} permite distinguir de forma explícita entre el mejor resultado ya medido y el punto nuevo sugerido por EI. En los tres objetivos, el candidato EI aparece separado del incumbent observado. Esta separación es importante porque evita confundir dos conceptos distintos: el incumbent es una evidencia experimental ya medida, mientras que el candidato EI es una hipótesis propuesta por el modelo para una posible evaluación futura. Además, las medias predichas de los candidatos no superan claramente a los incumbents observados; por tanto, su selección está asociada principalmente al valor exploratorio de EI y a la incertidumbre del GP, no a una mejora media ya demostrada.
+Los resultados muestran que los candidatos EI no sustituyen a los mejores valores observados: para FCR el incumbent sigue siendo \texttt{Quinoa30}, para quitina \texttt{Orujo70} y para proteína \texttt{Orujo50}. Además, las medias predichas de los candidatos no superan claramente a dichos incumbents. Por tanto, la utilidad de EI en este caso no reside en demostrar nuevas dietas óptimas, sino en transformar la predicción media y la incertidumbre del GP en propuestas concretas para una siguiente iteración experimental.
 
-Esta distinción es especialmente relevante en un caso real con pocos datos. Por ejemplo, para FCR el incumbent observado sigue siendo \texttt{Quinoa30}; para quitina, \texttt{Orujo70}; y para proteína, \texttt{Orujo50}. Los candidatos EI no sustituyen a estos resultados experimentales. Su papel es diferente: señalan dónde podría merecer la pena invertir un nuevo ensayo si se quisiera continuar el estudio. En otras palabras, el GP no cierra la decisión experimental, sino que reduce el espacio de búsqueda y ayuda a seleccionar formulaciones con mayor valor informativo.
+En conjunto, este análisis debe interpretarse como una fase de pre-\emph{infill}. El modelo sustituto reduce el espacio de búsqueda y señala formulaciones con cierto valor informativo, pero la decisión final requeriría validación experimental. Una visualización complementaria del paisaje de EI sobre la rejilla factible se recoge en el Anexo~\ref{app:ei_landscape_caso_real}.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.95\textwidth]{assets/fig_08_ei_candidate_landscape.png}
-    \caption{Paisaje prospectivo de EI sobre la rejilla factible de formulaciones. Los máximos de EI identifican puntos candidatos para una posible evaluación futura, combinando predicción media e incertidumbre del GP.}
-    \label{fig:ei_candidate_landscape}
-\end{figure}
-\FloatBarrier
-
-En conjunto, el pre-\emph{infill} muestra que el modelo sustituto es utilizable como herramienta de cribado prospectivo. La validación LODO indica que el GP compuesto aprende una señal predictiva útil; el análisis de incertidumbre muestra que esa señal debe manejarse con cautela; y EI permite transformar ambas piezas de información en propuestas concretas de ensayo. Por tanto, la conclusión no es que \texttt{Quinoa16}, \texttt{Orujo89} u \texttt{Orujo31} sean nuevas dietas óptimas demostradas, sino que constituyen candidatos razonables para una siguiente iteración experimental.
+\subsection{Síntesis de resultados}
+En conjunto, los resultados del capítulo muestran una lectura coherente entre los dos escenarios experimentales. En los benchmarks sintéticos, el ciclo GP + EI permite mejorar el mejor valor encontrado respecto al diseño inicial, especialmente cuando la incertidumbre del modelo ayuda a dirigir nuevas evaluaciones. En el caso real, la validación LODO indica que el GP compuesto aporta capacidad predictiva frente al modelo Dummy en varios objetivos, aunque su incertidumbre no aparece perfectamente calibrada en todos ellos. Por tanto, el modelo sustituto no debe interpretarse como una herramienta capaz de reemplazar la validación experimental, sino como un mecanismo para reducir el espacio de búsqueda, cuantificar parcialmente la incertidumbre y proponer candidatos razonables para una siguiente iteración de ensayos.

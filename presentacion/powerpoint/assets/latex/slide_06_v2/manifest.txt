@@ -1,0 +1,14 @@
+Slide 06 v2 formula assets
+
+Renderer: matplotlib mathtext with STIX fontset
+Text color: #1F2933
+
+- model_weights.png / model_weights.svg: $f(x)=\phi(x)^\top w$
+- prior_weights.png / prior_weights.svg: $w\sim\mathcal{N}(0,\Sigma_p)$
+- finite_values.png / finite_values.svg: $\mathbf{f}_X=[f(x_1),\ldots,f(x_n)]^\top=\Phi_Xw$
+- finite_gaussian.png / finite_gaussian.svg: $\mathbf{f}_X\sim\mathcal{N}(0,\Phi_X\Sigma_p\Phi_X^\top)$
+- random_weights_to_values.png / random_weights_to_values.svg: $\mathrm{pesos\ aleatorios}\Longrightarrow\mathrm{valores\ de\ funcion\ aleatorios}$
+- kernel_cov.png / kernel_cov.svg: $K_{ij}=\mathrm{Cov}(f(x_i),f(x_j))=\phi(x_i)^\top\Sigma_p\phi(x_j)$
+- kernel_k.png / kernel_k.svg: $K_{ij}=k(x_i,x_j)$
+- kernel_gaussian.png / kernel_gaussian.svg: $\mathbf{f}_X\sim\mathcal{N}(0,K)$
+- joint_values.png / joint_values.svg: $(f(x_1),\ldots,f(x_n))$

@@ -1,0 +1,3 @@
+slide_A6_v2 assets
+mae_vs_probabilistic_diagnostics_by_step.png: exact Figure A.4/A.6 asset copied from TFG_José/assets.
+coverage_error_95.png: LaTeX asset for |coverage_95 - 0.95|.

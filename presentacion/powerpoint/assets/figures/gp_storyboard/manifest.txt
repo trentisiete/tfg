@@ -1,0 +1,59 @@
+Assets del storyboard GP (figura por capas + formulas)
+
+Todas las capas layer_*.png comparten lienzo 1920x1305 px, mismos ejes y escala:
+se apilan sin desplazamiento y cada una puede animarse por separado.
+Funcion real en rojo apagado #B45353 discontinuo (paleta del proyecto), inconfundible
+frente a las muestras del GP (azul acero), la media (teal) y la banda (naranja).
+x_obs = [0.08, 0.26, 0.5, 0.73, 0.94], y_obs = [0.548, 0.137, -0.706, 0.537, -0.367]
+x_next (argmax EI, incumbent -0.706) = 0.449
+Paneles kernel: RBF / Matern 3/2 / Matern 5/2 con mismos hiperparametros
+(ell=0.15, sigma_f=0.6, sigma_n=0.015); lineal ajustado por ML.
+
+- layer_00_axes.png / .svg (1920x1305 px)
+- layer_01a_prior_una_funcion.png / .svg (1920x1305 px)
+- layer_01b_prior_resto_muestras.png / .svg (1920x1305 px)
+- layer_02_prior_samples_faint.png / .svg (1920x1305 px)
+- layer_03_prior_mean.png / .svg (1920x1305 px)
+- layer_04_prior_band.png / .svg (1920x1305 px)
+- layer_05_prior_band_faint.png / .svg (1920x1305 px)
+- layer_06a_lineas_x_xprime.png / .svg (1920x1305 px)
+- layer_06b_valores_x_xprime.png / .svg (1920x1305 px)
+- layer_07a_ubicaciones_finitas.png / .svg (1920x1305 px)
+- layer_07b_punto_xstar.png / .svg (1920x1305 px)
+- layer_08_real_function.png / .svg (1920x1305 px)
+- layer_09_observed_points.png / .svg (1920x1305 px)
+- layer_10_posterior_mean.png / .svg (1920x1305 px)
+- layer_11_posterior_band.png / .svg (1920x1305 px)
+- layer_12_posterior_samples.png / .svg (1920x1305 px)
+- layer_13a_annot_mu.png / .svg (1920x1305 px)
+- layer_13b_annot_sigma.png / .svg (1920x1305 px)
+- layer_14_xnext.png / .svg (1920x1305 px)
+- layer_20_puntos_sbo.png / .svg (1920x1305 px)
+- layer_21_media_sbo.png / .svg (1920x1305 px)
+- layer_22_banda_sbo.png / .svg (1920x1305 px)
+- layer_23_explotacion_sbo.png / .svg (1920x1305 px)
+- layer_24_exploracion_sbo.png / .svg (1920x1305 px)
+- layer_25_fmin_sbo.png / .svg (1920x1305 px)
+- layer_26_xnext_sbo.png / .svg (1920x1305 px)
+- panel_ei_sbo.png / .svg (1920x345 px)
+- panel_linear.png / .svg (960x615 px)
+- panel_matern32.png / .svg (960x615 px)
+- panel_matern52.png / .svg (960x615 px)
+- panel_rbf.png / .svg (960x615 px)
+
+- latex/eq_cov_kernel.png / .svg (3162x251 px)
+- latex/eq_data.png / .svg (1152x221 px)
+- latex/eq_ei.png / .svg (2765x205 px)
+- latex/eq_exploracion.png / .svg (1540x269 px)
+- latex/eq_explotacion.png / .svg (1515x268 px)
+- latex/eq_gp.png / .svg (1855x222 px)
+- latex/eq_improvement.png / .svg (1979x212 px)
+- latex/eq_incumbent.png / .svg (1243x316 px)
+- latex/eq_joint.png / .svg (2931x784 px)
+- latex/eq_kernel_cov.png / .svg (2028x251 px)
+- latex/eq_mu.png / .svg (2110x251 px)
+- latex/eq_mu_small.png / .svg (369x221 px)
+- latex/eq_posterior.png / .svg (2505x239 px)
+- latex/eq_sigma.png / .svg (2697x251 px)
+- latex/eq_sigma_small.png / .svg (350x216 px)
+- latex/eq_weights.png / .svg (2658x262 px)

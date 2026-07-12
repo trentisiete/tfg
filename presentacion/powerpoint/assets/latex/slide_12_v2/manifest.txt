@@ -1,0 +1,17 @@
+Slide 12 v2 formula and visual assets
+
+Renderer: matplotlib mathtext with STIX fontset
+Figure: synthetic 1D minimization example with exact GP posterior and minimization EI
+Text color: #1F2933
+
+- f_min.png / f_min.svg: $f_{\min}=\min_{i=1,\ldots,n} y_i$
+- posterior_y.png / posterior_y.svg: $Y(x)\mid \mathcal{D}_n\sim\mathcal{N}\!\left(\mu(x),\,\sigma^2(x)\right)$
+- improvement.png / improvement.svg: $I(x)=\max\!\left(0,\,f_{\min}-Y(x)\right)$
+- ei_expectation.png / ei_expectation.svg: $EI(x)=\mathbb{E}\!\left[I(x)\mid\mathcal{D}_n\right]$
+- ei_closed.png / ei_closed.svg: $EI(x)=\left(f_{\min}-\mu(x)\right)\Phi(Z)+\sigma(x)\phi(Z)$
+- z_def.png / z_def.svg: $Z=\dfrac{f_{\min}-\mu(x)}{\sigma(x)}$
+- exploit_term.png / exploit_term.svg: $\left(f_{\min}-\mu(x)\right)\Phi(Z)$
+- explore_term.png / explore_term.svg: $\sigma(x)\phi(Z)$
+- x_next_ei.png / x_next_ei.svg: $x_{\mathrm{next}}=\arg\max_x EI(x)$
+- phi_phi.png / phi_phi.svg: $\Phi:\ \mathrm{CDF\ normal},\quad \phi:\ \mathrm{densidad\ normal}$
+- gp_ei_two_panel.png / gp_ei_two_panel.svg: GP posterior above and EI(x) acquisition curve below

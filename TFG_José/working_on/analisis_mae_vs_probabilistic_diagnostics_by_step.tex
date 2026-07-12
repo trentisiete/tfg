@@ -1,0 +1,9 @@
+% Fragmento propuesto para insertar despues de la Figura~\ref{fig:app_mae_vs_probabilistic_diagnostics}.
+
+\subsection*{Lectura del diagnóstico predictivo y probabilístico}
+
+La Figura~\ref{fig:app_mae_vs_probabilistic_diagnostics} relaciona la mejora en error puntual con la mejora del diagnóstico probabilístico durante el \emph{infill}. El eje horizontal muestra el MAE relativo y el eje vertical el NLPD relativo, ambos respecto al inicio. Por tanto, el cuadrante inferior izquierdo representa el caso deseable: menor error medio y mejor calidad probabilística que en el diseño inicial. El color añade una tercera lectura, el error de calibración de la cobertura al \(95\,\%\), donde tonos más oscuros indican intervalos mejor calibrados.
+
+Los cuatro benchmarks terminan en la zona de mejora simultánea, aunque con matices. Borehole muestra la mejora más clara en MAE y NLPD, con un punto final cercano a \(0.47\) en MAE relativo y \(0.05\) en NLPD relativo; sin embargo, mantiene subcobertura, por lo que la incertidumbre no queda plenamente calibrada. Forrester también mejora de forma marcada en NLPD y de manera moderada en MAE. Branin presenta una mejora más suave y una trayectoria menos directa. Hartmann6 ofrece el comportamiento más equilibrado: reduce el MAE y mantiene una calibración cercana al \(95\,\%\).
+
+La conclusión principal es que la mejora predictiva no debe evaluarse solo con MAE. Un modelo puede reducir el error medio y seguir proporcionando intervalos de incertidumbre mal calibrados. Por ello, esta figura complementa la evolución del MAE y justifica analizar conjuntamente precisión puntual, NLPD y cobertura predictiva.

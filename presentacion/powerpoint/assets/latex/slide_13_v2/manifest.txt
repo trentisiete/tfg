@@ -1,0 +1,8 @@
+Slide 13 v2 LaTeX assets
+
+- d_n.png / d_n.svg: $\mathcal{D}_n=\{(x_i,y_i)\}$
+- gp.png / gp.svg: $\mathrm{GP}$
+- conditioning.png / conditioning.svg: $Y(x)\mid \mathcal{D}_n$
+- ei_mu_sigma.png / ei_mu_sigma.svg: $EI\!\left(\mu(x),\sigma(x)\right)$
+- x_next_argmax_ei.png / x_next_argmax_ei.svg: $x_{\mathrm{next}}=\arg\max_x EI(x)$
+- update_pair.png / update_pair.svg: $(x_{\mathrm{next}},y_{\mathrm{next}})$

@@ -1,0 +1,8 @@
+Latex formula assets
+
+Color: #1F2933
+Renderer: matplotlib mathtext, STIX fontset
+
+- D_n_observaciones.png / D_n_observaciones.svg: $D_n = \{(x_i, y_i)\}$
+- y_next_fx_next.png / y_next_fx_next.svg: $y_{\mathrm{next}} = f(x_{\mathrm{next}})$
+- x_next_y_next.png / x_next_y_next.svg: $(x_{\mathrm{next}}, y_{\mathrm{next}})$

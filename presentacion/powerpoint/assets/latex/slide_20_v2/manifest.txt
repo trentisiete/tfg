@@ -1,0 +1,2 @@
+slide_20_v2 assets
+dummy_reduction_bar.png: bar chart generated from fig_01_lodo_model_comparison_data.csv using GP compuesto relative MAE.

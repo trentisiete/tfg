@@ -1,0 +1,6 @@
+Slide 16 v2 LaTeX asset manifest
+
+- delta_inc: $I_t=\frac{g_0-g_t}{g_0},\qquad g_t=f_{\mathrm{best},t}^{\mathrm{clean}}-f^\star$
+- delta_inc_final: $\Delta inc=\frac{(f_{\min,\mathrm{ini}}-f^\star)-(f_{\min,\mathrm{fin}}-f^\star)}{f_{\min,\mathrm{ini}}-f^\star}$
+- ritmo: $\mathrm{ratio}=\frac{\mathrm{mejora\ acumulada}}{\mathrm{mejora\ final}}$
+- fstar: $f^\star$

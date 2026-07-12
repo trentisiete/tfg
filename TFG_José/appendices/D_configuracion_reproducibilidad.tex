@@ -1,0 +1,227 @@
+\chapter{Configuración computacional y reproducibilidad}
+\label{app:configuracion_reproducibilidad}
+
+Este anexo documenta la configuración computacional empleada para generar los resultados del trabajo. Su objetivo no es introducir nueva metodología, sino dejar trazable cómo se conectan el protocolo experimental, el código y los ficheros de salida utilizados en la memoria. A diferencia de los anexos A--C, centrados en resultados y figuras complementarias, aquí solo se recoge la configuración necesaria para reproducirlos.
+
+\section{Configuración del experimento de benchmarks}
+\label{app:configuracion_computacional_benchmarks}
+
+El experimento de benchmarks reproduce un escenario de optimización con evaluaciones limitadas. Para cada función se genera un diseño inicial, se ajusta un GP y se añaden nuevas observaciones mediante EI. La configuración relevante procede de \texttt{src/configs/benchmark\_tuning\_specs.py} y de la lógica de aprendizaje activo implementada en \texttt{src/analysis/active\_learning.py}. El Cuadro~\ref{tab:app_benchmark_runtime_config} resume los valores utilizados.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption[Configuración computacional de benchmarks]{Configuración computacional del experimento de benchmarks.}
+\label{tab:app_benchmark_runtime_config}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{4.3cm}X@{}}
+\toprule
+\textbf{Elemento} & \textbf{Configuración} \\
+\midrule
+Benchmarks retenidos en la memoria &
+Forrester, Branin, Hartmann6 y Borehole. \\
+
+Muestreo inicial &
+Sobol y muestreo aleatorio uniforme. \\
+
+Tamaños iniciales &
+\(n_{\mathrm{train}}\in\{1,d,4d\}\), donde \(d\) es la dimensión del benchmark. \\
+
+Conjunto de test &
+200 puntos generados dentro del dominio de cada benchmark. \\
+
+Ruido sintético &
+Sin ruido, ruido gaussiano con \(\sigma=0.5\) y ruido gaussiano con \(\sigma=1.0\). \\
+
+Familias de modelo &
+Dummy, GP lineal, GP RBF, GP Matérn \(3/2\), GP Matérn \(5/2\); para dimensión mayor que uno se incluyen variantes ARD en RBF y Matérn \(5/2\). \\
+
+Presupuesto de \emph{infill} &
+\(5d\) nuevas evaluaciones, con un máximo de 50 observaciones totales durante la trayectoria. \\
+
+Función de adquisición &
+Expected Improvement con parámetro de exploración \(\xi=0.01\). \\
+
+Optimización de EI &
+Differential Evolution sobre el dominio continuo del benchmark, con refinamiento local posterior. En la implementación se minimiza \(-EI(\bm{x})\), lo que equivale a maximizar \(EI(\bm{x})\). \\
+
+Presupuesto del optimizador de EI &
+\(\max(2000,500d)\) evaluaciones candidatas equivalentes para dimensionar la búsqueda de la adquisición. \\
+
+Semilla base &
+42. En cada paso de \emph{infill}, la semilla de EI se desplaza como \(42 + 1009\cdot \mathrm{step}\). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\FloatBarrier
+
+Los niveles de ruido usados son absolutos y por tanto no representan la misma severidad relativa en todos los benchmarks. Por ello, el análisis del ruido debe entenderse como una prueba de robustez del pipeline bajo perturbaciones fijas, no como una comparación normalizada del efecto del ruido entre funciones.
+
+Los hiperparámetros internos del GP, como longitudes características, amplitud de señal y nivel de ruido blanco, se reestiman durante el ajuste del \texttt{GaussianProcessRegressor} mediante maximización de la log-verosimilitud marginal. Por tanto, en los benchmarks no debe interpretarse cada familia de kernel como un conjunto fijo de parámetros numéricos, sino como una hipótesis estructural de covarianza que se ajusta a los datos disponibles en cada iteración.
+
+La implementación contiene además rejillas específicas por benchmark en 
+\texttt{benchmark\_grids.py}. Estas rejillas sirven como soporte para auditorías o modos de ajuste, pero la lectura principal de la memoria se centra en la comparación agregada de familias GP, el efecto del diseño inicial, el ruido, el método de muestreo y la evolución del \emph{incumbent} durante el proceso de \emph{infill}.
+
+\section{Configuración del caso real}
+\label{app:configuracion_computacional_caso_real}
+
+El caso real se ejecuta a partir del dataset \texttt{productivity\_hermetia\_lote.csv}. Para cada objetivo se construye una matriz de entrada, un vector de respuesta y un vector de grupos por dieta. El grupo de validación no es la réplica, sino la dieta completa, de forma que las tres réplicas de una formulación permanecen juntas en entrenamiento o en test.
+
+Se evalúan tres objetivos activos: FCR, quitina y proteína. FCR se interpreta como una variable a minimizar, mientras que quitina y proteína se interpretan como variables a maximizar en la fase prospectiva. La disponibilidad final es de 31 observaciones para FCR y 33 observaciones para quitina y proteína.
+
+\subsection{Representaciones de entrada}
+\label{app:feature_modes_real_case}
+
+Se comparan dos representaciones de entrada. Ambas incluyen variables numéricas de formulación y composición de la dieta, junto con indicadores binarios del tipo de subproducto. El nombre de la dieta se utiliza para definir los grupos LODO, pero no se utiliza como variable predictora directa.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption[Representaciones de entrada del caso real]{Representaciones de entrada utilizadas en el caso real.}
+\label{tab:app_real_feature_modes}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{3.2cm}p{2.2cm}X@{}}
+\toprule
+\textbf{Modo} & \textbf{Dimensión} & \textbf{Variables incluidas} \\
+\midrule
+Reducido &
+9 variables &
+Cinco variables numéricas: porcentaje de inclusión, proteína media de la dieta, fibra media, grasa media y TPC medio de la dieta. A ellas se añaden cuatro indicadores binarios de subproducto: control, hoja, orujo y quinoa. \\
+
+Completo &
+14 variables &
+Las variables del modo reducido, más cenizas medias, carbohidratos medios y tres ratios derivados: proteína/carbohidratos, proteína/fibra y fibra/grasa. También incluye los cuatro indicadores de subproducto. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\FloatBarrier
+
+Las variables de entrada seleccionadas no presentan valores ausentes en el dataset final utilizado. La imputación por mediana existe en el flujo de preparación como mecanismo de seguridad, pero no modifica la representación de entrada en los resultados principales. El escalado de variables se realiza dentro del \texttt{Pipeline} del modelo GP, por lo que los parámetros de estandarización se ajustan únicamente con el entrenamiento de cada fold.
+
+\subsection{Modelos y rejillas del caso real}
+\label{app:modelos_grids_caso_real}
+
+El ajuste del caso real utiliza validación LODO anidada. En cada fold externo se retiene una dieta completa como test. Sobre las dietas restantes se ejecuta una validación LODO interna para seleccionar hiperparámetros. Después, el modelo se reentrena con todas las dietas del entrenamiento externo y se evalúa sobre la dieta retenida. La métrica de selección interna es MAE.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption[Familias de modelos del caso real]{Familias de modelos evaluadas en el caso real.}
+\label{tab:app_real_models}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{3.8cm}X@{}}
+\toprule
+\textbf{Modelo} & \textbf{Descripción} \\
+\midrule
+Dummy &
+Línea base constante. La rejilla permite seleccionar entre media y mediana del conjunto de entrenamiento interno. \\
+
+GP lineal &
+Kernel \texttt{DotProduct} más ruido blanco. Representa una tendencia global lineal. \\
+
+GP RBF &
+Kernel RBF más ruido blanco. Se evalúa en versión isotrópica y, cuando procede, con ARD. \\
+
+GP Matérn \(3/2\) &
+Kernel Matérn con \(\nu=3/2\) más ruido blanco. Se evalúa en versión isotrópica y, cuando procede, con ARD. \\
+
+GP Matérn \(5/2\) &
+Kernel Matérn con \(\nu=5/2\) más ruido blanco. Se evalúa en versión isotrópica y, cuando procede, con ARD. \\
+
+GP compuesto &
+Suma de componente lineal, componente Matérn \(5/2\) y ruido blanco. En el protocolo final se evalúa sin ARD para evitar una exploración excesiva de variantes en un dataset pequeño. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\FloatBarrier
+
+La rejilla común de los GP se resume en el Cuadro~\ref{tab:app_real_gp_grid}. Cada familia de kernel se evalúa con la estructura indicada en el Cuadro~\ref{tab:app_real_models}. Dentro de cada fold, \texttt{GaussianProcessRegressor} optimiza los parámetros continuos del kernel mediante la log-verosimilitud marginal.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption[Rejilla de hiperparámetros del caso real]{Rejilla de hiperparámetros usada en el caso real.}
+\label{tab:app_real_gp_grid}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{4.2cm}X@{}}
+\toprule
+\textbf{Parámetro} & \textbf{Valores considerados} \\
+\midrule
+\texttt{alpha} &
+\(\{10^{-10},10^{-5},10^{-2},1.0\}\). Este término se añade a la diagonal de la matriz kernel durante el ajuste y ayuda a controlar estabilidad numérica y regularización efectiva. \\
+
+\texttt{kernel} &
+Una estructura de kernel por familia de modelo: lineal, RBF, Matérn \(3/2\), Matérn \(5/2\) o compuesto. \\
+
+\texttt{normalize\_y} &
+\texttt{True}. La variable objetivo se normaliza internamente durante el ajuste del GP. \\
+
+\texttt{n\_restarts\_optimizer} &
+15 reinicios del optimizador de la log-verosimilitud marginal. \\
+
+Ruido blanco &
+\texttt{WhiteKernel} con nivel inicial \(10^{-4}\) y cotas \([10^{-7},0.8]\). \\
+
+Longitudes características &
+En kernels isotrópicos se usa una escala inicial común. En ARD se usa un vector inicial de unos, con una escala por variable de entrada. Las cotas son \([10^{-2},10^{5}]\). \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\FloatBarrier
+
+Para limitar el número de modelos en un conjunto de datos pequeño, ARD no se aplica a todas las familias de forma indiscriminada. Primero se comparan las familias base y después se evalúa una variante ARD seleccionada por combinación de objetivo y representación de entrada. El Cuadro~\ref{tab:app_real_selected_ard} resume esas variantes.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption[Variantes ARD evaluadas en el caso real]{Variantes ARD evaluadas por combinación de objetivo y representación.}
+\label{tab:app_real_selected_ard}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lll}
+\toprule
+\textbf{Representación} & \textbf{Objetivo} & \textbf{Variante ARD evaluada} \\
+\midrule
+Reducida & FCR & GP RBF ARD \\
+Reducida & Quitina & GP RBF ARD \\
+Reducida & Proteína & GP Matérn \(3/2\) ARD \\
+Completa & FCR & GP Matérn \(5/2\) ARD \\
+Completa & Quitina & GP Matérn \(5/2\) ARD \\
+Completa & Proteína & GP Matérn \(3/2\) ARD \\
+\bottomrule
+\end{tabular}
+\end{table}
+\FloatBarrier
+
+\section{Prevención de fuga de información}
+\label{app:prevencion_fuga}
+
+La prevención de fuga de información es especialmente relevante en el caso real, porque las observaciones son réplicas de dietas y no muestras independientes sin estructura. El protocolo evita la fuga mediante cuatro decisiones:
+
+\begin{enumerate}
+    \item \textbf{Agrupación por dieta.} Todas las réplicas de una misma formulación comparten el mismo grupo. En cada fold externo se deja fuera una dieta completa.
+    \item \textbf{Selección anidada.} La dieta retenida en el fold externo no participa en la selección de hiperparámetros. La selección se realiza con LODO interno sobre las dietas de entrenamiento.
+    \item \textbf{Escalado dentro del modelo.} La estandarización de \(X\) se ajusta dentro del \texttt{Pipeline} usando únicamente los datos de entrenamiento del fold correspondiente.
+    \item \textbf{Uso estructural del tipo de subproducto.} El modelo recibe indicadores de subproducto y variables de composición, pero no usa el nombre de la dieta como identificador predictivo directo. El nombre de dieta se reserva para construir los grupos LODO.
+\end{enumerate}
+
+La codificación binaria del tipo de subproducto se construye a partir de una variable experimental conocida de antemano. Esta codificación no utiliza la respuesta del fold retenido. En consecuencia, el riesgo principal de fuga que se evita no es conocer qué subproductos existen, sino permitir que réplicas de una dieta aparezcan simultáneamente en entrenamiento y test.
+
+\section{Reproducción de resultados del caso real}
+\label{app:reproduccion_caso_real}
+
+El caso real puede reproducirse con el script \texttt{reproduce\_tfg\_outputs.py}. Por defecto, este script reutiliza los registros de ajuste ya calculados, ejecuta la auditoría, regenera las figuras finales y copia los recursos gráficos necesarios a la carpeta de recursos del TFG. Si se desea recalcular completamente el ajuste LODO, puede ejecutarse con la opción \texttt{--rerun-tuning}.
+
+\begin{lstlisting}
+python reproduce_tfg_outputs.py
+python reproduce_tfg_outputs.py --rerun-tuning
+\end{lstlisting}
+
+El script comprueba que existan los resultados esperados para las dos representaciones de entrada y los tres objetivos activos. En la ejecución registrada, el manifiesto de reproducibilidad recoge 6 resúmenes de ajuste y 42 ficheros de folds, correspondientes a las combinaciones de representación, objetivo y modelos activos. El fichero de manifiesto se guarda en:
+
+\begin{lstlisting}
+outputs/reproducibility_real_case_manifest.json
+\end{lstlisting}
+
+La reproducibilidad documentada en este anexo tiene dos niveles. En primer lugar, el caso real puede regenerarse desde los registros de ajuste existentes, lo que permite reconstruir las tablas, auditorías, figuras y recursos gráficos usados por la memoria. En segundo lugar, si se ejecuta el ajuste completo, se recalculan los modelos LODO anidados desde el dataset de \textit{Hermetia}. Esta segunda opción es computacionalmente más costosa porque repite la selección interna de hiperparámetros para cada fold externo, objetivo, representación y familia de modelo.
+
+En los benchmarks, los resultados dependen de las semillas, del método de muestreo, del tamaño inicial, del ruido y del presupuesto de \emph{infill}. Por ello, la memoria no interpreta trayectorias individuales como conclusiones definitivas, sino patrones agregados sobre las configuraciones evaluadas. Esta distinción es importante: el objetivo del experimento benchmark es estudiar el comportamiento del ciclo GP + EI bajo condiciones controladas, mientras que el objetivo del caso real es comprobar si el mismo marco puede aportar señal útil antes de plantear una nueva campaña experimental.

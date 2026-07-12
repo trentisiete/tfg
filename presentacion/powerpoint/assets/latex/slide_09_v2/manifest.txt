@@ -1,0 +1,14 @@
+Slide 09 v2 formula and comparison assets
+
+Renderer: matplotlib mathtext with STIX fontset
+Text color: #1F2933
+
+- k_linear.png / k_linear.svg: $k_{\mathrm{lin}}(x,x')=\sigma_0^2+x^\top x'$
+- k_linear_label.png / k_linear_label.svg: $k_{\mathrm{lin}}$
+- k_rbf_label.png / k_rbf_label.svg: $k_{\mathrm{RBF}}$
+- matern_nu.png / matern_nu.svg: $\nu=3/2,\;5/2$
+- k_white.png / k_white.svg: $k_{\mathrm{white}}(x,x')=\sigma_n^2\mathbf{1}_{x=x'}$
+- k_white_label.png / k_white_label.svg: $k_{\mathrm{white}}$
+- ard_lengths.png / ard_lengths.svg: $\ell\rightarrow(\ell_1,\ldots,\ell_d)$
+- k_xx.png / k_xx.svg: $k(x,x')$
+- rbf_matern_comparison.png / rbf_matern_comparison.svg: GP posterior comparison on the same nonlinear function and observations

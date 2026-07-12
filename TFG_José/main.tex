@@ -8,29 +8,62 @@
 \begin{document}
 
 % -------------------------
-% PORTADA ¿Hay que cambiar?
+% PORTADA
 % -------------------------
 \begin{titlepage}
     \centering
-    {\Large Universidad Autónoma de Madrid \par}
-    {\Large Escuela Politécnica Superior \par}
-    \vspace{1.5cm}
-    {\LARGE \textbf{\TFGTitle} \par}
-    \vspace{0.5cm}
-    {\large \TFGSubtitle \par}
-    \vspace{1.5cm}
-    {\large \textbf{Trabajo Fin de Grado} \par}
-    \vspace{1.5cm}
-    \begin{flushleft}
-        \textbf{Autor:} \TFGAuthor \\
-        \textbf{Tutor:} \TFGTutor \\
-        \textbf{Grado:} \TFGDegree \\
-        \textbf{Fecha:} \TFGDate
-    \end{flushleft}
+    \thispagestyle{empty}
+
+    \vspace*{1.2cm}
+
+    {\Large\scshape \textbf{Universidad Autónoma de Madrid}\par}
+    \vspace{0.15cm}
+    {\large\scshape Escuela Politécnica Superior\par}
+
+    \vspace{2.0cm}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[height=2.4cm]{assets/logo_eps}
+        \hspace{1.1cm}
+        \includegraphics[height=2.1cm]{assets/logo_uam}
+    \end{figure}
+
+    \vspace{2.0cm}
+
+    {\large \TFGDegree\par}
+
+    \vspace{1.0cm}
+
+    {\large\scshape Trabajo Fin de Grado\par}
+
+    \vspace{0.8cm}
+
+    {\LARGE
+    Modelos sustitutos para la búsqueda de entradas\\[0.15cm]
+    óptimas
+    \par}
+
     \vfill
+
+    \begin{center}
+        {\Large Autor: \TFGAuthor\par}
+        \vspace{0.35cm}
+        {\Large Tutor: \TFGTutor\par}
+    \end{center}
+
+    \vspace{1.6cm}
+
+    {\small Madrid, \TFGDate\par}
+
 \end{titlepage}
 \cleardoublepage
 
+% Página de derechos
+\input{frontmatter/copyright}
+% Numeración romana para preliminares
+\pagenumbering{roman}
+\setcounter{page}{1}
 % -------------------------
 % PRELIMINARES
 % -------------------------
@@ -42,15 +75,11 @@
 \input{frontmatter/agradecimientos}
 \cleardoublepage
 
-% Numeración romana para preliminares
-\pagenumbering{roman}
-\setcounter{page}{1}
-
-% Resumen (1 página) + palabras clave al final
+% Resumen
 \input{frontmatter/resumen}
 \cleardoublepage
 
-% Abstract (página separada) + keywords al final
+% Abstract
 \input{frontmatter/abstract}
 \cleardoublepage
 
@@ -58,12 +87,7 @@
 \input{frontmatter/simbolos}
 \cleardoublepage
 
-% Acrónimos 
-\input{frontmatter/acronimos}
-\cleardoublepage
-
-% -------------------------
-% ÍNDICES
+% Índices
 \tableofcontents
 \cleardoublepage
 
@@ -87,7 +111,7 @@
 \pagenumbering{arabic}
 
 \include{chapters/01_introduccion}
-\include{chapters/02_estado_arte}
+\include{chapters/02_marco_teorico}
 \include{chapters/03_metodologia}
 \include{chapters/04_conclusiones_trabajo_futuro}
 
@@ -104,5 +128,9 @@
 \include{appendices/A_benchmarks_complementario}
 \include{appendices/B_tablas_extra}
 \include{appendices/C_figuras_extra}
+\include{appendices/D_configuracion_reproducibilidad}
 
+% Acrónimos
+\input{frontmatter/acronimos}
+\cleardoublepage
 \end{document}

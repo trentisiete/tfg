@@ -1,0 +1,16 @@
+Slide 10 v2 formula and visual assets
+
+Renderer: matplotlib mathtext with STIX fontset
+Text color: #1F2933
+
+- x_star.png / x_star.svg: $x_\ast$
+- f_star.png / f_star.svg: $f_\ast=f(x_\ast)$
+- Y_random.png / Y_random.svg: $Y$
+- y_observed.png / y_observed.svg: $Y=y$
+- posterior_dist.png / posterior_dist.svg: $f_\ast\,|\,X,y,x_\ast\sim\mathcal{N}(\mu_\ast,\,\sigma_\ast^2)$
+- mu_formula.png / mu_formula.svg: $\mu_\ast=m_\ast+k_\ast^\top\left(K_{XX}+\sigma_n^2 I\right)^{-1}\left(y-m_X\right)$
+- sigma_formula.png / sigma_formula.svg: $\sigma_\ast^2=k_{\ast\ast}-k_\ast^\top\left(K_{XX}+\sigma_n^2 I\right)^{-1}k_\ast$
+- mu_sigma.png / mu_sigma.svg: $\mu(x),\;\sigma(x)$
+- k_star.png / k_star.svg: $k_\ast$
+- joint_gaussian.png / joint_gaussian.svg: custom-rendered joint Gaussian block
+- gp_posterior_visual.png / gp_posterior_visual.svg: posterior GP mean and uncertainty after conditioning

@@ -1,0 +1,16 @@
+Slide 07 v2 formula and visual assets
+
+Renderer: matplotlib mathtext with STIX fontset
+Text color: #1F2933
+
+- gp_def.png / gp_def.svg: $f(\cdot)\sim\mathcal{GP}\left(m(\cdot),\,k(\cdot,\cdot)\right)$
+- mean_def.png / mean_def.svg: $m(x)=\mathbb{E}[f(x)]$
+- kernel_def.png / kernel_def.svg: $k(x,x')=\mathrm{Cov}\!\left(f(x),f(x')\right)$
+- finite_gaussian.png / finite_gaussian.svg: $\mathbf{f}_X\sim\mathcal{N}(\mathbf{m}_X,K_X)$
+- kernel_matrix.png / kernel_matrix.svg: $(K_X)_{ij}=k(x_i,x_j)$
+- sample_gp.png / sample_gp.svg: $f\sim\mathcal{GP}(m,k)$
+- m_x.png / m_x.svg: $m(x)$
+- k_x_xprime.png / k_x_xprime.svg: $k(x,x')$
+- finite_vector.png / finite_vector.svg: column vector for finite GP definition
+- finite_vector_gaussian.png / finite_vector_gaussian.svg: f_X column vector distributed as N(m_X,K_X)
+- gp_prior_visual.png / gp_prior_visual.svg: prior GP samples, mean and covariance-induced band

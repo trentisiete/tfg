@@ -1,0 +1,11 @@
+slide_19_v2 LaTeX assets
+dataset_11x3.png: $11\ \mathrm{dietas}\times 3\ \mathrm{r\acute{e}plicas}$
+fold_test.png: $D_k \rightarrow \mathrm{test}$
+fold_train.png: $\{D_j:j\neq k\}\rightarrow \mathrm{train}$
+outer_test.png: $D_k\rightarrow \mathrm{test\ externo}$
+outer_train.png: $\mathcal{G}\setminus\{D_k\}\rightarrow \mathrm{train\ externo}$
+inner_valid.png: $D_\ell\rightarrow \mathrm{validaci\acute{o}n\ interna}$
+inner_train.png: $\{D_j:j\neq k,\ j\neq \ell\}\rightarrow \mathrm{train\ interno}$
+theta_star.png: $\theta^\star$
+random_split_risk.png: $\mathrm{split\ aleatorio}\Rightarrow \mathrm{riesgo\ de\ fuga}$
+lodo_generalization.png: $\mathrm{LODO}\Rightarrow \mathrm{generalizaci\acute{o}n\ por\ dieta}$

@@ -1,0 +1,30 @@
+{"kind":"deck","id":"pr/uu4xgd","name":"Deck"}
+{"kind":"layout","layoutId":"c6bf50f2-8f12-4601-83fa-eaebe77dc321","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"079dae0a-7aad-422e-8e66-35727670acff","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/uxq2yx","slide":1,"title":"ANEXO A.6 / BENCHMARKS SINTÉTICOS","textShapes":18}
+{"kind":"textbox","id":"sh/z61032ls","slide":1,"name":"section-label","text":"ANEXO A.6 / BENCHMARKS SINTÉTICOS","textPreview":"ANEXO A.6 / BENCHMARKS SINTÉTICOS","textChars":33,"textLines":1,"bbox":[72,46,410,22]}
+{"kind":"textbox","id":"sh/orytsvu9","slide":1,"name":"title","text":"Diagnóstico predictivo y probabilístico","textPreview":"Diagnóstico predictivo y probabilístico","textChars":39,"textLines":1,"bbox":[72,76,890,44]}
+{"kind":"textbox","id":"sh/hcrmhk3q","slide":1,"name":"subtitle","text":"El infill no solo se evalúa por el MAE: también importa si mejora la distribución predictiva y la calibración de la incertidumbre.","textPreview":"El infill no solo se evalúa por el MAE: también importa si mejora la distribución predictiva y la calibración de la incertidumbre.","textChars":130,"textLines":1,"bbox":[72,128,1048,34]}
+{"kind":"textbox","id":"sh/zupwb2hw","slide":1,"name":"simultaneous-improvement-label","text":"Mejora simultánea","textPreview":"Mejora simultánea","textChars":17,"textLines":1,"bbox":[118,325,154,20]}
+{"kind":"shape","id":"sh/sfil0rqd","slide":1,"name":"simultaneous-rule","bbox":[128,347,132,0]}
+{"kind":"shape","id":"sh/h0fepkzu","slide":1,"name":"separator","bbox":[858,188,0,430]}
+{"kind":"textbox","id":"sh/65wjudg7","slide":1,"name":"how-title","text":"Cómo leer la figura","textPreview":"Cómo leer la figura","textChars":19,"textLines":1,"bbox":[884,190,221.68,24]}
+{"kind":"textbox","id":"sh/zqtcj6to","slide":1,"name":"how-note","text":"diagnóstico","textPreview":"diagnóstico","textChars":11,"textLines":1,"bbox":[1033.96,194,176.04,17]}
+{"kind":"shape","id":"sh/zupwb2hw","slide":1,"name":"how-rule","bbox":[884,219,326,0]}
+{"kind":"textbox","id":"sh/a9w3m94f","slide":1,"name":"read-x-label","text":"Izquierda","textPreview":"Izquierda","textChars":9,"textLines":1,"bbox":[884,240,88,17]}
+{"kind":"textbox","id":"sh/h0fepkzu","slide":1,"name":"read-x-body","text":"menor error medio.","textPreview":"menor error medio.","textChars":18,"textLines":1,"bbox":[980,240,230,22]}
+{"kind":"textbox","id":"sh/sfil0rqd","slide":1,"name":"read-y-label","text":"Abajo","textPreview":"Abajo","textChars":5,"textLines":1,"bbox":[884,274,88,17]}
+{"kind":"textbox","id":"sh/z61032ls","slide":1,"name":"read-y-body","text":"mejor diagnóstico probabilístico.","textPreview":"mejor diagnóstico probabilístico.","textChars":33,"textLines":1,"bbox":[980,274,230,22]}
+{"kind":"textbox","id":"sh/al87ed8b","slide":1,"name":"read-color-label","text":"Color bajo","textPreview":"Color bajo","textChars":10,"textLines":1,"bbox":[884,308,88,17]}
+{"kind":"textbox","id":"sh/hcrmhk3q","slide":1,"name":"read-color-body","text":"cobertura más cercana al 95 %.","textPreview":"cobertura más cercana al 95 %.","textChars":30,"textLines":1,"bbox":[980,308,230,22]}
+{"kind":"textbox","id":"sh/zed8v6ps","slide":1,"name":"read-quadrant","text":"Cuadrante inferior izquierdo: mejora simultánea frente al diseño inicial.","textPreview":"Cuadrante inferior izquierdo: mejora simultánea frente al diseño inicial.","textChars":73,"textLines":1,"bbox":[884,370,314,34]}
+{"kind":"textbox","id":"sh/6xkf6dcb","slide":1,"name":"reading-title","text":"Lectura","textPreview":"Lectura","textChars":7,"textLines":1,"bbox":[884,432,221.68,24]}
+{"kind":"textbox","id":"sh/e1w7mp0b","slide":1,"name":"reading-note","text":"resultado","textPreview":"resultado","textChars":9,"textLines":1,"bbox":[1033.96,436,176.04,17]}
+{"kind":"shape","id":"sh/7mp0bi9s","slide":1,"name":"reading-rule","bbox":[884,461,326,0]}
+{"kind":"textbox","id":"sh/w7mp0bi9","slide":1,"name":"reading-body","text":"Los cuatro benchmarks acaban en zona de mejora simultánea.\nBorehole: mayor mejora en MAE y NLPD, pero con subcobertura.\nForrester: mejora marcada en NLPD.\nHartmann6: comportamiento más equilibrado.\nBranin: mejora más suave y trayectoria menos directa.","textPreview":"Los cuatro benchmarks acaban en zona de mejora simultánea. | Borehole: mayor mejora en MAE y NLPD, pero con subcobertura. | Forrester: me...","textChars":251,"textLines":5,"bbox":[884,476,326,112]}
+{"kind":"shape","id":"sh/psfil0rq","slide":1,"name":"closing-rule","bbox":[884,612,326,0]}
+{"kind":"textbox","id":"sh/epkzupwb","slide":1,"name":"closing","text":"Reducir MAE no garantiza incertidumbre bien calibrada: precisión, NLPD y cobertura deben analizarse conjuntamente.","textPreview":"Reducir MAE no garantiza incertidumbre bien calibrada: precisión, NLPD y cobertura deben analizarse conjuntamente.","textChars":114,"textLines":1,"bbox":[884,635,326,42]}
+{"kind":"textbox","id":"sh/7adsji5s","slide":1,"name":"slide-number","text":"A.6","textPreview":"A.6","textChars":3,"textLines":1,"bbox":[1200,650,42,24]}
+{"kind":"image","id":"im/bm58z25k","slide":1,"name":"","alt":"Figura A.4: diagnóstico predictivo y probabilístico durante el infill","bbox":[48,174,790,540]}
+{"kind":"image","id":"im/vy90je9c","slide":1,"name":"","alt":"Error de calibración de cobertura al 95%","bbox":[968,337,150,25]}
+{"kind":"notes","id":"nt/uxq2yx","slide":1,"text":""}

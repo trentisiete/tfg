@@ -1,0 +1,13 @@
+Slide 05 v2 formula and visual assets
+
+Renderer: matplotlib mathtext with STIX fontset
+Text color: #1F2933
+
+- model_fx.png / model_fx.svg: $f(x)=x^\top w$
+- prior_w.png / prior_w.svg: $w\sim\mathcal{N}(0,\Sigma_p)$
+- finite_values.png / finite_values.svg: $\mathbf{f}=(f(x_1),\ldots,f(x_n))^\top=Xw$
+- f_gaussian.png / f_gaussian.svg: $\mathbf{f}\sim\mathcal{N}(0,\;X\Sigma_pX^\top)$
+- noise_y.png / noise_y.svg: $y=\mathbf{f}+\varepsilon,\quad \varepsilon\sim\mathcal{N}(0,\sigma_n^2I)$
+- y_gaussian.png / y_gaussian.svg: $y\sim\mathcal{N}(0,\;X\Sigma_pX^\top+\sigma_n^2I)$
+- pw_to_pf.png / pw_to_pf.svg: $p(w)\Longrightarrow p(f)$
+- weight_samples_functions.png / weight_samples_functions.svg: new figure generated from Gaussian weight samples

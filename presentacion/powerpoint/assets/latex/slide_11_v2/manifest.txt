@@ -1,0 +1,16 @@
+Slide 11 v2 formula and visual assets
+
+Renderer: matplotlib mathtext with STIX fontset
+Figure: synthetic 1D minimization example with exact GP posterior under RBF kernel
+Text color: #1F2933
+
+- mu_symbol.png / mu_symbol.svg: $\mu(x)$
+- sigma_symbol.png / sigma_symbol.svg: $\sigma(x)$
+- mu_interpretation.png / mu_interpretation.svg: $\mu(x):\ \mathrm{valor\ esperado\ o\ promesa}$
+- sigma_interpretation.png / sigma_interpretation.svg: $\sigma(x):\ \mathrm{incertidumbre\ predictiva}$
+- exploit_argmin.png / exploit_argmin.svg: $x_{\mathrm{next}}\approx\arg\min_x \mu(x)$
+- explore_argmax.png / explore_argmax.svg: $x_{\mathrm{next}}\approx\arg\max_x \sigma(x)$
+- acq_preview.png / acq_preview.svg: $a(x)=g\!\left(\mu(x),\,\sigma(x)\right)$
+- ei_bridge.png / ei_bridge.svg: $\mu(x),\ \sigma(x)\Rightarrow \mathbb{E}\!\left[\mathrm{mejora}\mid \mathcal{D}_n\right]$
+- mu_pm_2sigma.png / mu_pm_2sigma.svg: $\mu(x)\pm 2\sigma(x)$
+- exploration_exploitation_gp.png / exploration_exploitation_gp.svg: GP posterior, observations, uncertainty band, exploitation and exploration candidates
