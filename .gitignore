@@ -27,3 +27,4 @@ media/
 *.glo
 *.gls
 *.ist
+.agents/
